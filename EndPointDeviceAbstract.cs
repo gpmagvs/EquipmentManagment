@@ -23,6 +23,17 @@ namespace EquipmentManagment
 
         public clsEndPointOptions EndPointOptions { get; set; } = new clsEndPointOptions();
 
+        /// <summary>
+        /// 下游設備
+        /// </summary>
+        public List<EndPointDeviceAbstract> DownstremEQ
+        {
+            get
+            {
+                return StaEQPManagager.EQPDevices.FindAll(eq => EndPointOptions.ValidDownStreamEndPointNames.Contains(eq.EQName));
+            }
+        }
+
         public abstract PortStatusAbstract PortStatus { get; set; }
 
         public bool IsConnected { get; set; }
@@ -139,13 +150,6 @@ namespace EquipmentManagment
                 disposedValue = true;
             }
         }
-
-        // // TODO: 僅有當 'Dispose(bool disposing)' 具有會釋出非受控資源的程式碼時，才覆寫完成項
-        // ~EndPointDeviceAbstract()
-        // {
-        //     // 請勿變更此程式碼。請將清除程式碼放入 'Dispose(bool disposing)' 方法
-        //     Dispose(disposing: false);
-        // }
 
         public void Dispose()
         {
