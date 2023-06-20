@@ -1,0 +1,152 @@
+﻿using EquipmentManagment.Emu;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Threading.Tasks;
+using System.Xml.Linq;
+
+namespace EquipmentManagment
+{
+    public class StaEQPManagager
+    {
+        public static clsEQManagementConfigs Configs { get; set; }
+        public static List<EndPointDeviceAbstract> EQPDevices = new List<EndPointDeviceAbstract>();
+        public static Dictionary<string, clsEndPointOptions> EQOptions = new Dictionary<string, clsEndPointOptions>();
+        public static async Task InitializeAsync()
+        {
+            await InitializeAsync(Configs == null ? new clsEQManagementConfigs
+            {
+                EQConfigPath = "EQConfigs.json",
+                WIPConfigPath = "WIPConfigs.json"
+            } : Configs);
+        }
+
+        public static async Task InitializeAsync(clsEQManagementConfigs _Configs)
+        {
+            DisposeEQs();
+            Configs = _Configs;
+            _LoadEqConfigs(_Configs.EQConfigPath);
+            _LoadWipConfigs(_Configs.WIPConfigPath);
+
+            if (_Configs.UseEqEmu)
+            {
+                StaEQPEmulatorsManagager.InitEmu(EQOptions);
+            }
+            foreach (KeyValuePair<string, clsEndPointOptions> item in EQOptions)
+            {
+                var eqName = item.Key;
+                var options = item.Value;
+                var EQ = new clsEQ(options);
+                EQPDevices.Add(EQ);
+                EQ.Connect();
+            }
+        }
+
+        public static void DisposeEQs()
+        {
+            StaEQPEmulatorsManagager.DisposeEQEmus();
+            foreach (EndPointDeviceAbstract eq in EQPDevices)
+            {
+                eq.Dispose();
+            }
+            EQPDevices.Clear();
+        }
+
+        private static void _LoadEqConfigs(string eQConfigPath)
+        {
+            string json = _LoadConfigJson(eQConfigPath);
+            if (json != "")
+            {
+                EQOptions = JsonConvert.DeserializeObject<Dictionary<string, clsEndPointOptions>>(json);
+            }
+            else
+            {
+                EQOptions = new Dictionary<string, clsEndPointOptions>()
+                {
+                    {"EQ-1", new clsEndPointOptions
+                    {
+                         ConnOptions = new Connection.ConnectOptions(),
+                         Name = "EQ-1",
+                         TagID = 1
+                    } }
+                };
+                SaveEqConfigs();
+            }
+        }
+        private static void _LoadWipConfigs(string wIPConfigPath)
+        {
+            string json = _LoadConfigJson(wIPConfigPath);
+        }
+
+        private static string _LoadConfigJson(string configPath)
+        {
+            if (File.Exists(configPath))
+                return File.ReadAllText(configPath);
+            else
+            {
+                return "";
+            }
+        }
+        public static void SaveEqConfigs()
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(Configs.EQConfigPath));
+            File.WriteAllText(Configs.EQConfigPath, JsonConvert.SerializeObject(EQOptions, Formatting.Indented));
+        }
+
+
+
+        public static List<EQStatusDIDto> GetEQStates()
+        {
+            return EQPDevices.Select(eq => new EQStatusDIDto
+            {
+                IsConnected = eq.IsConnected,
+                EQName = eq.EQName,
+                Load_Reuest = (eq as clsEQ).Load_Request,
+                Unload_Request = (eq as clsEQ).Unload_Request,
+                Port_Exist = (eq as clsEQ).Port_Exist,
+                Up_Pose = (eq as clsEQ).Up_Pose,
+                Down_Pose = (eq as clsEQ).Down_Pose,
+                Eqp_Status_Down = (eq as clsEQ).Eqp_Status_Down,
+                Region = eq.EndPointOptions.Region,
+                Tag = eq.EndPointOptions.TagID
+            }).ToList();
+        }
+
+        public static EQStatusDIDto GetEQStatesByTagID(int tag)
+        {
+            var endpoint = EQPDevices.FirstOrDefault(eq => eq.EndPointOptions.TagID == tag);
+            if (endpoint != null)
+            {
+                var _EQ = (endpoint as clsEQ);
+                return new EQStatusDIDto()
+                {
+                    Load_Reuest = _EQ.Load_Request,
+                    Down_Pose = _EQ.Down_Pose,
+                    EQName = _EQ.EQName,
+                    Eqp_Status_Down = _EQ.Eqp_Status_Down,
+                    Port_Exist = _EQ.Port_Exist,
+                    Up_Pose = _EQ.Up_Pose,
+                    Unload_Request = _EQ.Unload_Request,
+                    IsConnected = _EQ.IsConnected,
+                    Region = _EQ.EndPointOptions.Region,
+                };
+            }
+            else
+                return null;
+        }
+
+        public static clsEQ GetEQByName(string eqName)
+        {
+            return EQPDevices.FirstOrDefault(eq => eq.EQName == eqName) as clsEQ;
+        }
+
+        public static clsEQ GetEQByTag(int eQTag)
+        {
+            return EQPDevices.FirstOrDefault(eq => eq.EndPointOptions.TagID == eQTag) as clsEQ;
+        }
+    }
+}
