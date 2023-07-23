@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using EquipmentManagment.Connection;
 using Modbus.Device;
@@ -107,14 +108,13 @@ namespace EquipmentManagment
 
         public void StartSyncData()
         {
-            Task.Factory.StartNew(async () =>
+            Task.Run(async () =>
             {
                 try
                 {
                     while (IsConnected)
                     {
-
-                        await Task.Delay(10);
+                        Thread.Sleep(100);
                         var inputs = master.ReadInputs(0, 8);
                         InputBuffer = inputs.ToList();
                         DefineInputData();
