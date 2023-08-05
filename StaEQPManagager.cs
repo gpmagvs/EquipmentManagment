@@ -1,4 +1,5 @@
-﻿using EquipmentManagment.Emu;
+﻿using EquipmentManagment.ChargeStation;
+using EquipmentManagment.Emu;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,16 @@ namespace EquipmentManagment
     {
         public static clsEQManagementConfigs Configs { get; set; }
         public static List<EndPointDeviceAbstract> EQPDevices = new List<EndPointDeviceAbstract>();
+        /// <summary>
+        /// 客戶端主設備
+        /// </summary>
+        public static List<clsEQ> EQList
+        {
+            get
+            {
+                return EQPDevices.FindAll(device => device.EndPointOptions.EqType == EQ_TYPE.EQ).Select(eq => eq as clsEQ).ToList();
+            }
+        }
         public static Dictionary<string, clsEndPointOptions> EQOptions = new Dictionary<string, clsEndPointOptions>();
         public static async Task InitializeAsync()
         {
@@ -40,7 +51,12 @@ namespace EquipmentManagment
             {
                 var eqName = item.Key;
                 var options = item.Value;
-                var EQ = new clsEQ(options);
+
+                EndPointDeviceAbstract EQ = null;
+                if (item.Value.EqType == EQ_TYPE.EQ)
+                    EQ = new clsEQ(options);
+                else if (item.Value.EqType == EQ_TYPE.CHARGE)
+                    EQ = new clsChargeStation(options);
                 EQPDevices.Add(EQ);
                 EQ.Connect();
             }
@@ -98,10 +114,13 @@ namespace EquipmentManagment
         }
 
 
-
+        public static Dictionary<string, clsChargerData> GetChargeStationStates()
+        {
+            return EQPDevices.FindAll(eq => eq.EndPointOptions.EqType == EQ_TYPE.CHARGE).ToDictionary(eq => eq.EQName, eq => (eq as clsChargeStation).Datas);
+        }
         public static List<EQStatusDIDto> GetEQStates()
         {
-            return EQPDevices.Select(eq => new EQStatusDIDto
+            return EQPDevices.FindAll(eq => eq.EndPointOptions.EqType == EQ_TYPE.EQ).Select(eq => new EQStatusDIDto
             {
                 IsConnected = eq.IsConnected,
                 EQName = eq.EQName,

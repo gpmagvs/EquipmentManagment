@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -20,6 +21,7 @@ namespace EquipmentManagment
         }
         public string EQName => EndPointOptions.Name;
 
+        public TcpClient tcp_client { get; private set; }
         protected ModbusIpMaster master;
 
         public clsEndPointOptions EndPointOptions { get; set; } = new clsEndPointOptions();
@@ -34,12 +36,14 @@ namespace EquipmentManagment
                 return StaEQPManagager.EQPDevices.FindAll(eq => EndPointOptions.ValidDownStreamEndPointNames.Contains(eq.EQName));
             }
         }
-
+        private CONN_METHODS _ConnectionMethod => EndPointOptions.ConnOptions.ConnMethod;
         public abstract PortStatusAbstract PortStatus { get; set; }
 
         public bool IsConnected { get; set; }
 
         public List<bool> InputBuffer = new List<bool>();
+        public List<byte> TcpDataBuffer { get; protected set; } = new List<byte>();
+
         private bool disposedValue;
 
         /// <summary>
@@ -53,10 +57,14 @@ namespace EquipmentManagment
             await Task.Delay(1);
 
             bool connected = false;
-            if (EndPointOptions.ConnOptions.ConnMethod == CONN_METHODS.MODBUS_TCP)
-                connected = await _Connect(EndPointOptions.ConnOptions.IP, EndPointOptions.ConnOptions.Port);
-            else
-                connected = await _Connect(EndPointOptions.ConnOptions.ComPort);
+            if (_ConnectionMethod == CONN_METHODS.MODBUS_TCP)
+                connected = await ModbusTcpConnect(EndPointOptions.ConnOptions.IP, EndPointOptions.ConnOptions.Port);
+            else if (_ConnectionMethod == CONN_METHODS.TCPIP)
+            {
+                connected = await TCPIPConnect(EndPointOptions.ConnOptions.IP, EndPointOptions.ConnOptions.Port);
+            }
+            else if (_ConnectionMethod == CONN_METHODS.MODBUS_RTU)
+                connected = await SerialPortConnect(EndPointOptions.ConnOptions.ComPort);
             if (connected)
             {
                 IsConnected = true;
@@ -78,12 +86,18 @@ namespace EquipmentManagment
             await Connect();
         }
 
-        private async Task<bool> _Connect(string IP, int Port)
+        /// <summary>
+        /// 建立TCP連線
+        /// </summary>
+        /// <param name="IP"></param>
+        /// <param name="Port"></param>
+        /// <returns></returns>
+        protected virtual async Task<bool> ModbusTcpConnect(string IP, int Port)
         {
             try
             {
-                var client = new TcpClient(IP, Port);
-                master = ModbusIpMaster.CreateIp(client);
+                tcp_client = new TcpClient(IP, Port);
+                master = ModbusIpMaster.CreateIp(tcp_client);
                 master.Transport.ReadTimeout = 5000;
                 master.Transport.WriteTimeout = 5000;
                 master.Transport.Retries = 10;
@@ -95,13 +109,25 @@ namespace EquipmentManagment
                 return false;
             }
         }
-
+        private async Task<bool> TCPIPConnect(string IP, int Port)
+        {
+            try
+            {
+                tcp_client = new TcpClient();
+                await tcp_client.ConnectAsync(IP, Port);
+                return tcp_client.Connected;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
         /// <summary>
         /// 使用Modbus RTU
         /// </summary>
         /// <param name="comport"></param>
         /// <returns></returns>
-        public virtual async Task<bool> _Connect(string comport)
+        protected virtual async Task<bool> SerialPortConnect(string comport)
         {
             return false;
         }
@@ -114,9 +140,15 @@ namespace EquipmentManagment
                 {
                     while (IsConnected)
                     {
-                        Thread.Sleep(100);
-                        var inputs = master.ReadInputs(0, 8);
-                        InputBuffer = inputs.ToList();
+                        Thread.Sleep(1000);
+                        if (_ConnectionMethod == CONN_METHODS.MODBUS_TCP)
+                        {
+                            ReadDataUseModbusTCP();
+                        }
+                        if (_ConnectionMethod == CONN_METHODS.TCPIP)
+                        {
+                            ReadDataUseTCPIP();
+                        }
                         DefineInputData();
                     }
                 }
@@ -131,6 +163,15 @@ namespace EquipmentManagment
                     _StartRetry();
                 }
             });
+        }
+        protected virtual void ReadDataUseTCPIP()
+        {
+            throw new NotImplementedException();
+        }
+        protected virtual void ReadDataUseModbusTCP()
+        {
+            var inputs = master.ReadInputs(0, 8);
+            InputBuffer = inputs.ToList();
         }
 
         protected abstract void DefineInputData();

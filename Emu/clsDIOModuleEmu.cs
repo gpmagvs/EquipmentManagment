@@ -15,9 +15,9 @@ namespace EquipmentManagment.Emu
         private ModbusTcpSlave slave;
         private bool disposedValue;
 
-        public void StartEmu(int port = 502)
-        {
 
+        public virtual void StartEmu(int port = 502)
+        {
             slave = ModbusTcpSlave.CreateTcp(0, new TcpListener(port));
             slave.ModbusSlaveRequestReceived += Master_ModbusSlaveRequestReceived;
             slave.DataStore = DataStoreFactory.CreateDefaultDataStore();
@@ -120,6 +120,6 @@ namespace EquipmentManagment.Emu
                 disposedValue = true;
             }
         }
-      
+
     }
 }

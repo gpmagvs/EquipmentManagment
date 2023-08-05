@@ -8,6 +8,7 @@ namespace EquipmentManagment
     public static class StaEQPEmulatorsManagager
     {
         internal static Dictionary<string, clsDIOModuleEmu> EqEmulators = new Dictionary<string, clsDIOModuleEmu>();
+        internal static Dictionary<string, clsChargeStationEmu> ChargeStationEmulators = new Dictionary<string, clsChargeStationEmu>();
 
         /// <summary>
         /// 嘗試依據EQ名稱取得模擬設備
@@ -60,17 +61,19 @@ namespace EquipmentManagment
             foreach (KeyValuePair<string, clsEndPointOptions> item in EQOptions)
             {
                 var member = item.Value;
-                clsDIOModuleEmu emu = new clsDIOModuleEmu();
-                emu.StartEmu(member.ConnOptions.Port);
-                EqEmulators.Add(item.Key, emu);
-            }
-        }
-        internal static void InitEmu(int eq_num)
-        {
-            clsDIOModuleEmu emu = new clsDIOModuleEmu();
-            for (int i = 0; i < eq_num; i++)
-            {
-                emu.StartEmu(502 + i);
+                if (item.Value.EqType == EQ_TYPE.EQ)
+                {
+                    clsDIOModuleEmu emu = new clsDIOModuleEmu();
+                    emu.StartEmu(item.Value.ConnOptions.Port);
+                    EqEmulators.Add(item.Key, emu);
+                }
+
+                if (item.Value.EqType == EQ_TYPE.CHARGE)
+                {
+                    clsChargeStationEmu charge_emu = new clsChargeStationEmu();
+                    charge_emu.StartEmu(item.Value.ConnOptions.Port);
+                    ChargeStationEmulators.Add(item.Key, charge_emu);
+                }
             }
         }
 
