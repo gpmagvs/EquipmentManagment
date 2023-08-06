@@ -4,6 +4,12 @@ using System.Text;
 
 namespace EquipmentManagment
 {
+    public enum EQLDULD_TYPE
+    {
+        LD,
+        ULD,
+        LDULD
+    }
     public class clsEQ : EndPointDeviceAbstract
     {
         #region EQ->AGVS
@@ -49,7 +55,14 @@ namespace EquipmentManagment
         public bool CMD_Reserve_Low { get; set; }
 
         #endregion
-
+        public EQLDULD_TYPE lduld_type
+        {
+            get => EndPointOptions.LdULdType;
+            set
+            {
+                EndPointOptions.LdULdType = value;
+            }
+        }
         public clsEQ(clsEndPointOptions options) : base(options)
         {
         }

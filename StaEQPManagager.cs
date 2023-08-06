@@ -90,8 +90,9 @@ namespace EquipmentManagment
                          TagID = 1
                     } }
                 };
-                SaveEqConfigs();
             }
+            SaveEqConfigs();
+
         }
         private static void _LoadWipConfigs(string wIPConfigPath)
         {

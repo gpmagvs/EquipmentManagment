@@ -29,9 +29,10 @@ namespace EquipmentManagment
 
         public EQ_TYPE EqType { get; set; }
 
+        public EQLDULD_TYPE LdULdType { get; set; } = EQLDULD_TYPE.LDULD;
         public string Region { get; set; } = "";
 
-        public List<string> ValidDownStreamEndPointNames{ get; set; }
+        public List<string> ValidDownStreamEndPointNames { get; set; }
     }
 
     public class clsRackOptions : clsEndPointOptions
