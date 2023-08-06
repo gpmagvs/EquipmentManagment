@@ -49,7 +49,7 @@ namespace EquipmentManagment.Emu
             if (rev == 57)
             {
                 byte[] data = new ArraySegment<byte>(state.buffer, 0, 57).ToArray();
-                data[clsChargeStation.Indexes.VIN_H] = 0xFE;
+                data[clsChargeStation.Indexes.VIN_H] = (byte)DateTime.Now.Second;
                 data[clsChargeStation.Indexes.VOUT_H] = 0x4F;
                 data[clsChargeStation.Indexes.Status_1] = 0xF0;
                 state.socket.Send(data);
