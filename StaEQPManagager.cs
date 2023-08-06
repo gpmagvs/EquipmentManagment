@@ -57,8 +57,11 @@ namespace EquipmentManagment
                     EQ = new clsEQ(options);
                 else if (item.Value.EqType == EQ_TYPE.CHARGE)
                     EQ = new clsChargeStation(options);
-                EQPDevices.Add(EQ);
-                EQ.Connect();
+                if (EQ != null)
+                {
+                    EQPDevices.Add(EQ);
+                    EQ.Connect();
+                }
             }
         }
 

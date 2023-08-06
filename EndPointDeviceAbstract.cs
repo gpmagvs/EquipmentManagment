@@ -29,11 +29,11 @@ namespace EquipmentManagment
         /// <summary>
         /// 下游設備
         /// </summary>
-        public List<EndPointDeviceAbstract> DownstremEQ
+        public List<clsEQ> DownstremEQ
         {
             get
             {
-                return StaEQPManagager.EQPDevices.FindAll(eq => EndPointOptions.ValidDownStreamEndPointNames.Contains(eq.EQName));
+                return StaEQPManagager.EQList.FindAll(eq => EndPointOptions.ValidDownStreamEndPointNames.Contains(eq.EQName));
             }
         }
         private CONN_METHODS _ConnectionMethod => EndPointOptions.ConnOptions.ConnMethod;
