@@ -44,20 +44,28 @@ namespace EquipmentManagment.Emu
 
         private void RecieveCallback(IAsyncResult ar)
         {
+
             clsSocketState state = ar.AsyncState as clsSocketState;
-            int rev = state.socket.EndReceive(ar);
-            if (rev == 57)
+            try
             {
-                byte[] data = new ArraySegment<byte>(state.buffer, 0, 57).ToArray();
-                data[clsChargeStation.Indexes.VIN_H] = (byte)DateTime.Now.Second;
-                data[clsChargeStation.Indexes.VOUT_H] = 0x4F;
-                data[clsChargeStation.Indexes.Status_1] = 0xF0;
-                state.socket.Send(data);
+                int rev = state.socket.EndReceive(ar);
+                if (rev == 57)
+                {
+                    byte[] data = new ArraySegment<byte>(state.buffer, 0, 57).ToArray();
+                    data[clsChargeStation.Indexes.VIN_H] = (byte)DateTime.Now.Second;
+                    data[clsChargeStation.Indexes.VOUT_H] = 0x4F;
+                    data[clsChargeStation.Indexes.Status_1] = 0xF0;
+                    state.socket.Send(data);
+                }
+                Task.Factory.StartNew(() =>
+                {
+                    state.socket.BeginReceive(state.buffer, 0, 1024, SocketFlags.None, new AsyncCallback(RecieveCallback), state);
+                });
             }
-            Task.Factory.StartNew(() =>
+            catch (Exception ex)
             {
-                state.socket.BeginReceive(state.buffer, 0, 1024, SocketFlags.None, new AsyncCallback(RecieveCallback), state);
-            });
+                state.socket?.Dispose();
+            }
         }
     }
 }
