@@ -5,6 +5,7 @@ namespace EquipmentManagment.ChargeStation
 {
     public class clsChargerData
     {
+        public bool Connected { get; set; } = false;
         public double Vin { get; set; }
         public double Vout { get; set; }
         public double Iout { get; set; }

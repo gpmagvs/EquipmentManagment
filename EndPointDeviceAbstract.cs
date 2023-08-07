@@ -39,7 +39,12 @@ namespace EquipmentManagment
         private CONN_METHODS _ConnectionMethod => EndPointOptions.ConnOptions.ConnMethod;
         public abstract PortStatusAbstract PortStatus { get; set; }
 
-        public bool IsConnected { get; set; }
+        protected bool _IsConnected;
+        public virtual bool IsConnected
+        {
+            get => _IsConnected;
+            set => _IsConnected = value;
+        }
 
         public List<bool> InputBuffer = new List<bool>();
         public List<byte> TcpDataBuffer { get; protected set; } = new List<byte>();
@@ -114,6 +119,7 @@ namespace EquipmentManagment
             try
             {
                 tcp_client = new TcpClient();
+                tcp_client.ReceiveTimeout = 5000;
                 await tcp_client.ConnectAsync(IP, Port);
                 return tcp_client.Connected;
             }

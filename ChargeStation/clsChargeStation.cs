@@ -2,7 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace EquipmentManagment.ChargeStation
@@ -38,6 +40,14 @@ namespace EquipmentManagment.ChargeStation
 
         }
 
+        public override bool IsConnected
+        {
+            get => _IsConnected;
+            set
+            {
+                Datas.Connected = _IsConnected = value;
+            }
+        }
         public enum ERROR_CODE
         {
             EEPRROM_DATA_ERROR,
@@ -112,15 +122,44 @@ namespace EquipmentManagment.ChargeStation
 
         protected override void ReadDataUseTCPIP()
         {
-            //定義充電站的通訊交握
-            tcp_client.Client.Send(ReadChargerStatesCmd);
-            TcpDataBuffer.Clear();
-            while (TcpDataBuffer.Count != 57)
+            try
             {
-                byte[] buffer = new byte[57];
-                int recLength = tcp_client.Client.Receive(buffer);
-                ArraySegment<byte> recvData = new ArraySegment<byte>(buffer, 0, recLength);
-                TcpDataBuffer.AddRange(recvData.Array);
+                //定義充電站的通訊交握
+                tcp_client.Client.Send(ReadChargerStatesCmd);
+                TcpDataBuffer.Clear();
+                CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+                bool recieved_done =false;
+                Task timeout_detect = new Task(() =>
+                {
+                    while (!recieved_done)
+                    {
+                        if (cts.IsCancellationRequested)
+                        {
+                            throw new Exception();
+                        }
+                        Thread.Sleep(1);
+                    }
+                });
+                timeout_detect.Start();
+                while (TcpDataBuffer.Count != 57)
+                {
+                    Thread.Sleep(100);
+                    byte[] buffer = new byte[57];
+                    int recLength = tcp_client.Client.Receive(buffer);
+                    if (recLength == 0)
+                        continue;
+                    ArraySegment<byte> recvData = new ArraySegment<byte>(buffer, 0, recLength);
+                    TcpDataBuffer.AddRange(recvData.ToArray());
+                }
+                recieved_done=true;
+            }
+            catch (SocketException sckex)
+            {
+                throw sckex;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
 
         }
