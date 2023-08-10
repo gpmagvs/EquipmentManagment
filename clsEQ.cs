@@ -104,6 +104,11 @@ namespace EquipmentManagment
             CMD_Reserve_Low = true;
             _WriteOutputSiganls();
         }
+        public void CancelReserve()
+        {
+            CMD_Reserve_Low=CMD_Reserve_Up=false;
+            _WriteOutputSiganls();
+        }
         private void _WriteOutputSiganls()
         {
             bool[] outputs = new bool[8];
