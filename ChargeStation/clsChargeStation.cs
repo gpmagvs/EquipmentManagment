@@ -109,8 +109,10 @@ namespace EquipmentManagment.ChargeStation
                 ArraySegment<byte> toCalCRC = new ArraySegment<byte>(cmd, 8, 47);
                 ushort crc = CRCCalculator.GetCRC16(toCalCRC.ToArray());
                 byte[] crcbytes = BitConverter.GetBytes(crc);
-                cmd[55] = crcbytes[0];
-                cmd[56] = crcbytes[1];
+                //cmd[55] = crcbytes[0];
+                //cmd[56] = crcbytes[1];
+                cmd[55] = 0x22;
+                cmd[56] = 0xEC;
                 return cmd;
             }
         }
@@ -120,41 +122,37 @@ namespace EquipmentManagment.ChargeStation
         }
         public override PortStatusAbstract PortStatus { get; set; } = new clsRackPort();
 
-        protected override void ReadDataUseTCPIP()
+        protected override async Task ReadDataUseTCPIP()
         {
             try
             {
                 //定義充電站的通訊交握
-                tcp_client.Client.Send(ReadChargerStatesCmd);
+                tcp_client.Client.Send(ReadChargerStatesCmd, 0, 57, SocketFlags.None);
                 TcpDataBuffer.Clear();
-                CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
-                bool recieved_done =false;
-                Task timeout_detect = new Task(() =>
-                {
-                    while (!recieved_done)
-                    {
-                        if (cts.IsCancellationRequested)
-                        {
-                            throw new Exception();
-                        }
-                        Thread.Sleep(1);
-                    }
-                });
-                timeout_detect.Start();
+                CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
                 while (TcpDataBuffer.Count != 57)
                 {
-                    Thread.Sleep(100);
+                    await Task.Delay(10);
                     byte[] buffer = new byte[57];
+                    if (tcp_client.Available == 0)
+                    {
+                        //tcp_client.Client.Send(ReadChargerStatesCmd);
+                        if (cts.IsCancellationRequested)
+                        {
+                            throw new SocketException();
+                        }
+                        continue;
+                    }
                     int recLength = tcp_client.Client.Receive(buffer);
                     if (recLength == 0)
                         continue;
                     ArraySegment<byte> recvData = new ArraySegment<byte>(buffer, 0, recLength);
                     TcpDataBuffer.AddRange(recvData.ToArray());
                 }
-                recieved_done=true;
             }
             catch (SocketException sckex)
             {
+                tcp_client.Dispose();
                 throw sckex;
             }
             catch (Exception ex)
@@ -169,13 +167,13 @@ namespace EquipmentManagment.ChargeStation
             if (TcpDataBuffer.Count != 57)
                 return;
             //解析封包取得充電器狀態
-            Datas.Vin = GetValue(Indexes.VIN_L, Indexes.VIN_H) / 100.0;
-            Datas.Vout = GetValue(Indexes.VOUT_L, Indexes.VOUT_H);
-            Datas.Iout = GetValue(Indexes.IOUT_L, Indexes.IOUT_H);
-            Datas.CC = GetValue(Indexes.CC_L, Indexes.CC_H);
-            Datas.CV = GetValue(Indexes.CV_L, Indexes.CV_H);
-            Datas.FV = GetValue(Indexes.FV_L, Indexes.FV_H);
-            Datas.TC = GetValue(Indexes.TC_L, Indexes.TC_H);
+            Datas.Vin = GetValue(Indexes.VIN_H, Indexes.VIN_L) / 10.0;
+            Datas.Vout = GetValue(Indexes.VOUT_H, Indexes.VOUT_L) / 10.0;
+            Datas.Iout = GetValue(Indexes.IOUT_H, Indexes.IOUT_L) / 10.0;
+            Datas.CC = GetValue(Indexes.CC_H, Indexes.CC_L) / 10.0;
+            Datas.CV = GetValue(Indexes.CV_H, Indexes.CV_L) / 10.0;
+            Datas.FV = GetValue(Indexes.FV_H, Indexes.FV_L) / 10.0;
+            Datas.TC = GetValue(Indexes.TC_H, Indexes.TC_L) / 10.0;
             Datas.Temperature = TcpDataBuffer[Indexes.TEMPERATURE];
             Datas.Time = DateTime.FromBinary(GetValue(Indexes.TIME_L1, Indexes.TIME_L2, Indexes.TIME_H1, Indexes.TIME_H2));
 

@@ -119,7 +119,7 @@ namespace EquipmentManagment
             try
             {
                 tcp_client = new TcpClient();
-                tcp_client.ReceiveTimeout = 5000;
+                tcp_client.ReceiveTimeout = 15000;
                 await tcp_client.ConnectAsync(IP, Port);
                 return tcp_client.Connected;
             }
@@ -153,7 +153,7 @@ namespace EquipmentManagment
                         }
                         if (_ConnectionMethod == CONN_METHODS.TCPIP)
                         {
-                            ReadDataUseTCPIP();
+                            await ReadDataUseTCPIP();
                         }
                         DefineInputData();
                     }
@@ -170,7 +170,7 @@ namespace EquipmentManagment
                 }
             });
         }
-        protected virtual void ReadDataUseTCPIP()
+        protected virtual async Task ReadDataUseTCPIP()
         {
             throw new NotImplementedException();
         }
