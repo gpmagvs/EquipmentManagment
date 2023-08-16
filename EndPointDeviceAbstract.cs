@@ -176,7 +176,7 @@ namespace EquipmentManagment
         }
         protected virtual void ReadDataUseModbusTCP()
         {
-            var inputs = master.ReadInputs(0, 8);
+            var inputs = master.ReadInputs(0, 16);
             InputBuffer = inputs.ToList();
         }
 

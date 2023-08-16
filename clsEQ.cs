@@ -45,6 +45,12 @@ namespace EquipmentManagment
         public bool Down_Pose { get; set; }
         public bool Eqp_Status_Down { get; set; }
 
+
+        public bool HS_EQ_L_REQ { get; set; }
+        public bool HS_EQ_U_REQ { get; set; }
+        public bool HS_EQ_READY { get; set; }
+        public bool HS_EQ_BUSY { get; set; }
+
         #endregion
 
         #region AGVS->EQ
@@ -77,6 +83,11 @@ namespace EquipmentManagment
             Up_Pose = InputBuffer[3];
             Down_Pose = InputBuffer[4];
             Eqp_Status_Down = InputBuffer[5];
+
+            HS_EQ_L_REQ = InputBuffer[8];
+            HS_EQ_U_REQ = InputBuffer[9];
+            HS_EQ_READY = InputBuffer[10];
+            HS_EQ_BUSY = InputBuffer[11];
         }
 
         public void ToEQUp()
@@ -106,7 +117,7 @@ namespace EquipmentManagment
         }
         public void CancelReserve()
         {
-            CMD_Reserve_Low=CMD_Reserve_Up=false;
+            CMD_Reserve_Low = CMD_Reserve_Up = false;
             _WriteOutputSiganls();
         }
         private void _WriteOutputSiganls()

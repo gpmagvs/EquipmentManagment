@@ -134,6 +134,10 @@ namespace EquipmentManagment
                 Up_Pose = (eq as clsEQ).Up_Pose,
                 Down_Pose = (eq as clsEQ).Down_Pose,
                 Eqp_Status_Down = (eq as clsEQ).Eqp_Status_Down,
+                HS_EQ_BUSY = (eq as clsEQ).HS_EQ_BUSY,
+                HS_EQ_READY = (eq as clsEQ).HS_EQ_READY,
+                HS_EQ_L_REQ = (eq as clsEQ).HS_EQ_L_REQ,
+                HS_EQ_U_REQ = (eq as clsEQ).HS_EQ_U_REQ,
                 Region = eq.EndPointOptions.Region,
                 Tag = eq.EndPointOptions.TagID
             }).ToList();

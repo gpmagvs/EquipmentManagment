@@ -44,6 +44,16 @@ namespace EquipmentManagment.Emu
                 slave.DataStore.InputDiscretes[7] = false;
                 slave.DataStore.InputDiscretes[8] = true;
             }
+
+            slave.DataStore.InputDiscretes[9] = false; //LREQ
+            slave.DataStore.InputDiscretes[10] = false;//UREQ
+            slave.DataStore.InputDiscretes[11] = false;//READY
+            slave.DataStore.InputDiscretes[12] = true;//BUSY
+            slave.DataStore.InputDiscretes[13] = false;
+            slave.DataStore.InputDiscretes[14] = false;
+            slave.DataStore.InputDiscretes[15] = false;
+            slave.DataStore.InputDiscretes[16] = false;
+
             slave.ListenAsync();
 
         }
@@ -120,6 +130,29 @@ namespace EquipmentManagment.Emu
                 disposedValue = true;
             }
         }
+
+        public bool SetHS_L_REQ(bool state)
+        {
+             ModifyInput(8, state);
+            return true;
+        }
+        public bool SetHS_U_REQ(bool state)
+        {
+            ModifyInput(9, state);
+            return true;
+        }
+        public bool SetHS_READY(bool state)
+        {
+            ModifyInput(10, state);
+            return true;
+        }
+        public bool SetHS_BUSY(bool state)
+        {
+            ModifyInput(11, state);
+            return true;
+        }
+
+
 
     }
 }

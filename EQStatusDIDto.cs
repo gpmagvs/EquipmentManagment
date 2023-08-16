@@ -11,6 +11,11 @@
         public bool Down_Pose { get; set; }
         public bool Eqp_Status_Down { get; set; }
 
+        public bool HS_EQ_L_REQ { get; set; }
+        public bool HS_EQ_U_REQ { get; set; }
+        public bool HS_EQ_READY { get; set; }
+        public bool HS_EQ_BUSY { get; set; }
+
         public string Region { get; set; }
         public int Tag { get; set; }
 

@@ -58,23 +58,32 @@ namespace EquipmentManagment
 
         internal static void InitEmu(Dictionary<string, clsEndPointOptions> EQOptions)
         {
+
             foreach (KeyValuePair<string, clsEndPointOptions> item in EQOptions)
             {
-                var member = item.Value;
-                if (item.Value.EqType == EQ_TYPE.EQ)
+                try
                 {
-                    clsDIOModuleEmu emu = new clsDIOModuleEmu();
-                    emu.StartEmu(item.Value.ConnOptions.Port);
-                    EqEmulators.Add(item.Key, emu);
-                }
+                    var member = item.Value;
+                    if (item.Value.EqType == EQ_TYPE.EQ)
+                    {
+                        clsDIOModuleEmu emu = new clsDIOModuleEmu();
+                        emu.StartEmu(item.Value.ConnOptions.Port);
+                        EqEmulators.Add(item.Key, emu);
+                    }
 
-                if (item.Value.EqType == EQ_TYPE.CHARGE)
+                    if (item.Value.EqType == EQ_TYPE.CHARGE)
+                    {
+                        clsChargeStationEmu charge_emu = new clsChargeStationEmu();
+                        charge_emu.StartEmu(item.Value.ConnOptions.Port);
+                        ChargeStationEmulators.Add(item.Key, charge_emu);
+                    }
+                }
+                catch (Exception ex)
                 {
-                    clsChargeStationEmu charge_emu = new clsChargeStationEmu();
-                    charge_emu.StartEmu(item.Value.ConnOptions.Port);
-                    ChargeStationEmulators.Add(item.Key, charge_emu);
                 }
             }
+
+
         }
 
         public static void ALLLoad()
