@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace EquipmentManagment.ChargeStation
@@ -6,6 +6,7 @@ namespace EquipmentManagment.ChargeStation
     public class clsChargerData
     {
         public bool Connected { get; set; } = false;
+        public DateTime UpdateTime {get;set;}
         public double Vin { get; set; }
         public double Vout { get; set; }
         public double Iout { get; set; }
