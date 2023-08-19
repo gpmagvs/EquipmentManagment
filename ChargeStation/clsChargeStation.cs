@@ -1,4 +1,4 @@
-﻿using EquipmentManagment.Tool;
+using EquipmentManagment.Tool;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -218,7 +218,10 @@ namespace EquipmentManagment.ChargeStation
             else
                 Datas.ErrorCodes.Remove(StatusErrorCode);
         }
-
+        public bool SetCV( double val){}
+        public bool SevCC( double val){}
+        public bool SetFV( double val){}
+        public bool SetTC( double val){}
         private short GetValue(int LowByteIndex, int HighByteIndex)
         {
             byte l = TcpDataBuffer[LowByteIndex];
@@ -233,6 +236,12 @@ namespace EquipmentManagment.ChargeStation
             byte h = TcpDataBuffer[HighByteIndex];
             byte h2 = TcpDataBuffer[HighByteIndex2];
             return BitConverter.ToInt32(new byte[4] { h, h2, l, l2 }, 0);
+        }
+        private byte[] GetBytes(int valint){
+
+            byte lowbyte = (byte)(valint & 0xFF); // 取得低位元組
+            byte highbyte= (byte)((valint >> 8) & 0xFF); // 取得高位元組
+            return new byte[2]{lowbyte,highbyte};
         }
     }
 }
