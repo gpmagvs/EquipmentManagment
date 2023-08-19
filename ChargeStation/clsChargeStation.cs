@@ -176,7 +176,7 @@ namespace EquipmentManagment.ChargeStation
             Datas.TC = GetValue(Indexes.TC_H, Indexes.TC_L) / 10.0;
             Datas.Temperature = TcpDataBuffer[Indexes.TEMPERATURE];
             Datas.Time = DateTime.FromBinary(GetValue(Indexes.TIME_L1, Indexes.TIME_L2, Indexes.TIME_H1, Indexes.TIME_H2));
-
+            Datas.UpdateTime = DateTime.Now();
             //Errors
             CheckStatus(TcpDataBuffer[Indexes.Status_1], 0, ERROR_CODE.EEPRROM_DATA_ERROR);
             CheckStatus(TcpDataBuffer[Indexes.Status_1], 1, ERROR_CODE.Temp_Sensor_Short);
@@ -201,7 +201,7 @@ namespace EquipmentManagment.ChargeStation
             CheckStatus(TcpDataBuffer[Indexes.Status_3], 1, ERROR_CODE.Input);
             CheckStatus(TcpDataBuffer[Indexes.Status_3], 1, ERROR_CODE.Iout_Pout);
             CheckStatus(TcpDataBuffer[Indexes.Status_3], 1, ERROR_CODE.Vout);
-
+            
         }
 
         private void CheckStatus(byte status, int status_bit, ERROR_CODE StatusErrorCode)
