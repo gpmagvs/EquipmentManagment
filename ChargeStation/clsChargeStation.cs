@@ -176,7 +176,7 @@ namespace EquipmentManagment.ChargeStation
             Datas.TC = GetValue(Indexes.TC_H, Indexes.TC_L) / 10.0;
             Datas.Temperature = TcpDataBuffer[Indexes.TEMPERATURE];
             Datas.Time = DateTime.FromBinary(GetValue(Indexes.TIME_L1, Indexes.TIME_L2, Indexes.TIME_H1, Indexes.TIME_H2));
-            Datas.UpdateTime = DateTime.Now();
+            Datas.UpdateTime = DateTime.Now;
             //Errors
             CheckStatus(TcpDataBuffer[Indexes.Status_1], 0, ERROR_CODE.EEPRROM_DATA_ERROR);
             CheckStatus(TcpDataBuffer[Indexes.Status_1], 1, ERROR_CODE.Temp_Sensor_Short);
@@ -201,7 +201,7 @@ namespace EquipmentManagment.ChargeStation
             CheckStatus(TcpDataBuffer[Indexes.Status_3], 1, ERROR_CODE.Input);
             CheckStatus(TcpDataBuffer[Indexes.Status_3], 1, ERROR_CODE.Iout_Pout);
             CheckStatus(TcpDataBuffer[Indexes.Status_3], 1, ERROR_CODE.Vout);
-            
+
         }
 
         private void CheckStatus(byte status, int status_bit, ERROR_CODE StatusErrorCode)
@@ -218,15 +218,66 @@ namespace EquipmentManagment.ChargeStation
             else
                 Datas.ErrorCodes.Remove(StatusErrorCode);
         }
-        public bool SetCV( double val){}
-        public bool SevCC( double val){}
-        public bool SetFV( double val){}
-        public bool SetTC( double val){}
+        public bool SetCC(double val, out string message)
+        {
+            int valToWrite = int.Parse(Math.Round(val * 10) + "");
+            Datas.CC_Setting = valToWrite;
+            return SendSettingsToCharger(out  message);
+        }
+        public bool SetCV(double val, out string message)
+        {
+            int valToWrite = int.Parse(Math.Round(val * 10) + "");
+            Datas.CV_Setting = valToWrite;
+            return SendSettingsToCharger(out message);
+
+        }
+
+        public bool SetFV(double val, out string message)
+        {
+            int valToWrite = int.Parse(Math.Round(val * 10) + "");
+            Datas.FV_Setting = valToWrite;
+            return SendSettingsToCharger(out message);
+
+        }
+        public bool SetTC(double val, out string message)
+        {
+            int valToWrite = int.Parse(Math.Round(val * 10) + "");
+            Datas.TC_Setting = valToWrite;
+            return SendSettingsToCharger(out message);
+
+        }
+
+        private bool SendSettingsToCharger(out string message)
+        {
+            message = "";
+            byte[] cc_LH = Datas.CC_Setting.GetHighLowBytes();
+            var cmd_ = ReadChargerStatesCmd.ToArray();
+            cmd_[13] = 0x60;
+            cmd_[Indexes.CC_L] = cc_LH[0];
+            cmd_[Indexes.CC_H] = cc_LH[1];
+
+            byte[] cv_LH = Datas.CV_Setting.GetHighLowBytes();
+            cmd_[Indexes.CV_L] = cv_LH[0];
+            cmd_[Indexes.CV_H] = cv_LH[1];
+
+            byte[] FV_LH = Datas.FV_Setting.GetHighLowBytes();
+            cmd_[Indexes.FV_L] = FV_LH[0];
+            cmd_[Indexes.FV_H] = FV_LH[1];
+
+            byte[] TC_LH = Datas.TC_Setting.GetHighLowBytes();
+            cmd_[Indexes.TC_L] = TC_LH[0];
+            cmd_[Indexes.TC_H] = TC_LH[1];
+
+            tcp_client.Client.Send(cmd_, 0, 57, SocketFlags.None);
+
+            return true;
+
+        }
         private short GetValue(int LowByteIndex, int HighByteIndex)
         {
             byte l = TcpDataBuffer[LowByteIndex];
             byte h = TcpDataBuffer[HighByteIndex];
-            return BitConverter.ToInt16(new byte[2] { h, l }, 0);
+            return (new byte[2] { h, l }).GetInt();
         }
 
         private int GetValue(int LowByteIndex, int LowByteIndex2, int HighByteIndex, int HighByteIndex2)
@@ -237,11 +288,7 @@ namespace EquipmentManagment.ChargeStation
             byte h2 = TcpDataBuffer[HighByteIndex2];
             return BitConverter.ToInt32(new byte[4] { h, h2, l, l2 }, 0);
         }
-        private byte[] GetBytes(int valint){
 
-            byte lowbyte = (byte)(valint & 0xFF); // 取得低位元組
-            byte highbyte= (byte)((valint >> 8) & 0xFF); // 取得高位元組
-            return new byte[2]{lowbyte,highbyte};
-        }
+
     }
 }
