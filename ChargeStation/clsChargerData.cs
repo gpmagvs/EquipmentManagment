@@ -65,19 +65,19 @@ namespace EquipmentManagment.ChargeStation
         }
 
 
-        private double _CC { get; set; }
-        private double _CV { get; set; }
-        private double _FV { get; set; }
-        private double _TC { get; set; }
+        private double _CC { get; set; } = 66;
+        private double _CV { get; set; } = 28.8;
+        private double _FV { get; set; } = 27.6;
+        private double _TC { get; set; } = 6;
         public DateTime Time { get; set; }
         public List<clsChargeStation.ERROR_CODE> ErrorCodes { get; set; } = new List<clsChargeStation.ERROR_CODE>();
         public byte Temperature { get; internal set; }
 
 
-        internal int CC_Setting { get; set; }
-        internal int CV_Setting { get; set; }
-        internal int FV_Setting { get; set; }
-        internal int TC_Setting { get; set; }
+        internal int CC_Setting { get; set; } = 660;
+        internal int CV_Setting { get; set; } = 288;
+        internal int FV_Setting { get; set; } = 276;
+        internal int TC_Setting { get; set; } = 60;
 
     }
 }

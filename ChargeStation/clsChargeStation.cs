@@ -39,6 +39,18 @@ namespace EquipmentManagment.ChargeStation
             public const int Status_3 = 54;
 
         }
+        public struct Indexes_Write
+        {
+
+            public const int CC_L = 27;
+            public const int CC_H = 28;
+            public const int CV_L = 29;
+            public const int CV_H = 30;
+            public const int FV_L = 31;
+            public const int FV_H = 32;
+            public const int TC_L = 33;
+            public const int TC_H = 34;
+        }
 
         public override bool IsConnected
         {
@@ -93,27 +105,37 @@ namespace EquipmentManagment.ChargeStation
             Iout_Pout,
             Vout
         }
+        private bool WriteSettingFlag = false;
+        private byte[] settingCmd = null;
         private byte[] ReadChargerStatesCmd
         {
             get
             {
-                byte[] cmd = new byte[57]
+                if (WriteSettingFlag)
                 {
+                    return settingCmd;
+                }
+                else
+                {
+
+                    byte[] cmd = new byte[57]
+                    {
                    0xAA,0xAA,0xAA,0xAA,0xAA,0xAA,0xAA,0xAB,
                    0x01,0x2B,0x00,0x00,0x00,0x50,
                    0x01,0x08,0x00,0x00,0x00,0x00,0x00,0x00,
                    0x01,0x15,0x01,0x1,0x01,
                    0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
                    0x00,0x00 //CRC16, need to calculate
-                };
-                ArraySegment<byte> toCalCRC = new ArraySegment<byte>(cmd, 8, 47);
-                ushort crc = CRCCalculator.GetCRC16(toCalCRC.ToArray());
-                byte[] crcbytes = BitConverter.GetBytes(crc);
-                //cmd[55] = crcbytes[0];
-                //cmd[56] = crcbytes[1];
-                cmd[55] = 0x22;
-                cmd[56] = 0xEC;
-                return cmd;
+                    };
+                    ArraySegment<byte> toCalCRC = new ArraySegment<byte>(cmd, 8, 47);
+                    ushort crc = CRCCalculator.GetCRC16(toCalCRC.ToArray());
+                    byte[] crcbytes = BitConverter.GetBytes(crc);
+                    //cmd[55] = crcbytes[0];
+                    //cmd[56] = crcbytes[1];
+                    cmd[55] = 0x22;
+                    cmd[56] = 0xEC;
+                    return cmd;
+                }
             }
         }
         public clsChargerData Datas = new clsChargerData();
@@ -121,15 +143,23 @@ namespace EquipmentManagment.ChargeStation
         {
         }
         public override PortStatusAbstract PortStatus { get; set; } = new clsRackPort();
-
+        ManualResetEvent readStop = new ManualResetEvent(true);
         protected override async Task ReadDataUseTCPIP()
         {
             try
             {
+                // ClearBuffer();
+                //SendSettingsToCharger(out var msg);
                 //定義充電站的通訊交握
-                tcp_client.Client.Send(ReadChargerStatesCmd, 0, 57, SocketFlags.None);
+                if (WriteSettingFlag)
+                {
+
+                    tcp_client.Client.Send(ReadChargerStatesCmd, 0, 57, SocketFlags.None);
+                    WriteSettingFlag = false;
+                }
                 TcpDataBuffer.Clear();
                 CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+
                 while (TcpDataBuffer.Count != 57)
                 {
                     await Task.Delay(10);
@@ -146,6 +176,7 @@ namespace EquipmentManagment.ChargeStation
                     int recLength = tcp_client.Client.Receive(buffer);
                     if (recLength == 0)
                         continue;
+
                     ArraySegment<byte> recvData = new ArraySegment<byte>(buffer, 0, recLength);
                     TcpDataBuffer.AddRange(recvData.ToArray());
                 }
@@ -161,19 +192,39 @@ namespace EquipmentManagment.ChargeStation
             }
 
         }
+        private void ClearBuffer()
+        {
+            try
+            {
 
+                if (tcp_client.Available != 0)
+                {
+                    byte[] buffer = new byte[tcp_client.Available];
+                    int recLength = tcp_client.Client.Receive(buffer);
+                }
+            }
+            catch (Exception)
+            {
+            }
+        }
         protected override void DefineInputData()
         {
+
             if (TcpDataBuffer.Count != 57)
                 return;
+            if (TcpDataBuffer[13] == 0x61 | TcpDataBuffer[13] == 0x60)
+            {
+                Datas.CC = GetValue(Indexes_Write.CC_H, Indexes_Write.CC_L) / 10.0;
+                Datas.CV = GetValue(Indexes_Write.CV_H, Indexes_Write.CV_L) / 10.0;
+                Datas.FV = GetValue(Indexes_Write.FV_H, Indexes_Write.FV_L) / 10.0;
+                Datas.TC = GetValue(Indexes_Write.TC_H, Indexes_Write.TC_L) / 10.0;
+                return;
+            }
             //解析封包取得充電器狀態
             Datas.Vin = GetValue(Indexes.VIN_H, Indexes.VIN_L) / 10.0;
             Datas.Vout = GetValue(Indexes.VOUT_H, Indexes.VOUT_L) / 10.0;
             Datas.Iout = GetValue(Indexes.IOUT_H, Indexes.IOUT_L) / 10.0;
-            Datas.CC = GetValue(Indexes.CC_H, Indexes.CC_L) / 10.0;
-            Datas.CV = GetValue(Indexes.CV_H, Indexes.CV_L) / 10.0;
-            Datas.FV = GetValue(Indexes.FV_H, Indexes.FV_L) / 10.0;
-            Datas.TC = GetValue(Indexes.TC_H, Indexes.TC_L) / 10.0;
+
             Datas.Temperature = TcpDataBuffer[Indexes.TEMPERATURE];
             Datas.Time = DateTime.FromBinary(GetValue(Indexes.TIME_L1, Indexes.TIME_L2, Indexes.TIME_H1, Indexes.TIME_H2));
             Datas.UpdateTime = DateTime.Now;
@@ -222,7 +273,7 @@ namespace EquipmentManagment.ChargeStation
         {
             int valToWrite = int.Parse(Math.Round(val * 10) + "");
             Datas.CC_Setting = valToWrite;
-            return SendSettingsToCharger(out  message);
+            return SendSettingsToCharger(out message);
         }
         public bool SetCV(double val, out string message)
         {
@@ -243,32 +294,58 @@ namespace EquipmentManagment.ChargeStation
         {
             int valToWrite = int.Parse(Math.Round(val * 10) + "");
             Datas.TC_Setting = valToWrite;
-            return SendSettingsToCharger(out message);
 
+            return SendSettingsToCharger(out message);
         }
 
         private bool SendSettingsToCharger(out string message)
         {
             message = "";
-            byte[] cc_LH = Datas.CC_Setting.GetHighLowBytes();
-            var cmd_ = ReadChargerStatesCmd.ToArray();
-            cmd_[13] = 0x60;
-            cmd_[Indexes.CC_L] = cc_LH[0];
-            cmd_[Indexes.CC_H] = cc_LH[1];
+            Task.Factory.StartNew(() =>
+            {
+                byte[] cc_LH = Datas.CC_Setting.GetHighLowBytes();
+                var cmd_ = ReadChargerStatesCmd.ToArray();
+                cmd_[13] = 0x60;
+                cmd_[Indexes_Write.CC_L] = cc_LH[0];
+                cmd_[Indexes_Write.CC_H] = cc_LH[1];
 
-            byte[] cv_LH = Datas.CV_Setting.GetHighLowBytes();
-            cmd_[Indexes.CV_L] = cv_LH[0];
-            cmd_[Indexes.CV_H] = cv_LH[1];
+                byte[] cv_LH = Datas.CV_Setting.GetHighLowBytes();
+                cmd_[Indexes_Write.CV_L] = cv_LH[0];
+                cmd_[Indexes_Write.CV_H] = cv_LH[1];
 
-            byte[] FV_LH = Datas.FV_Setting.GetHighLowBytes();
-            cmd_[Indexes.FV_L] = FV_LH[0];
-            cmd_[Indexes.FV_H] = FV_LH[1];
+                byte[] FV_LH = Datas.FV_Setting.GetHighLowBytes();
+                cmd_[Indexes_Write.FV_L] = FV_LH[0];
+                cmd_[Indexes_Write.FV_H] = FV_LH[1];
 
-            byte[] TC_LH = Datas.TC_Setting.GetHighLowBytes();
-            cmd_[Indexes.TC_L] = TC_LH[0];
-            cmd_[Indexes.TC_H] = TC_LH[1];
+                byte[] TC_LH = Datas.TC_Setting.GetHighLowBytes();
+                cmd_[Indexes_Write.TC_L] = TC_LH[0];
+                cmd_[Indexes_Write.TC_H] = TC_LH[1];
 
-            tcp_client.Client.Send(cmd_, 0, 57, SocketFlags.None);
+                ArraySegment<byte> toCalCRC = new ArraySegment<byte>(cmd_, 8, 47);
+                ushort crc = CRCCalculator.GetCRC16(toCalCRC.ToArray());
+                byte[] crcbytes = BitConverter.GetBytes(crc);
+                cmd_[55] = crcbytes[0];
+                cmd_[56] = crcbytes[1];
+                settingCmd = cmd_.ToArray();
+                WriteSettingFlag = true;
+            });
+
+            CancellationTokenSource timeout = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+
+            while (Datas.CC_Setting / 10.0 != Datas.CC | Datas.CV_Setting / 10.0 != Datas.CV | Datas.FV_Setting / 10.0 != Datas.FV | Datas.TC_Setting / 10.0 != Datas.TC)
+            {
+                Thread.Sleep(1);
+                if (timeout.IsCancellationRequested)
+                {
+                    message = "Timeout!";
+                    return false;
+                }
+                if (tcp_client == null)
+                {
+                    message = "Connection Error";
+                    return false;
+                }
+            }
 
             return true;
 
