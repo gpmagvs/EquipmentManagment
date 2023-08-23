@@ -140,20 +140,20 @@ namespace EquipmentManagment
 
         public void StartSyncData()
         {
-            Task.Run(async () =>
+            Thread thread = new Thread(async() =>
             {
                 try
                 {
                     while (IsConnected)
                     {
-                        Thread.Sleep(1000);
+                        Thread.Sleep(10);
                         if (_ConnectionMethod == CONN_METHODS.MODBUS_TCP)
                         {
                             ReadDataUseModbusTCP();
                         }
                         if (_ConnectionMethod == CONN_METHODS.TCPIP)
                         {
-                            await ReadDataUseTCPIP();
+                           ReadDataUseTCPIP();
                         }
                         DefineInputData();
                     }
@@ -168,9 +168,11 @@ namespace EquipmentManagment
                     IsConnected = false;
                     _StartRetry();
                 }
+
             });
+            thread.Start();
         }
-        protected virtual async Task ReadDataUseTCPIP()
+        protected virtual  void ReadDataUseTCPIP()
         {
             throw new NotImplementedException();
         }

@@ -144,7 +144,7 @@ namespace EquipmentManagment.ChargeStation
         }
         public override PortStatusAbstract PortStatus { get; set; } = new clsRackPort();
         ManualResetEvent readStop = new ManualResetEvent(true);
-        protected override async Task ReadDataUseTCPIP()
+        protected override  void ReadDataUseTCPIP()
         {
             try
             {
@@ -158,11 +158,11 @@ namespace EquipmentManagment.ChargeStation
                     WriteSettingFlag = false;
                 }
                 TcpDataBuffer.Clear();
-                CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+                CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromSeconds(3));
 
                 while (TcpDataBuffer.Count != 57)
                 {
-                    await Task.Delay(10);
+                    Thread.Sleep(1);
                     byte[] buffer = new byte[57];
                     if (tcp_client.Available == 0)
                     {
