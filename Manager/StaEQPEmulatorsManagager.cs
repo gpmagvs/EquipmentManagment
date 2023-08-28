@@ -1,9 +1,10 @@
-﻿using EquipmentManagment.Emu;
+﻿using EquipmentManagment.Device;
+using EquipmentManagment.Emu;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace EquipmentManagment
+namespace EquipmentManagment.Manager
 {
     public static class StaEQPEmulatorsManagager
     {

@@ -1,3 +1,5 @@
+using EquipmentManagment.Device;
+using EquipmentManagment.Rack;
 using EquipmentManagment.Tool;
 using System;
 using System.Collections.Generic;
@@ -144,7 +146,7 @@ namespace EquipmentManagment.ChargeStation
         }
         public override PortStatusAbstract PortStatus { get; set; } = new clsRackPort();
         ManualResetEvent readStop = new ManualResetEvent(true);
-        protected override  void ReadDataUseTCPIP()
+        protected override  void ReadInputsUseTCPIP()
         {
             try
             {

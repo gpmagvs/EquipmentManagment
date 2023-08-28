@@ -9,15 +9,18 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using EquipmentManagment.Connection;
+using EquipmentManagment.MainEquipment;
+using EquipmentManagment.Manager;
+using EquipmentManagment.Tool;
 using Modbus.Device;
 
-namespace EquipmentManagment
+namespace EquipmentManagment.Device
 {
     public abstract class EndPointDeviceAbstract : IDisposable
     {
         public EndPointDeviceAbstract(clsEndPointOptions options)
         {
-            this.EndPointOptions = options;
+            EndPointOptions = options;
         }
         public string EQName => EndPointOptions.Name;
 
@@ -140,7 +143,7 @@ namespace EquipmentManagment
 
         public void StartSyncData()
         {
-            Thread thread = new Thread(async() =>
+            Thread thread = new Thread(async () =>
             {
                 try
                 {
@@ -149,11 +152,11 @@ namespace EquipmentManagment
                         Thread.Sleep(10);
                         if (_ConnectionMethod == CONN_METHODS.MODBUS_TCP)
                         {
-                            ReadDataUseModbusTCP();
+                            ReadInputsUseModbusTCP();
                         }
                         if (_ConnectionMethod == CONN_METHODS.TCPIP)
                         {
-                           ReadDataUseTCPIP();
+                            ReadInputsUseTCPIP();
                         }
                         DefineInputData();
                     }
@@ -172,15 +175,38 @@ namespace EquipmentManagment
             });
             thread.Start();
         }
-        protected virtual  void ReadDataUseTCPIP()
+        protected virtual void ReadInputsUseTCPIP()
         {
             throw new NotImplementedException();
         }
-        protected virtual void ReadDataUseModbusTCP()
+        protected virtual void ReadInputsUseModbusTCP()
         {
-            var inputs = master.ReadInputs(0, 16);
-            InputBuffer = inputs.ToList();
+            ushort startRegister = EndPointOptions.ConnOptions.Input_StartRegister;
+            ushort registerNum = EndPointOptions.ConnOptions.Input_RegisterNum;
+            if (EndPointOptions.ConnOptions.IO_Value_Type == IO_VALUE_TYPE.INPUT)
+            {
+                var inputs = master.ReadInputs(startRegister, registerNum);
+                InputBuffer = inputs.ToList();
+            }
+            else
+            {
+                ushort[] input_registers = master.ReadInputRegisters(0, 1);
+                InputBuffer = input_registers[0].GetBoolArray().ToList();
+            }
         }
+        public void WriteInputsUseModbusTCP(bool[] outputs)
+        {
+            var IO_Module_Brand = EndPointOptions.ConnOptions.IO_Value_Type;
+            if (IO_Module_Brand == IO_VALUE_TYPE.INPUT)
+                master.WriteMultipleCoils(1, outputs);
+
+            if (IO_Module_Brand == IO_VALUE_TYPE.INPUT_REGISTER)
+            {
+                ushort WriteInValue = outputs.GetUshort();
+                master.WriteSingleRegister(0, WriteInValue); //EasyModbus從0開始計算
+            }
+        }
+
 
         protected abstract void DefineInputData();
 

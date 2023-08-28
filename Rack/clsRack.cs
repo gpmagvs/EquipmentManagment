@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using EquipmentManagment.Device;
 
-namespace EquipmentManagment
+namespace EquipmentManagment.Rack
 {
     public class clsRack : EndPointDeviceAbstract
     {
@@ -13,7 +14,7 @@ namespace EquipmentManagment
         public int TotalZones => RackOptions.Columns * RackOptions.Rows;
         public clsRack(clsRackOptions options) : base(options)
         {
-            this.RackOptions = options;
+            RackOptions = options;
         }
 
         public PortStatusAbstract[] PortsStatus { get; set; } = new clsRackPort[0];

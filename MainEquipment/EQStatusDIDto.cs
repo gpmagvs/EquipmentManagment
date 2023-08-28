@@ -1,4 +1,4 @@
-﻿namespace EquipmentManagment
+﻿namespace EquipmentManagment.MainEquipment
 {
     public class EQStatusDIDto
     {

@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using EquipmentManagment.Device;
 
-namespace EquipmentManagment
+namespace EquipmentManagment.MainEquipment
 {
     public enum EQLDULD_TYPE
     {
@@ -122,13 +123,13 @@ namespace EquipmentManagment
         }
         private void _WriteOutputSiganls()
         {
-            bool[] outputs = new bool[8];
+            bool[] outputs = new bool[16];
             outputs[0] = To_EQ_Up;
             outputs[1] = To_EQ_Low;
             outputs[2] = CMD_Reserve_Up;
             outputs[3] = CMD_Reserve_Low;
 
-            master.WriteMultipleCoils(1, outputs);
+            WriteInputsUseModbusTCP(outputs);
         }
 
         public void WriteOutputs(ushort start, bool[] value)

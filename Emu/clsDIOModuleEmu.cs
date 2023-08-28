@@ -4,6 +4,8 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using EquipmentManagment.Connection;
+using EquipmentManagment.Tool;
 using Modbus.Data;
 using Modbus.Device;
 using Modbus.Message;
@@ -22,6 +24,7 @@ namespace EquipmentManagment.Emu
             slave.ModbusSlaveRequestReceived += Master_ModbusSlaveRequestReceived;
             slave.DataStore = DataStoreFactory.CreateDefaultDataStore();
             bool[] inputs = new bool[4096];
+
             if (port % 2 == 0)
             {
                 slave.DataStore.InputDiscretes[1] = false;
@@ -43,6 +46,7 @@ namespace EquipmentManagment.Emu
                 slave.DataStore.InputDiscretes[6] = true;
                 slave.DataStore.InputDiscretes[7] = false;
                 slave.DataStore.InputDiscretes[8] = true;
+
             }
 
             slave.DataStore.InputDiscretes[9] = false; //LREQ
@@ -53,6 +57,11 @@ namespace EquipmentManagment.Emu
             slave.DataStore.InputDiscretes[14] = false;
             slave.DataStore.InputDiscretes[15] = false;
             slave.DataStore.InputDiscretes[16] = false;
+
+
+            var ushortVal = slave.DataStore.InputDiscretes.Skip(1).Take(16).ToArray().GetUshort();
+            slave.DataStore.InputRegisters[1] = ushortVal;
+
 
             slave.ListenAsync();
 
@@ -85,6 +94,8 @@ namespace EquipmentManagment.Emu
             {
                 slave.DataStore.InputDiscretes[i + 1] = value[i];
             }
+            var ushortVal = slave.DataStore.InputDiscretes.Skip(1).Take(16).ToArray().GetUshort();
+            slave.DataStore.InputRegisters[1] = ushortVal;
         }
         public void Dispose()
         {
@@ -133,7 +144,7 @@ namespace EquipmentManagment.Emu
 
         public bool SetHS_L_REQ(bool state)
         {
-             ModifyInput(8, state);
+            ModifyInput(8, state);
             return true;
         }
         public bool SetHS_U_REQ(bool state)

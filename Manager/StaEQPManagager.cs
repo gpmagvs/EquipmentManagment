@@ -1,5 +1,7 @@
 ﻿using EquipmentManagment.ChargeStation;
+using EquipmentManagment.Device;
 using EquipmentManagment.Emu;
+using EquipmentManagment.MainEquipment;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -10,7 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace EquipmentManagment
+namespace EquipmentManagment.Manager
 {
     public class StaEQPManagager
     {
@@ -148,7 +150,7 @@ namespace EquipmentManagment
             var endpoint = EQPDevices.FirstOrDefault(eq => eq.EndPointOptions.TagID == tag);
             if (endpoint != null)
             {
-                var _EQ = (endpoint as clsEQ);
+                var _EQ = endpoint as clsEQ;
                 return new EQStatusDIDto()
                 {
                     Load_Reuest = _EQ.Load_Request,

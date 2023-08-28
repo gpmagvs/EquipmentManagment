@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using EquipmentManagment.Device;
 
-namespace EquipmentManagment
+namespace EquipmentManagment.MainEquipment
 {
     public class clsEQPort : PortStatusAbstract
     {

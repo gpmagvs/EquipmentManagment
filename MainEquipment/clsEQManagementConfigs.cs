@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace EquipmentManagment
+namespace EquipmentManagment.MainEquipment
 {
     public class clsEQManagementConfigs
     {

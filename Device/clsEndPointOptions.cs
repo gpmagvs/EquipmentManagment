@@ -1,9 +1,10 @@
 ﻿using EquipmentManagment.Connection;
+using EquipmentManagment.MainEquipment;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace EquipmentManagment
+namespace EquipmentManagment.Device
 {
     public enum EQ_TYPE
     {
