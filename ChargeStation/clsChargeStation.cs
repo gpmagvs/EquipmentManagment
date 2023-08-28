@@ -224,7 +224,10 @@ namespace EquipmentManagment.ChargeStation
             Datas.Vin = GetValue(Indexes.VIN_H, Indexes.VIN_L) / 10.0;
             Datas.Vout = GetValue(Indexes.VOUT_H, Indexes.VOUT_L) / 10.0;
             Datas.Iout = GetValue(Indexes.IOUT_H, Indexes.IOUT_L) / 10.0;
-
+            Datas.CC = GetValue(Indexes.CC_H,Indexes.CC_L)/10.0;
+            Datas.TC = GetValue(Indexes.TC_H, Indexes.TC_L) /10.0;
+            Datas.FV = GetValue(Indexes.FV_H, Indexes.FV_L) /10.0;
+            Datas.CV = GetValue(Indexes.CV_H,Indexes.CV_L)/10.0;
             Datas.Temperature = TcpDataBuffer[Indexes.TEMPERATURE];
             Datas.Time = DateTime.FromBinary(GetValue(Indexes.TIME_L1, Indexes.TIME_L2, Indexes.TIME_H1, Indexes.TIME_H2));
             Datas.UpdateTime = DateTime.Now;
