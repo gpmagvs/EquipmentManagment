@@ -78,17 +78,18 @@ namespace EquipmentManagment.MainEquipment
 
         protected override void DefineInputData()
         {
-            Load_Request = InputBuffer[0];
-            Unload_Request = InputBuffer[1];
-            Port_Exist = InputBuffer[2];
-            Up_Pose = InputBuffer[3];
-            Down_Pose = InputBuffer[4];
-            Eqp_Status_Down = InputBuffer[5];
+            var io_location = EndPointOptions.IOLocation;
+            Load_Request = InputBuffer[io_location.Load_Request];
+            Unload_Request = InputBuffer[io_location.Unload_Request];
+            Port_Exist = InputBuffer[io_location.Port_Exist];
+            Up_Pose = InputBuffer[io_location.Up_Pose];
+            Down_Pose = InputBuffer[io_location.Down_Pose];
+            Eqp_Status_Down = InputBuffer[io_location.Eqp_Status_Down];
 
-            HS_EQ_L_REQ = InputBuffer[8];
-            HS_EQ_U_REQ = InputBuffer[9];
-            HS_EQ_READY = InputBuffer[10];
-            HS_EQ_BUSY = InputBuffer[11];
+            HS_EQ_L_REQ = InputBuffer[io_location.HS_EQ_L_REQ];
+            HS_EQ_U_REQ = InputBuffer[io_location.HS_EQ_U_REQ];
+            HS_EQ_READY = InputBuffer[io_location.HS_EQ_READY];
+            HS_EQ_BUSY = InputBuffer[io_location.HS_EQ_BUSY];
         }
 
         public void ToEQUp()
@@ -123,11 +124,12 @@ namespace EquipmentManagment.MainEquipment
         }
         private void _WriteOutputSiganls()
         {
+            var io_location = EndPointOptions.IOLocation;
             bool[] outputs = new bool[16];
-            outputs[0] = To_EQ_Up;
-            outputs[1] = To_EQ_Low;
-            outputs[2] = CMD_Reserve_Up;
-            outputs[3] = CMD_Reserve_Low;
+            outputs[io_location.To_EQ_Up] = To_EQ_Up;
+            outputs[io_location.To_EQ_Low] = To_EQ_Low;
+            outputs[io_location.CMD_Reserve_Up] = CMD_Reserve_Up;
+            outputs[io_location.CMD_Reserve_Low] = CMD_Reserve_Low;
 
             WriteInputsUseModbusTCP(outputs);
         }

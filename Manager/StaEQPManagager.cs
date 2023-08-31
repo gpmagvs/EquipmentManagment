@@ -62,7 +62,15 @@ namespace EquipmentManagment.Manager
                 if (EQ != null)
                 {
                     EQPDevices.Add(EQ);
-                    EQ.Connect();
+                    Task.Factory.StartNew(async () =>
+                    {
+                        bool connected = await EQ.Connect();
+                        if (connected && EQ.EndPointOptions.EqType == EQ_TYPE.EQ)
+                        {
+                            ((clsEQ)EQ).ReserveUp();
+                        }
+                    });
+
                 }
             }
         }

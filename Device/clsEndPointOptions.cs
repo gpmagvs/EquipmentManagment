@@ -34,6 +34,32 @@ namespace EquipmentManagment.Device
         public string Region { get; set; } = "";
 
         public List<string> ValidDownStreamEndPointNames { get; set; }
+
+        public clsEQIOLocation IOLocation { get; set; } = new clsEQIOLocation();
+    }
+
+    public class clsEQIOLocation
+    {
+        #region X-Input
+        public ushort Load_Request { get; set; } = 0;
+        public ushort Unload_Request { get; set; } = 1;
+        public ushort Port_Exist { get; set; } = 2;
+        public ushort Up_Pose { get; set; } = 3;
+        public ushort Down_Pose { get; set; } = 4;
+        public ushort Eqp_Status_Down { get; set; } = 5;
+        public ushort HS_EQ_L_REQ { get; set; } = 8;
+        public ushort HS_EQ_U_REQ { get; set; } = 9;
+        public ushort HS_EQ_READY { get; set; } = 10;
+        public ushort HS_EQ_BUSY { get; set; } = 11;
+        #endregion
+
+        #region Y-Output
+
+        public ushort To_EQ_Up { get; set; } = 0;
+        public ushort To_EQ_Low { get; set; } = 1;
+        public ushort CMD_Reserve_Up { get; set; } = 2;
+        public ushort CMD_Reserve_Low { get; set; } = 3;
+        #endregion
     }
 
     public class clsRackOptions : clsEndPointOptions
