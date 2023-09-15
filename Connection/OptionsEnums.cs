@@ -10,6 +10,8 @@ namespace EquipmentManagment.Connection
         MODBUS_RTU,
         TCPIP,
         SERIAL_PORT,
+        MX,
+        MC,
     }
 
     /// <summary>

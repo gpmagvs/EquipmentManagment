@@ -19,7 +19,11 @@ namespace EquipmentManagment.Device
         /// <summary>
         /// 充電站
         /// </summary>
-        CHARGE
+        CHARGE,
+        /// <summary>
+        /// 換電站
+        /// </summary>
+        BATTERY_EXCHANGER
     }
 
     public class clsEndPointOptions
@@ -36,6 +40,8 @@ namespace EquipmentManagment.Device
         public List<string> ValidDownStreamEndPointNames { get; set; }
 
         public clsEQIOLocation IOLocation { get; set; } = new clsEQIOLocation();
+
+        public string PLCOptionJsonFile { get; set; }
     }
 
     public class clsEQIOLocation
@@ -66,7 +72,7 @@ namespace EquipmentManagment.Device
     {
         public int Columns { get; set; } = 3;
         public int Rows { get; set; } = 3;
-
-
     }
+
+
 }

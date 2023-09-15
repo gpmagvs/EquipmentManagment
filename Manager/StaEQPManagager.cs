@@ -1,4 +1,5 @@
-﻿using EquipmentManagment.ChargeStation;
+﻿using EquipmentManagment.BatteryExchanger;
+using EquipmentManagment.ChargeStation;
 using EquipmentManagment.Device;
 using EquipmentManagment.Emu;
 using EquipmentManagment.MainEquipment;
@@ -59,15 +60,18 @@ namespace EquipmentManagment.Manager
                     EQ = new clsEQ(options);
                 else if (item.Value.EqType == EQ_TYPE.CHARGE)
                     EQ = new clsChargeStation(options);
+                else if (item.Value.EqType == EQ_TYPE.BATTERY_EXCHANGER)
+                    EQ = new clsBatteryExchanger(options);
                 if (EQ != null)
                 {
                     EQPDevices.Add(EQ);
-                    Task.Factory.StartNew(async () =>
+                    _ = Task.Factory.StartNew(async () =>
                     {
-                        bool connected = await EQ.Connect();
-                        if (connected && EQ.EndPointOptions.EqType == EQ_TYPE.EQ)
+                        bool connected = EQ.EndPointOptions.EqType == EQ_TYPE.BATTERY_EXCHANGER ? await (EQ as clsBatteryExchanger).Connect() : await EQ.Connect();
+                        if (connected)
                         {
-                            ((clsEQ)EQ).ReserveUp();
+                            if (EQ.EndPointOptions.EqType == EQ_TYPE.EQ)
+                                ((clsEQ)EQ).ReserveUp();
                         }
                     });
 

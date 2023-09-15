@@ -26,6 +26,7 @@ namespace EquipmentManagment.Device
 
         public TcpClient tcp_client { get; private set; }
         protected ModbusIpMaster master;
+        public CIMComponent.clsMC_EthIF McInterface { get; private set; } = new CIMComponent.clsMC_EthIF();
 
         public clsEndPointOptions EndPointOptions { get; set; } = new clsEndPointOptions();
 
@@ -73,6 +74,11 @@ namespace EquipmentManagment.Device
             }
             else if (_ConnectionMethod == CONN_METHODS.MODBUS_RTU)
                 connected = await SerialPortConnect(EndPointOptions.ConnOptions.ComPort);
+
+            else if (_ConnectionMethod == CONN_METHODS.MC)
+            {
+                connected = await MCProtocolConnect(EndPointOptions.ConnOptions.IP, EndPointOptions.ConnOptions.Port);
+            }
             if (connected)
             {
                 IsConnected = true;
@@ -131,6 +137,19 @@ namespace EquipmentManagment.Device
                 return false;
             }
         }
+
+        private async Task<bool> MCProtocolConnect(string IP, int Port)
+        {
+            try
+            {
+                int ret_code = McInterface.Open(IP, Port, 5000, 5000);
+                return ret_code == 0;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
         /// <summary>
         /// 使用Modbus RTU
         /// </summary>
@@ -158,6 +177,10 @@ namespace EquipmentManagment.Device
                         {
                             ReadInputsUseTCPIP();
                         }
+                        if (_ConnectionMethod == CONN_METHODS.MC)
+                        {
+                            ReadDataUseMCProtocol();
+                        }
                         DefineInputData();
                     }
                 }
@@ -175,6 +198,17 @@ namespace EquipmentManagment.Device
             });
             thread.Start();
         }
+
+
+        /// <summary>
+        /// 使用MC Interface將PLC Data讀回
+        /// </summary>
+        private void ReadDataUseMCProtocol()
+        {
+            McInterface.ReadBit(ref EQPLCMemoryTb, PLCMemOption.EQPBitAreaName,PLCMemOption.EQPBitStartAddressName,PLCMemOption.EQP_Bit_Size);
+            McInterface.ReadWord(ref EQPLCMemoryTb, PLCMemOption.EQPWordAreaName, PLCMemOption.EQPWordStartAddressName, PLCMemOption.EQP_Word_Size);
+        }
+
         protected virtual void ReadInputsUseTCPIP()
         {
             throw new NotImplementedException();
