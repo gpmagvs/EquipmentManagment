@@ -10,6 +10,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="CIMComponent">
+      <HintPath>CIMComponent.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="CIMComponent.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
