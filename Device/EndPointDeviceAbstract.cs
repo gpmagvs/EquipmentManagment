@@ -16,7 +16,7 @@ using Modbus.Device;
 
 namespace EquipmentManagment.Device
 {
-    public abstract class EndPointDeviceAbstract : IDisposable
+    public abstract partial class EndPointDeviceAbstract : IDisposable
     {
         public EndPointDeviceAbstract(clsEndPointOptions options)
         {
