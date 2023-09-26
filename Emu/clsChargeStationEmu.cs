@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using EquipmentManagment.ChargeStation;
+using EquipmentManagment.Connection;
 using EquipmentManagment.Tool;
 
 namespace EquipmentManagment.Emu
@@ -24,6 +25,7 @@ namespace EquipmentManagment.Emu
         private byte[] TC_Bytes => (Convert.ToInt32(Math.Round(TC * 10))).GetHighLowBytes();
         public override void StartEmu(int port = 502)
         {
+
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             _socket.Bind(new IPEndPoint(IPAddress.Any, port));
             _socket.Listen(10);

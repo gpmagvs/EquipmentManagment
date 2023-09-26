@@ -14,6 +14,7 @@ namespace EquipmentManagment.Emu
 {
     public class clsDIOModuleEmu : IDisposable
     {
+
         private ModbusTcpSlave slave;
         private bool disposedValue;
 
@@ -86,6 +87,9 @@ namespace EquipmentManagment.Emu
         public void ModifyInput(int index, bool value)
         {
             slave.DataStore.InputDiscretes[index + 1] = value;
+            var ushortVal = slave.DataStore.InputDiscretes.Skip(1).Take(16).ToArray().GetUshort();
+            slave.DataStore.InputRegisters[1] = ushortVal;
+
         }
 
         public void ModifyInputs(int startIndex, bool[] value)
