@@ -2,8 +2,32 @@
 {
     public class EQStatusDIDto
     {
+        public enum EQ_TRANSFER_STATUS
+        {
+            DISCONNECT,
+            Down,
+            LOADABLE,
+            BUSY,
+            UNLOADABLE
+        }
         public bool IsConnected { get; set; }
         public string EQName { get; set; }
+        public EQ_TRANSFER_STATUS TransferStatus
+        {
+            get
+            {
+                if (!IsConnected)
+                    return EQ_TRANSFER_STATUS.DISCONNECT;
+                if (Load_Reuest)
+                    return EQ_TRANSFER_STATUS.LOADABLE;
+                if (Unload_Request)
+                    return EQ_TRANSFER_STATUS.UNLOADABLE;
+                if (!Eqp_Status_Down)
+                    return EQ_TRANSFER_STATUS.Down;
+                else
+                    return EQ_TRANSFER_STATUS.BUSY;
+            }
+        }
         public bool Load_Reuest { get; set; }
         public bool Unload_Request { get; set; }
         public bool Port_Exist { get; set; }
