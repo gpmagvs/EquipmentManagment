@@ -29,12 +29,15 @@ namespace EquipmentManagment.Manager
                 return EQPDevices.FindAll(device => device.EndPointOptions.EqType == EQ_TYPE.EQ).Select(eq => eq as clsEQ).ToList();
             }
         }
+        public static List<clsChargeStation> ChargeStations = new List<clsChargeStation>();
         public static Dictionary<string, clsEndPointOptions> EQOptions = new Dictionary<string, clsEndPointOptions>();
+        public static Dictionary<string, clsEndPointOptions> ChargeStationsOptions = new Dictionary<string, clsEndPointOptions>();
         public static async Task InitializeAsync()
         {
             await InitializeAsync(Configs == null ? new clsEQManagementConfigs
             {
                 EQConfigPath = "EQConfigs.json",
+                ChargeStationConfigPath = "ChargStationConfigs.json",
                 WIPConfigPath = "WIPConfigs.json"
             } : Configs);
         }
@@ -43,12 +46,24 @@ namespace EquipmentManagment.Manager
         {
             DisposeEQs();
             Configs = _Configs;
+            _LoadChargeStationConfigs(_Configs.ChargeStationConfigPath);
             _LoadEqConfigs(_Configs.EQConfigPath);
             _LoadWipConfigs(_Configs.WIPConfigPath);
 
             if (_Configs.UseEqEmu)
             {
                 StaEQPEmulatorsManagager.InitEmu(EQOptions);
+            }
+            foreach (KeyValuePair<string, clsEndPointOptions> item in ChargeStationsOptions)
+            {
+                var eqName = item.Key;
+                var options = item.Value;
+                var charge_station = new clsChargeStation(options);
+                if (charge_station != null)
+                {
+                    ChargeStations.Add(charge_station);
+                    await charge_station.Connect();
+                }
             }
             foreach (KeyValuePair<string, clsEndPointOptions> item in EQOptions)
             {
@@ -58,8 +73,6 @@ namespace EquipmentManagment.Manager
                 EndPointDeviceAbstract EQ = null;
                 if (item.Value.EqType == EQ_TYPE.EQ)
                     EQ = new clsEQ(options);
-                else if (item.Value.EqType == EQ_TYPE.CHARGE)
-                    EQ = new clsChargeStation(options);
                 else if (item.Value.EqType == EQ_TYPE.BATTERY_EXCHANGER)
                     EQ = new clsBatteryExchanger(options);
                 if (EQ != null)
@@ -89,6 +102,31 @@ namespace EquipmentManagment.Manager
             EQPDevices.Clear();
         }
 
+        private static void _LoadChargeStationConfigs(string charge_station_ConfigPath)
+        {
+            string json = _LoadConfigJson(charge_station_ConfigPath);
+            if (json != "")
+            {
+                ChargeStationsOptions = JsonConvert.DeserializeObject<Dictionary<string, clsEndPointOptions>>(json);
+            }
+            else
+            {
+                ChargeStationsOptions = new Dictionary<string, clsEndPointOptions>()
+                {
+                    {"Charge_1", new clsEndPointOptions
+                    {
+                         ConnOptions = new Connection.ConnectOptions(),
+                         Name = "Charge_1",
+                         TagID = 1,
+                          EqType = EQ_TYPE.CHARGE,
+                           LdULdType = EQLDULD_TYPE.Charge,
+
+                    } }
+                };
+            }
+            SaveChargeStationConfigs();
+
+        }
         private static void _LoadEqConfigs(string eQConfigPath)
         {
             string json = _LoadConfigJson(eQConfigPath);
@@ -130,11 +168,16 @@ namespace EquipmentManagment.Manager
             Directory.CreateDirectory(Path.GetDirectoryName(Configs.EQConfigPath));
             File.WriteAllText(Configs.EQConfigPath, JsonConvert.SerializeObject(EQOptions, Formatting.Indented));
         }
+        public static void SaveChargeStationConfigs()
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(Configs.ChargeStationConfigPath));
+            File.WriteAllText(Configs.ChargeStationConfigPath, JsonConvert.SerializeObject(ChargeStationsOptions, Formatting.Indented));
+        }
 
 
         public static Dictionary<string, clsChargerData> GetChargeStationStates()
         {
-            return EQPDevices.FindAll(eq => eq.EndPointOptions.EqType == EQ_TYPE.CHARGE).ToDictionary(eq => eq.EQName, eq => (eq as clsChargeStation).Datas);
+            return ChargeStations.ToDictionary(eq => eq.EQName, eq => eq.Datas);
         }
         public static List<EQStatusDIDto> GetEQStates()
         {

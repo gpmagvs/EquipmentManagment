@@ -9,7 +9,8 @@ namespace EquipmentManagment.MainEquipment
     {
         LD,
         ULD,
-        LDULD
+        LDULD,
+        Charge
     }
     public class clsEQ : EndPointDeviceAbstract
     {
