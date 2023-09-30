@@ -81,7 +81,7 @@ namespace EquipmentManagment.Emu
         }
         public bool SetStatusUnloadable()
         {
-            ModifyInputs(0, new bool[8] { false, true, true, false, true, true, true, false });
+            ModifyInputs(0, new bool[8] { false, true, true,true, false,  true, true, false });
             return true;
         }
         public void ModifyInput(int index, bool value)

@@ -185,7 +185,7 @@ namespace EquipmentManagment.Manager
             {
                 IsConnected = eq.IsConnected,
                 EQName = eq.EQName,
-                Load_Reuest = (eq as clsEQ).Load_Request,
+                Load_Request = (eq as clsEQ).Load_Request,
                 Unload_Request = (eq as clsEQ).Unload_Request,
                 Port_Exist = (eq as clsEQ).Port_Exist,
                 Up_Pose = (eq as clsEQ).Up_Pose,
@@ -208,7 +208,7 @@ namespace EquipmentManagment.Manager
                 var _EQ = endpoint as clsEQ;
                 return new EQStatusDIDto()
                 {
-                    Load_Reuest = _EQ.Load_Request,
+                    Load_Request = _EQ.Load_Request,
                     Down_Pose = _EQ.Down_Pose,
                     EQName = _EQ.EQName,
                     Eqp_Status_Down = _EQ.Eqp_Status_Down,

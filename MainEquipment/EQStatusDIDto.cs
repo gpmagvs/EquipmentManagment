@@ -6,8 +6,8 @@
         {
             DISCONNECT,
             Down,
-            LOADABLE,
             BUSY,
+            LOADABLE,
             UNLOADABLE
         }
         public bool IsConnected { get; set; }
@@ -18,7 +18,7 @@
             {
                 if (!IsConnected)
                     return EQ_TRANSFER_STATUS.DISCONNECT;
-                if (Load_Reuest)
+                if (Load_Request)
                     return EQ_TRANSFER_STATUS.LOADABLE;
                 if (Unload_Request)
                     return EQ_TRANSFER_STATUS.UNLOADABLE;
@@ -28,7 +28,7 @@
                     return EQ_TRANSFER_STATUS.BUSY;
             }
         }
-        public bool Load_Reuest { get; set; }
+        public bool Load_Request { get; set; }
         public bool Unload_Request { get; set; }
         public bool Port_Exist { get; set; }
         public bool Up_Pose { get; set; }
