@@ -26,29 +26,24 @@ namespace EquipmentManagment.Emu
             slave.DataStore = DataStoreFactory.CreateDefaultDataStore();
             bool[] inputs = new bool[4096];
 
-            if (port % 2 == 0)
-            {
-                slave.DataStore.InputDiscretes[1] = false;
-                slave.DataStore.InputDiscretes[2] = false;
-                slave.DataStore.InputDiscretes[3] = false;
-                slave.DataStore.InputDiscretes[4] = false;
-                slave.DataStore.InputDiscretes[5] = true;
-                slave.DataStore.InputDiscretes[6] = true;
-                slave.DataStore.InputDiscretes[7] = false;
-                slave.DataStore.InputDiscretes[8] = true;
-            }
-            else
-            {
-                slave.DataStore.InputDiscretes[1] = true;
-                slave.DataStore.InputDiscretes[2] = false;
-                slave.DataStore.InputDiscretes[3] = false;
-                slave.DataStore.InputDiscretes[4] = false;
-                slave.DataStore.InputDiscretes[5] = true;
-                slave.DataStore.InputDiscretes[6] = true;
-                slave.DataStore.InputDiscretes[7] = false;
-                slave.DataStore.InputDiscretes[8] = true;
-
-            }
+            slave.DataStore.InputDiscretes[5] = true;
+            slave.DataStore.InputDiscretes[6] = true;
+            slave.DataStore.InputDiscretes[7] = false;
+            slave.DataStore.InputDiscretes[8] = true;
+            //if (port % 2 == 0)
+            //{
+            //    slave.DataStore.InputDiscretes[1] = false;
+            //    slave.DataStore.InputDiscretes[2] = false;
+            //    slave.DataStore.InputDiscretes[3] = false;
+            //    slave.DataStore.InputDiscretes[4] = false;
+            //}
+            //else
+            //{
+            //    slave.DataStore.InputDiscretes[1] = true;
+            //    slave.DataStore.InputDiscretes[2] = false;
+            //    slave.DataStore.InputDiscretes[3] = false;
+            //    slave.DataStore.InputDiscretes[4] = false;
+            //}
 
             slave.DataStore.InputDiscretes[9] = false; //LREQ
             slave.DataStore.InputDiscretes[10] = false;//UREQ
