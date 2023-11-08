@@ -42,6 +42,8 @@ namespace EquipmentManagment.Device
         public clsEQIOLocation IOLocation { get; set; } = new clsEQIOLocation();
 
         public string PLCOptionJsonFile { get; set; }
+
+        public string InstalledCargoID { get; set; } = "";
     }
 
     public class clsEQIOLocation
@@ -65,6 +67,14 @@ namespace EquipmentManagment.Device
         public ushort To_EQ_Low { get; set; } = 1;
         public ushort CMD_Reserve_Up { get; set; } = 2;
         public ushort CMD_Reserve_Low { get; set; } = 3;
+
+
+        public ushort HS_AGV_VALID { get; set; } = 8;
+        public ushort HS_AGV_TR_REQ { get; set; } = 9;
+        public ushort HS_AGV_READY { get; set; } = 10;
+        public ushort HS_AGV_BUSY { get; set; } = 11;
+        public ushort HS_AGV_COMPT { get; set; } = 12;
+
         #endregion
     }
 

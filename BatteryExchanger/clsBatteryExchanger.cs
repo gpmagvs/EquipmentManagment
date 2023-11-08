@@ -43,5 +43,9 @@ namespace EquipmentManagment.BatteryExchanger
             string json = File.ReadAllText(json_file_path);
             return JsonConvert.DeserializeObject<clsPLCMemOption>(json);
         }
+
+        protected override void WriteOutuptsData()
+        {
+        }
     }
 }

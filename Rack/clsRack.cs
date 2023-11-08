@@ -24,5 +24,9 @@ namespace EquipmentManagment.Rack
         protected override void DefineInputData()
         {
         }
+
+        protected override void WriteOutuptsData()
+        {
+        }
     }
 }

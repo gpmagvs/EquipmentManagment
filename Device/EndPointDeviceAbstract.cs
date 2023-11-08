@@ -182,6 +182,7 @@ namespace EquipmentManagment.Device
                             ReadDataUseMCProtocol();
                         }
                         DefineInputData();
+                       
                     }
                 }
                 catch (NullReferenceException ex)
@@ -241,7 +242,7 @@ namespace EquipmentManagment.Device
             }
         }
 
-
+        protected abstract void WriteOutuptsData();
         protected abstract void DefineInputData();
 
         protected virtual void Dispose(bool disposing)

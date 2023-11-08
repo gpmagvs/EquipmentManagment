@@ -371,6 +371,8 @@ namespace EquipmentManagment.ChargeStation
             return BitConverter.ToInt32(new byte[4] { h, h2, l, l2 }, 0);
         }
 
-
+        protected override void WriteOutuptsData()
+        {
+        }
     }
 }

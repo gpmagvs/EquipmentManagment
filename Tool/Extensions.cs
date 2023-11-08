@@ -39,15 +39,22 @@ namespace EquipmentManagment.Tool
         }
         public static ushort GetUshort(this bool[] BoolArray)
         {
-            bool[] NewSwitchArray = new bool[16];
-            Array.Copy(BoolArray, 8, NewSwitchArray, 0, 8);
-            Array.Copy(BoolArray, 0, NewSwitchArray, 8, 8);
-            ushort ReturnData = 0;
-            for (int i = 0; i < NewSwitchArray.Length; i++)
+            try
             {
-                ReturnData += (ushort)(Convert.ToUInt16(Math.Pow(2, i)) * Convert.ToUInt16(NewSwitchArray[i]));
+                bool[] NewSwitchArray = new bool[16];
+                Array.Copy(BoolArray, 8, NewSwitchArray, 0, 8);
+                Array.Copy(BoolArray, 0, NewSwitchArray, 8, 8);
+                ushort ReturnData = 0;
+                for (int i = 0; i < NewSwitchArray.Length; i++)
+                {
+                    ReturnData += (ushort)(Convert.ToUInt16(Math.Pow(2, i)) * Convert.ToUInt16(NewSwitchArray[i]));
+                }
+                return ReturnData;
             }
-            return ReturnData;
+            catch (Exception ex)
+            {
+                return 0;
+            }
 
         }
     }

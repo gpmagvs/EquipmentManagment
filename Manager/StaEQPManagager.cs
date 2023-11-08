@@ -44,52 +44,62 @@ namespace EquipmentManagment.Manager
 
         public static async Task InitializeAsync(clsEQManagementConfigs _Configs)
         {
-            DisposeEQs();
-            Configs = _Configs;
-            _LoadChargeStationConfigs(_Configs.ChargeStationConfigPath);
-            _LoadEqConfigs(_Configs.EQConfigPath);
-            _LoadWipConfigs(_Configs.WIPConfigPath);
+            try
+            {
+                DisposeEQs();
+                Configs = _Configs;
+                _LoadChargeStationConfigs(_Configs.ChargeStationConfigPath);
+                _LoadEqConfigs(_Configs.EQConfigPath);
+                _LoadWipConfigs(_Configs.WIPConfigPath);
 
-            if (_Configs.UseEqEmu)
-            {
-                StaEQPEmulatorsManagager.InitEmu(EQOptions);
-            }
-            foreach (KeyValuePair<string, clsEndPointOptions> item in ChargeStationsOptions)
-            {
-                var eqName = item.Key;
-                var options = item.Value;
-                var charge_station = new clsChargeStation(options);
-                if (charge_station != null)
+                if (_Configs.UseEqEmu)
                 {
-                    ChargeStations.Add(charge_station);
-                    await charge_station.Connect();
+                    StaEQPEmulatorsManagager.InitEmu(EQOptions);
                 }
-            }
-            foreach (KeyValuePair<string, clsEndPointOptions> item in EQOptions)
-            {
-                var eqName = item.Key;
-                var options = item.Value;
-
-                EndPointDeviceAbstract EQ = null;
-                if (item.Value.EqType == EQ_TYPE.EQ)
-                    EQ = new clsEQ(options);
-                else if (item.Value.EqType == EQ_TYPE.BATTERY_EXCHANGER)
-                    EQ = new clsBatteryExchanger(options);
-                if (EQ != null)
+                foreach (KeyValuePair<string, clsEndPointOptions> item in ChargeStationsOptions)
                 {
-                    EQPDevices.Add(EQ);
-                    _ = Task.Factory.StartNew(async () =>
+                    var eqName = item.Key;
+                    var options = item.Value;
+                    var charge_station = new clsChargeStation(options);
+                    if (charge_station != null)
                     {
-                        bool connected = EQ.EndPointOptions.EqType == EQ_TYPE.BATTERY_EXCHANGER ? await (EQ as clsBatteryExchanger).Connect() : await EQ.Connect();
-                        if (connected)
-                        {
-                            if (EQ.EndPointOptions.EqType == EQ_TYPE.EQ)
-                                ((clsEQ)EQ).ReserveUp();
-                        }
-                    });
+                        ChargeStations.Add(charge_station);
+                        await charge_station.Connect();
+                    }
+                }
+                foreach (KeyValuePair<string, clsEndPointOptions> item in EQOptions)
+                {
+                    var eqName = item.Key;
+                    var options = item.Value;
 
+                    EndPointDeviceAbstract EQ = null;
+                    if (item.Value.EqType == EQ_TYPE.EQ)
+                    {
+                        EQ = new clsEQ(options);
+                    }
+                    else if (item.Value.EqType == EQ_TYPE.BATTERY_EXCHANGER)
+                        EQ = new clsBatteryExchanger(options);
+                    if (EQ != null)
+                    {
+                        EQPDevices.Add(EQ);
+                        _ = Task.Factory.StartNew(async () =>
+                        {
+                            bool connected = EQ.EndPointOptions.EqType == EQ_TYPE.BATTERY_EXCHANGER ? await (EQ as clsBatteryExchanger).Connect() : await EQ.Connect();
+                            //if (connected)
+                            //{
+                            //    if (EQ.EndPointOptions.EqType == EQ_TYPE.EQ)
+                            //        ((clsEQ)EQ).ReserveUp();
+                            //}
+                        });
+
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+
+            }
+           
         }
 
         public static void DisposeEQs()
