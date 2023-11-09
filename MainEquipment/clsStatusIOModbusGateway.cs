@@ -33,7 +33,7 @@ namespace EquipmentManagment.MainEquipment
                 slave.DataStore.InputDiscretes[i + 1] = outputs[i];
             }
         }
-
+        private string last_coil_str = "";
         private void Slave_ModbusSlaveRequestReceived(object sender, ModbusSlaveRequestEventArgs e)
         {
             if (e.Message is WriteMultipleCoilsRequest request)
@@ -41,7 +41,11 @@ namespace EquipmentManagment.MainEquipment
                 ushort startAddress = request.StartAddress;
                 bool[] coils = request.Data.ToArray();
                 ushort coilCount = (ushort)coils.Length;
-                OnAGVOutputsChanged?.Invoke(this, coils);
+                string coilval_str = string.Join(",", coils);
+
+                if (coilval_str != last_coil_str)
+                    OnAGVOutputsChanged?.Invoke(this, coils);
+                last_coil_str = coilval_str;
                 try
                 {
                     for (int i = 0; i < coilCount; i++)
