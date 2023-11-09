@@ -18,6 +18,8 @@ namespace EquipmentManagment.Device
 {
     public abstract partial class EndPointDeviceAbstract : IDisposable
     {
+        public static event EventHandler<EndPointDeviceAbstract> OnEQDisconnected;
+        public static event EventHandler<EndPointDeviceAbstract> OnEQConnected;
         public EndPointDeviceAbstract(clsEndPointOptions options)
         {
             EndPointOptions = options;
@@ -47,7 +49,18 @@ namespace EquipmentManagment.Device
         public virtual bool IsConnected
         {
             get => _IsConnected;
-            set => _IsConnected = value;
+            set
+            {
+                if (_IsConnected != value)
+                {
+                    if (!value)
+                        OnEQDisconnected?.Invoke(this, this);
+                    else
+                        OnEQConnected?.Invoke(this, this);
+                    _IsConnected = value;
+
+                }
+            }
         }
 
         public List<bool> InputBuffer = new List<bool>();
@@ -61,7 +74,7 @@ namespace EquipmentManagment.Device
         /// <param name="IP"></param>
         /// <param name="Port"></param>
         /// <returns></returns>
-        public async Task<bool> Connect(bool use_for_conn_test = false)
+        public async Task<bool> Connect(bool use_for_conn_test = false, bool retry = false)
         {
             await Task.Delay(1);
 
@@ -88,6 +101,8 @@ namespace EquipmentManagment.Device
             }
             else
             {
+                if (!retry)
+                    OnEQDisconnected?.Invoke(this, this);
                 IsConnected = false;
                 if (!use_for_conn_test)
                     _StartRetry();
@@ -97,7 +112,7 @@ namespace EquipmentManagment.Device
 
         private async Task _StartRetry()
         {
-            await Connect();
+            await Connect(retry: true);
         }
 
         /// <summary>
@@ -112,9 +127,9 @@ namespace EquipmentManagment.Device
             {
                 tcp_client = new TcpClient(IP, Port);
                 master = ModbusIpMaster.CreateIp(tcp_client);
-                master.Transport.ReadTimeout = 5000;
-                master.Transport.WriteTimeout = 5000;
-                master.Transport.Retries = 10;
+                master.Transport.ReadTimeout = 1000;
+                master.Transport.WriteTimeout = 1000;
+                master.Transport.Retries = 2;
                 return true;
             }
             catch (Exception ex)
@@ -182,7 +197,7 @@ namespace EquipmentManagment.Device
                             ReadDataUseMCProtocol();
                         }
                         DefineInputData();
-                       
+
                     }
                 }
                 catch (NullReferenceException ex)
@@ -206,7 +221,7 @@ namespace EquipmentManagment.Device
         /// </summary>
         private void ReadDataUseMCProtocol()
         {
-            McInterface.ReadBit(ref EQPLCMemoryTb, PLCMemOption.EQPBitAreaName,PLCMemOption.EQPBitStartAddressName,PLCMemOption.EQP_Bit_Size);
+            McInterface.ReadBit(ref EQPLCMemoryTb, PLCMemOption.EQPBitAreaName, PLCMemOption.EQPBitStartAddressName, PLCMemOption.EQP_Bit_Size);
             McInterface.ReadWord(ref EQPLCMemoryTb, PLCMemOption.EQPWordAreaName, PLCMemOption.EQPWordStartAddressName, PLCMemOption.EQP_Word_Size);
         }
 
