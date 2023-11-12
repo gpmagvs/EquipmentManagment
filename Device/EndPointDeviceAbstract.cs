@@ -282,5 +282,18 @@ namespace EquipmentManagment.Device
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
+        public class IOChangedEventArgs : EventArgs
+        {
+            public IOChangedEventArgs(EndPointDeviceAbstract Device, string IOName, bool IOState)
+            {
+                this.IOName = IOName;
+                this.Device = Device;
+                this.IOState = IOState;
+            }
+            public EndPointDeviceAbstract Device { get; }
+            public string IOName { get; }
+            public bool IOState { get; }
+        }
     }
+   
 }

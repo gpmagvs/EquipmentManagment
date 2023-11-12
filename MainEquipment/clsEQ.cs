@@ -25,8 +25,17 @@ namespace EquipmentManagment.MainEquipment
         #region EQ->AGVS
         private bool _Load_Reuest = false;
         private bool _Unload_Request = false;
+        private bool _Port_Exist = false;
+        private bool _Up_Pose = false;
+        private bool _Down_Pose = false;
+        private bool _Eqp_Status_Down = false;
+        private bool _HS_EQ_L_REQ = false;
+        private bool _HS_EQ_U_REQ = false;
+        private bool _HS_EQ_READY = false;
+        private bool _HS_EQ_BUSY = false;
         public clsStatusIOModbusGateway AGVModbusGateway { get; set; } = new clsStatusIOModbusGateway();
         public static event EventHandler<clsEQ> OnEqUnloadRequesting;
+        public static event EventHandler<IOChangedEventArgs> OnIOStateChanged;
         public bool Load_Request
         {
             get => _Load_Reuest;
@@ -35,6 +44,7 @@ namespace EquipmentManagment.MainEquipment
                 if (_Load_Reuest != value)
                 {
                     _Load_Reuest = value;
+                    OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "Load_Request", value));
                 }
             }
         }
@@ -46,21 +56,114 @@ namespace EquipmentManagment.MainEquipment
                 if (_Unload_Request != value)
                 {
                     _Unload_Request = value;
+                    OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "Unload_Request", value));
                     if (value)
                         OnEqUnloadRequesting?.Invoke(this, this);
                 }
             }
         }
-        public bool Port_Exist { get; set; }
-        public bool Up_Pose { get; set; }
-        public bool Down_Pose { get; set; }
-        public bool Eqp_Status_Down { get; set; }
+        public bool Port_Exist
+        {
+            get => _Port_Exist;
+            set
+            {
+                if(_Port_Exist != value)
+                {
+                    _Port_Exist = value;
+                    OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "Port_Exist", value));
+                }
+            }
+        }
+        public bool Up_Pose
+        {
+            get => _Up_Pose;
+            set
+            {
+                if (_Up_Pose != value)
+                {
+                    _Up_Pose = value;
+                    OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "Up_Pose", value));
+                }
+            }
+        }
+        public bool Down_Pose
+        {
+            get => _Down_Pose;
+            set
+            {
+                if (_Down_Pose != value)
+                {
+                    _Down_Pose = value;
+                    OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "Down_Pose", value));
+                }
+            }
+        }
+        public bool Eqp_Status_Down
+        {
+            get => _Eqp_Status_Down;
+            set
+            {
+                if (_Eqp_Status_Down != value)
+                {
+                    _Eqp_Status_Down = value;
+                    OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "Eqp_Status_Down", value));
+                }
+            }
+        }
 
 
-        public bool HS_EQ_L_REQ { get; set; }
-        public bool HS_EQ_U_REQ { get; set; }
-        public bool HS_EQ_READY { get; set; }
-        public bool HS_EQ_BUSY { get; set; }
+        public bool HS_EQ_L_REQ
+        {
+            get => _HS_EQ_L_REQ;
+            set
+            {
+                if (_HS_EQ_L_REQ != value)
+                {
+                    _HS_EQ_L_REQ = value;
+                    OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "HS_EQ_L_REQ", value));
+                }
+            }
+        }
+
+        public bool HS_EQ_U_REQ
+        {
+            get => _HS_EQ_U_REQ;
+            set
+            {
+                if (_HS_EQ_U_REQ != value)
+                {
+                    _HS_EQ_U_REQ = value;
+                    OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "HS_EQ_U_REQ", value));
+                }
+            }
+        }
+
+        public bool HS_EQ_READY
+        {
+            get => _HS_EQ_READY;
+            set
+            {
+                if (_HS_EQ_READY != value)
+                {
+                    _HS_EQ_READY = value;
+                    OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "HS_EQ_READY", value));
+                }
+            }
+        }
+
+        public bool HS_EQ_BUSY
+        {
+            get => _HS_EQ_BUSY;
+            set
+            {
+                if (_HS_EQ_BUSY != value)
+                {
+                    _HS_EQ_BUSY = value;
+                    OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "HS_EQ_BUSY", value));
+                }
+            }
+        }
+
 
 
 
@@ -78,6 +181,7 @@ namespace EquipmentManagment.MainEquipment
                 if (_HS_AGV_VALID != value)
                 {
                     _HS_AGV_VALID = value;
+                    OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "AGV_VALID", value));
                     Console.WriteLine($"AGV_VALID Changed to :{value}");
                     _WriteOutputSiganls();
                 }
@@ -91,6 +195,7 @@ namespace EquipmentManagment.MainEquipment
                 if (_HS_AGV_TR_REQ != value)
                 {
                     _HS_AGV_TR_REQ = value;
+                    OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "AGV_TR_REQ", value));
                     Console.WriteLine($"AGV_TR_REQ Changed to :{value}");
                     _WriteOutputSiganls();
                 }
@@ -104,6 +209,7 @@ namespace EquipmentManagment.MainEquipment
                 if (_HS_AGV_BUSY != value)
                 {
                     _HS_AGV_BUSY = value;
+                    OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "AGV_BUSY", value));
                     Console.WriteLine($"AGV_BUSY Changed to :{value}");
                     _WriteOutputSiganls();
                 }
@@ -117,6 +223,7 @@ namespace EquipmentManagment.MainEquipment
                 if (_HS_AGV_READY != value)
                 {
                     _HS_AGV_READY = value;
+                    OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "AGV_READY", value));
                     Console.WriteLine($"AGV_READY Changed to :{value}");
                     _WriteOutputSiganls();
                 }
@@ -130,6 +237,7 @@ namespace EquipmentManagment.MainEquipment
                 if (_HS_AGV_COMPT != value)
                 {
                     _HS_AGV_COMPT = value;
+                    OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "AGV_COMPT", value));
                     Console.WriteLine($"AGV_COMPT Changed to :{value}");
                     _WriteOutputSiganls();
                 }

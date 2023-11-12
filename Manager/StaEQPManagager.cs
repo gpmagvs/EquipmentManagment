@@ -243,6 +243,20 @@ namespace EquipmentManagment.Manager
             }).ToList();
         }
 
+        public static bool TryGetEQByEqName(string eqName, out clsEQ eQ , out string errorMsg)
+        {
+            errorMsg = string.Empty;
+            eQ = null;
+            try
+            {
+                eQ = GetEQByName(eqName);
+            }
+            catch (Exception ex)
+            {
+                errorMsg = ex.Message;
+            }
+            return eQ != null;
+        }
         public static EQStatusDIDto GetEQStatesByTagID(int tag)
         {
             var endpoint = EQPDevices.FirstOrDefault(eq => eq.EndPointOptions.TagID == tag);
@@ -275,5 +289,6 @@ namespace EquipmentManagment.Manager
         {
             return EQPDevices.FirstOrDefault(eq => eq.EndPointOptions.TagID == eQTag) as clsEQ;
         }
+
     }
 }
