@@ -205,6 +205,11 @@ namespace EquipmentManagment.Manager
                 HS_EQ_READY = (eq as clsEQ).HS_EQ_READY,
                 HS_EQ_L_REQ = (eq as clsEQ).HS_EQ_L_REQ,
                 HS_EQ_U_REQ = (eq as clsEQ).HS_EQ_U_REQ,
+                HS_AGV_VALID = (eq as clsEQ).HS_AGV_VALID,
+                HS_AGV_TR_REQ = (eq as clsEQ).HS_AGV_TR_REQ,
+                HS_AGV_BUSY= (eq as clsEQ).HS_AGV_BUSY,
+                HS_AGV_READY = (eq as clsEQ).HS_AGV_READY,
+                HS_AGV_COMPT = (eq as clsEQ).HS_AGV_COMPT,
                 Region = eq.EndPointOptions.Region,
                 Tag = eq.EndPointOptions.TagID
             }).ToList();

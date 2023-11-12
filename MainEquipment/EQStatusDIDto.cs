@@ -40,6 +40,14 @@
         public bool HS_EQ_READY { get; set; }
         public bool HS_EQ_BUSY { get; set; }
 
+
+        public bool HS_AGV_VALID{ get; set; }
+        public bool HS_AGV_TR_REQ { get; set; }
+        public bool HS_AGV_BUSY{ get; set; }
+        public bool HS_AGV_READY { get; set; }
+        public bool HS_AGV_COMPT { get; set; }
+
+
         public string Region { get; set; }
         public int Tag { get; set; }
 

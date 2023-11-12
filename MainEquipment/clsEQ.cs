@@ -103,7 +103,7 @@ namespace EquipmentManagment.MainEquipment
             {
                 if (_HS_AGV_BUSY != value)
                 {
-                    _HS_AGV_VALID = value;
+                    _HS_AGV_BUSY = value;
                     Console.WriteLine($"AGV_BUSY Changed to :{value}");
                     _WriteOutputSiganls();
                 }
