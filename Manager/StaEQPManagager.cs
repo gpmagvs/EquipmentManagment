@@ -46,7 +46,7 @@ namespace EquipmentManagment.Manager
         {
             try
             {
-                DisposeEQs();
+                //DisposeEQs();
                 Configs = _Configs;
                 _LoadChargeStationConfigs(_Configs.ChargeStationConfigPath);
                 _LoadEqConfigs(_Configs.EQConfigPath);
@@ -99,7 +99,7 @@ namespace EquipmentManagment.Manager
             {
 
             }
-           
+
         }
 
         public static void DisposeEQs()
@@ -156,6 +156,15 @@ namespace EquipmentManagment.Manager
                     } }
                 };
             }
+            var alleqnames = EQOptions.Keys.ToList();
+            var fin = EQOptions.Values.Where(val => val.ValidDownStreamEndPointNames.Any(name => !alleqnames.Contains(name)));
+            if (fin.Any())
+            {
+                foreach (var item in fin)
+                {
+                    item.ValidDownStreamEndPointNames = item.ValidDownStreamEndPointNames.FindAll(nam => alleqnames.Contains(nam)).ToList();
+                }
+            }
             SaveEqConfigs();
 
         }
@@ -175,6 +184,25 @@ namespace EquipmentManagment.Manager
         }
         public static void SaveEqConfigs()
         {
+            foreach (KeyValuePair<string, clsEndPointOptions> item in EQOptions)
+            {
+                var _eq = EQList.FirstOrDefault(eq => eq.EndPointOptions.TagID == item.Value.TagID);
+                if (_eq != null)
+                {
+                    var oriName = _eq.EndPointOptions.Name;
+                    if (StaEQPEmulatorsManagager.EqEmulators.TryGetValue(oriName, out var emulators))
+                    {
+                        if (!StaEQPEmulatorsManagager.EqEmulators.ContainsKey(item.Value.Name))
+                        {
+
+                            StaEQPEmulatorsManagager.EqEmulators.Add(item.Value.Name, emulators);
+                            StaEQPEmulatorsManagager.EqEmulators.Remove(oriName);
+                        }
+                    }
+                    _eq.EndPointOptions = item.Value;
+
+                }
+            }
             Directory.CreateDirectory(Path.GetDirectoryName(Configs.EQConfigPath));
             File.WriteAllText(Configs.EQConfigPath, JsonConvert.SerializeObject(EQOptions, Formatting.Indented));
         }
@@ -207,7 +235,7 @@ namespace EquipmentManagment.Manager
                 HS_EQ_U_REQ = (eq as clsEQ).HS_EQ_U_REQ,
                 HS_AGV_VALID = (eq as clsEQ).HS_AGV_VALID,
                 HS_AGV_TR_REQ = (eq as clsEQ).HS_AGV_TR_REQ,
-                HS_AGV_BUSY= (eq as clsEQ).HS_AGV_BUSY,
+                HS_AGV_BUSY = (eq as clsEQ).HS_AGV_BUSY,
                 HS_AGV_READY = (eq as clsEQ).HS_AGV_READY,
                 HS_AGV_COMPT = (eq as clsEQ).HS_AGV_COMPT,
                 Region = eq.EndPointOptions.Region,
