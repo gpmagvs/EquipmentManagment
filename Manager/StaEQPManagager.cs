@@ -240,7 +240,7 @@ namespace EquipmentManagment.Manager
                 HS_AGV_COMPT = (eq as clsEQ).HS_AGV_COMPT,
                 Region = eq.EndPointOptions.Region,
                 Tag = eq.EndPointOptions.TagID
-            }).ToList();
+            }).OrderBy(eq=>eq.EQName).ToList();
         }
 
         public static bool TryGetEQByEqName(string eqName, out clsEQ eQ , out string errorMsg)

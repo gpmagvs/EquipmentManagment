@@ -183,7 +183,7 @@ namespace EquipmentManagment.Device
                 {
                     while (IsConnected)
                     {
-                        Thread.Sleep(10);
+                        Thread.Sleep(100);
                         if (_ConnectionMethod == CONN_METHODS.MODBUS_TCP)
                         {
                             ReadInputsUseModbusTCP();
