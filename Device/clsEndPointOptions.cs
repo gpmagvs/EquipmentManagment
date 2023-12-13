@@ -44,6 +44,8 @@ namespace EquipmentManagment.Device
         public string PLCOptionJsonFile { get; set; }
 
         public string InstalledCargoID { get; set; } = "";
+
+        public int Height { get; set; } = 0;
     }
 
     public class clsEQIOLocation
