@@ -84,6 +84,18 @@ namespace EquipmentManagment.Device
     {
         public int Columns { get; set; } = 3;
         public int Rows { get; set; } = 3;
+
+        public new clsRackIOLocation IOLocation { get; set; } = new clsRackIOLocation();
+
+    }
+    public class clsRackIOLocation
+    {
+        #region X-Input
+        public ushort Tray_Sensor1 { get; set; } = 0;
+        public ushort Tray_Sensor2 { get; set; } = 1;
+        public ushort Box_Sensor1 { get; set; } = 2;
+        public ushort Box_Sensor2 { get; set; } = 3;
+        #endregion
     }
 
 
