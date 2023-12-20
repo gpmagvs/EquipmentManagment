@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO.Ports;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -28,6 +29,7 @@ namespace EquipmentManagment.Device
 
         public TcpClient tcp_client { get; private set; }
         protected ModbusIpMaster master;
+        protected SerialPort serial;
         public CIMComponent.clsMC_EthIF McInterface { get; private set; } = new CIMComponent.clsMC_EthIF();
 
         public clsEndPointOptions EndPointOptions { get; set; } = new clsEndPointOptions();
@@ -64,7 +66,7 @@ namespace EquipmentManagment.Device
         }
 
         public List<bool> InputBuffer = new List<bool>();
-        public List<byte> TcpDataBuffer { get; protected set; } = new List<byte>();
+        public List<byte> DataBuffer { get; protected set; } = new List<byte>();
 
         private bool disposedValue;
 
@@ -85,7 +87,7 @@ namespace EquipmentManagment.Device
             {
                 connected = await TCPIPConnect(EndPointOptions.ConnOptions.IP, EndPointOptions.ConnOptions.Port);
             }
-            else if (_ConnectionMethod == CONN_METHODS.MODBUS_RTU)
+            else if (_ConnectionMethod == CONN_METHODS.MODBUS_RTU | _ConnectionMethod == CONN_METHODS.SERIAL_PORT)
                 connected = await SerialPortConnect(EndPointOptions.ConnOptions.ComPort);
 
             else if (_ConnectionMethod == CONN_METHODS.MC)
@@ -170,9 +172,26 @@ namespace EquipmentManagment.Device
         /// </summary>
         /// <param name="comport"></param>
         /// <returns></returns>
-        protected virtual async Task<bool> SerialPortConnect(string comport)
+        protected virtual async Task<bool> SerialPortConnect(string comport, int baudrate = 115200)
         {
-            return false;
+            try
+            {
+                serial.Close();
+            }
+            catch (Exception ex)
+            {
+            }
+
+            try
+            {
+                serial = new SerialPort(comport, baudrate);
+                serial.Open();
+                return serial.IsOpen;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
         }
 
         public void StartSyncData()
@@ -196,6 +215,8 @@ namespace EquipmentManagment.Device
                         {
                             ReadDataUseMCProtocol();
                         }
+                        if (_ConnectionMethod == CONN_METHODS.SERIAL_PORT)
+                            ReadDataUseSerial();
                         DefineInputData();
 
                     }
@@ -214,6 +235,8 @@ namespace EquipmentManagment.Device
             });
             thread.Start();
         }
+
+        protected virtual void ReadDataUseSerial() { }
 
 
         /// <summary>
@@ -295,5 +318,5 @@ namespace EquipmentManagment.Device
             public bool IOState { get; }
         }
     }
-   
+
 }

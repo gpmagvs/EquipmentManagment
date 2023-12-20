@@ -31,7 +31,7 @@ namespace EquipmentManagment.Manager
         }
         public static List<clsChargeStation> ChargeStations = new List<clsChargeStation>();
         public static Dictionary<string, clsEndPointOptions> EQOptions = new Dictionary<string, clsEndPointOptions>();
-        public static Dictionary<string, clsEndPointOptions> ChargeStationsOptions = new Dictionary<string, clsEndPointOptions>();
+        public static Dictionary<string, clsChargeStationOptions> ChargeStationsOptions = new Dictionary<string, clsChargeStationOptions>();
         public static async Task InitializeAsync()
         {
             await InitializeAsync(Configs == null ? new clsEQManagementConfigs
@@ -56,11 +56,11 @@ namespace EquipmentManagment.Manager
                 {
                     StaEQPEmulatorsManagager.InitEmu(EQOptions);
                 }
-                foreach (KeyValuePair<string, clsEndPointOptions> item in ChargeStationsOptions)
+                foreach (KeyValuePair<string, clsChargeStationOptions> item in ChargeStationsOptions)
                 {
                     var eqName = item.Key;
                     var options = item.Value;
-                    var charge_station = new clsChargeStation(options);
+                    var charge_station = options.chip_brand==2? new clsChargeStationGY7601Base(options): new clsChargeStation(options);
                     if (charge_station != null)
                     {
                         ChargeStations.Add(charge_station);
@@ -117,13 +117,13 @@ namespace EquipmentManagment.Manager
             string json = _LoadConfigJson(charge_station_ConfigPath);
             if (json != "")
             {
-                ChargeStationsOptions = JsonConvert.DeserializeObject<Dictionary<string, clsEndPointOptions>>(json);
+                ChargeStationsOptions = JsonConvert.DeserializeObject<Dictionary<string, clsChargeStationOptions>>(json);
             }
             else
             {
-                ChargeStationsOptions = new Dictionary<string, clsEndPointOptions>()
+                ChargeStationsOptions = new Dictionary<string, clsChargeStationOptions>()
                 {
-                    {"Charge_1", new clsEndPointOptions
+                    {"Charge_1", new clsChargeStationOptions
                     {
                          ConnOptions = new Connection.ConnectOptions(),
                          Name = "Charge_1",

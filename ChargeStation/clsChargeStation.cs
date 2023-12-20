@@ -159,10 +159,10 @@ namespace EquipmentManagment.ChargeStation
                     tcp_client.Client.Send(ReadChargerStatesCmd, 0, 57, SocketFlags.None);
                     WriteSettingFlag = false;
                 }
-                TcpDataBuffer.Clear();
+                DataBuffer.Clear();
                 CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromSeconds(3));
 
-                while (TcpDataBuffer.Count != 57)
+                while (DataBuffer.Count != 57)
                 {
                     Thread.Sleep(1);
                     byte[] buffer = new byte[57];
@@ -180,7 +180,7 @@ namespace EquipmentManagment.ChargeStation
                         continue;
 
                     ArraySegment<byte> recvData = new ArraySegment<byte>(buffer, 0, recLength);
-                    TcpDataBuffer.AddRange(recvData.ToArray());
+                    DataBuffer.AddRange(recvData.ToArray());
                 }
             }
             catch (SocketException sckex)
@@ -212,9 +212,9 @@ namespace EquipmentManagment.ChargeStation
         protected override void DefineInputData()
         {
 
-            if (TcpDataBuffer.Count != 57)
+            if (DataBuffer.Count != 57)
                 return;
-            if (TcpDataBuffer[13] == 0x61 | TcpDataBuffer[13] == 0x60)
+            if (DataBuffer[13] == 0x61 | DataBuffer[13] == 0x60)
             {
                 Datas.CC = GetValue(Indexes_Write.CC_H, Indexes_Write.CC_L) / 10.0;
                 Datas.CV = GetValue(Indexes_Write.CV_H, Indexes_Write.CV_L) / 10.0;
@@ -230,33 +230,33 @@ namespace EquipmentManagment.ChargeStation
             Datas.TC = GetValue(Indexes.TC_H, Indexes.TC_L) /10.0;
             Datas.FV = GetValue(Indexes.FV_H, Indexes.FV_L) /10.0;
             Datas.CV = GetValue(Indexes.CV_H,Indexes.CV_L)/10.0;
-            Datas.Temperature = TcpDataBuffer[Indexes.TEMPERATURE];
+            Datas.Temperature = DataBuffer[Indexes.TEMPERATURE];
             Datas.Time = DateTime.FromBinary(GetValue(Indexes.TIME_L1, Indexes.TIME_L2, Indexes.TIME_H1, Indexes.TIME_H2));
             Datas.UpdateTime = DateTime.Now;
             //Errors
-            CheckStatus(TcpDataBuffer[Indexes.Status_1], 0, ERROR_CODE.EEPRROM_DATA_ERROR);
-            CheckStatus(TcpDataBuffer[Indexes.Status_1], 1, ERROR_CODE.Temp_Sensor_Short);
-            CheckStatus(TcpDataBuffer[Indexes.Status_1], 2, ERROR_CODE.Battery_Disconnect);
-            CheckStatus(TcpDataBuffer[Indexes.Status_1], 3, ERROR_CODE.CC_Timeout);
-            CheckStatus(TcpDataBuffer[Indexes.Status_1], 4, ERROR_CODE.CV_Timeout);
-            CheckStatus(TcpDataBuffer[Indexes.Status_1], 5, ERROR_CODE.FV_Timeout);
-            CheckStatus(TcpDataBuffer[Indexes.Status_1], 6, ERROR_CODE.Touch_Pad_OT);
+            CheckStatus(DataBuffer[Indexes.Status_1], 0, ERROR_CODE.EEPRROM_DATA_ERROR);
+            CheckStatus(DataBuffer[Indexes.Status_1], 1, ERROR_CODE.Temp_Sensor_Short);
+            CheckStatus(DataBuffer[Indexes.Status_1], 2, ERROR_CODE.Battery_Disconnect);
+            CheckStatus(DataBuffer[Indexes.Status_1], 3, ERROR_CODE.CC_Timeout);
+            CheckStatus(DataBuffer[Indexes.Status_1], 4, ERROR_CODE.CV_Timeout);
+            CheckStatus(DataBuffer[Indexes.Status_1], 5, ERROR_CODE.FV_Timeout);
+            CheckStatus(DataBuffer[Indexes.Status_1], 6, ERROR_CODE.Touch_Pad_OT);
             //TODO確認ErrorStatus
-            CheckStatus(TcpDataBuffer[Indexes.Status_2], 1, ERROR_CODE.CML);
-            CheckStatus(TcpDataBuffer[Indexes.Status_2], 2, ERROR_CODE.Temp_OT_Warning);
-            CheckStatus(TcpDataBuffer[Indexes.Status_2], 3, ERROR_CODE.Vin_UV_Fault);
-            CheckStatus(TcpDataBuffer[Indexes.Status_2], 4, ERROR_CODE.Iout_OC_Fault);
-            CheckStatus(TcpDataBuffer[Indexes.Status_2], 5, ERROR_CODE.Vout_OV_Fault);
-            CheckStatus(TcpDataBuffer[Indexes.Status_2], 6, ERROR_CODE.Output_OFF);
-            CheckStatus(TcpDataBuffer[Indexes.Status_2], 7, ERROR_CODE.Busy);
+            CheckStatus(DataBuffer[Indexes.Status_2], 1, ERROR_CODE.CML);
+            CheckStatus(DataBuffer[Indexes.Status_2], 2, ERROR_CODE.Temp_OT_Warning);
+            CheckStatus(DataBuffer[Indexes.Status_2], 3, ERROR_CODE.Vin_UV_Fault);
+            CheckStatus(DataBuffer[Indexes.Status_2], 4, ERROR_CODE.Iout_OC_Fault);
+            CheckStatus(DataBuffer[Indexes.Status_2], 5, ERROR_CODE.Vout_OV_Fault);
+            CheckStatus(DataBuffer[Indexes.Status_2], 6, ERROR_CODE.Output_OFF);
+            CheckStatus(DataBuffer[Indexes.Status_2], 7, ERROR_CODE.Busy);
 
-            CheckStatus(TcpDataBuffer[Indexes.Status_3], 1, ERROR_CODE.Other);
-            CheckStatus(TcpDataBuffer[Indexes.Status_3], 1, ERROR_CODE.Fans);
-            CheckStatus(TcpDataBuffer[Indexes.Status_3], 1, ERROR_CODE.Power_Good);
-            CheckStatus(TcpDataBuffer[Indexes.Status_3], 1, ERROR_CODE.MFR);
-            CheckStatus(TcpDataBuffer[Indexes.Status_3], 1, ERROR_CODE.Input);
-            CheckStatus(TcpDataBuffer[Indexes.Status_3], 1, ERROR_CODE.Iout_Pout);
-            CheckStatus(TcpDataBuffer[Indexes.Status_3], 1, ERROR_CODE.Vout);
+            CheckStatus(DataBuffer[Indexes.Status_3], 1, ERROR_CODE.Other);
+            CheckStatus(DataBuffer[Indexes.Status_3], 1, ERROR_CODE.Fans);
+            CheckStatus(DataBuffer[Indexes.Status_3], 1, ERROR_CODE.Power_Good);
+            CheckStatus(DataBuffer[Indexes.Status_3], 1, ERROR_CODE.MFR);
+            CheckStatus(DataBuffer[Indexes.Status_3], 1, ERROR_CODE.Input);
+            CheckStatus(DataBuffer[Indexes.Status_3], 1, ERROR_CODE.Iout_Pout);
+            CheckStatus(DataBuffer[Indexes.Status_3], 1, ERROR_CODE.Vout);
 
         }
 
@@ -274,13 +274,13 @@ namespace EquipmentManagment.ChargeStation
             else
                 Datas.ErrorCodes.Remove(StatusErrorCode);
         }
-        public bool SetCC(double val, out string message)
+        public virtual bool SetCC(double val, out string message)
         {
             int valToWrite = int.Parse(Math.Round(val * 10) + "");
             Datas.CC_Setting = valToWrite;
             return SendSettingsToCharger(out message);
         }
-        public bool SetCV(double val, out string message)
+        public virtual bool SetCV(double val, out string message)
         {
             int valToWrite = int.Parse(Math.Round(val * 10) + "");
             Datas.CV_Setting = valToWrite;
@@ -288,14 +288,14 @@ namespace EquipmentManagment.ChargeStation
 
         }
 
-        public bool SetFV(double val, out string message)
+        public virtual bool SetFV(double val, out string message)
         {
             int valToWrite = int.Parse(Math.Round(val * 10) + "");
             Datas.FV_Setting = valToWrite;
             return SendSettingsToCharger(out message);
 
         }
-        public bool SetTC(double val, out string message)
+        public virtual bool SetTC(double val, out string message)
         {
             int valToWrite = int.Parse(Math.Round(val * 10) + "");
             Datas.TC_Setting = valToWrite;
@@ -357,17 +357,17 @@ namespace EquipmentManagment.ChargeStation
         }
         private short GetValue(int LowByteIndex, int HighByteIndex)
         {
-            byte l = TcpDataBuffer[LowByteIndex];
-            byte h = TcpDataBuffer[HighByteIndex];
+            byte l = DataBuffer[LowByteIndex];
+            byte h = DataBuffer[HighByteIndex];
             return (new byte[2] { h, l }).GetInt();
         }
 
         private int GetValue(int LowByteIndex, int LowByteIndex2, int HighByteIndex, int HighByteIndex2)
         {
-            byte l = TcpDataBuffer[LowByteIndex];
-            byte l2 = TcpDataBuffer[LowByteIndex2];
-            byte h = TcpDataBuffer[HighByteIndex];
-            byte h2 = TcpDataBuffer[HighByteIndex2];
+            byte l = DataBuffer[LowByteIndex];
+            byte l2 = DataBuffer[LowByteIndex2];
+            byte h = DataBuffer[HighByteIndex];
+            byte h2 = DataBuffer[HighByteIndex2];
             return BitConverter.ToInt32(new byte[4] { h, h2, l, l2 }, 0);
         }
 
