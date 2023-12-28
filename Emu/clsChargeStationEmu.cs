@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using EquipmentManagment.ChargeStation;
 using EquipmentManagment.Connection;
+using EquipmentManagment.Device;
 using EquipmentManagment.Tool;
 
 namespace EquipmentManagment.Emu
@@ -23,11 +24,11 @@ namespace EquipmentManagment.Emu
         private byte[] CV_Bytes => (Convert.ToInt32(Math.Round(CV * 10))).GetHighLowBytes();
         private byte[] FV_Bytes => (Convert.ToInt32(Math.Round(FV * 10))).GetHighLowBytes();
         private byte[] TC_Bytes => (Convert.ToInt32(Math.Round(TC * 10))).GetHighLowBytes();
-        public override void StartEmu(int port = 502)
+        public override void StartEmu(clsEndPointOptions value)
         {
 
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            _socket.Bind(new IPEndPoint(IPAddress.Any, port));
+            _socket.Bind(new IPEndPoint(IPAddress.Any, value.ConnOptions.Port));
             _socket.Listen(10);
             StartAcceptClientConnectIn();
         }

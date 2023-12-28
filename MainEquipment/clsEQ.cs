@@ -29,9 +29,13 @@ namespace EquipmentManagment.MainEquipment
         private bool _Up_Pose = false;
         private bool _Down_Pose = false;
         private bool _Eqp_Status_Down = false;
+        private bool _Eqp_Status_Run = false;
+        private bool _Eqp_Status_Idle = false;
         private bool _HS_EQ_L_REQ = false;
         private bool _HS_EQ_U_REQ = false;
         private bool _HS_EQ_READY = false;
+        private bool _HS_EQ_UP_READY = false;
+        private bool _HS_EQ_LOW_READY = false;
         private bool _HS_EQ_BUSY = false;
         public clsStatusIOModbusGateway AGVModbusGateway { get; set; } = new clsStatusIOModbusGateway();
         public static event EventHandler<clsEQ> OnEqUnloadRequesting;
@@ -67,7 +71,7 @@ namespace EquipmentManagment.MainEquipment
             get => _Port_Exist;
             set
             {
-                if(_Port_Exist != value)
+                if (_Port_Exist != value)
                 {
                     _Port_Exist = value;
                     OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "Port_Exist", value));
@@ -112,6 +116,33 @@ namespace EquipmentManagment.MainEquipment
         }
 
 
+        public bool Eqp_Status_Run
+        {
+            get => _Eqp_Status_Run;
+            set
+            {
+                if (_Eqp_Status_Run != value)
+                {
+                    _Eqp_Status_Run = value;
+                    OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "Eqp_Status_Run", value));
+                }
+            }
+        }
+
+
+        public bool Eqp_Status_Idle
+        {
+            get => _Eqp_Status_Idle;
+            set
+            {
+                if (_Eqp_Status_Idle != value)
+                {
+                    _Eqp_Status_Idle = value;
+                    OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "Eqp_Status_Idle", value));
+                }
+            }
+        }
+
         public bool HS_EQ_L_REQ
         {
             get => _HS_EQ_L_REQ;
@@ -150,6 +181,30 @@ namespace EquipmentManagment.MainEquipment
                 }
             }
         }
+        public bool HS_EQ_UP_READY
+        {
+            get => _HS_EQ_UP_READY;
+            set
+            {
+                if (_HS_EQ_UP_READY != value)
+                {
+                    _HS_EQ_UP_READY = value;
+                    OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "HS_EQ_UP_READY", value));
+                }
+            }
+        }
+        public bool HS_EQ_LOW_READY
+        {
+            get => _HS_EQ_LOW_READY;
+            set
+            {
+                if (_HS_EQ_LOW_READY != value)
+                {
+                    _HS_EQ_LOW_READY = value;
+                    OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "HS_EQ_LOW_READY", value));
+                }
+            }
+        }
 
         public bool HS_EQ_BUSY
         {
@@ -167,6 +222,8 @@ namespace EquipmentManagment.MainEquipment
 
 
 
+        private bool _To_EQ_UP;
+        private bool _To_EQ_LOW;
         private bool _HS_AGV_VALID;
         private bool _HS_AGV_TR_REQ;
         private bool _HS_AGV_BUSY;
@@ -248,8 +305,34 @@ namespace EquipmentManagment.MainEquipment
 
         #region AGVS->EQ
 
-        public bool To_EQ_Up { get; set; }
-        public bool To_EQ_Low { get; set; }
+        public bool To_EQ_Up
+        {
+            get => _To_EQ_UP;
+            set
+            {
+                if (_To_EQ_UP != value)
+                {
+                    _To_EQ_UP = value;
+                    OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "To_EQ_Up", value));
+                    Console.WriteLine($"To_EQ_Up Changed to :{value}");
+                    _WriteOutputSiganls();
+                }
+            }
+        }
+        public bool To_EQ_Low {
+
+            get => _To_EQ_LOW;
+            set
+            {
+                if (_To_EQ_LOW != value)
+                {
+                    _To_EQ_LOW = value;
+                    OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "To_EQ_Low ", value));
+                    Console.WriteLine($"To_EQ_Low Changed to :{value}");
+                    _WriteOutputSiganls();
+                }
+            }
+        }
         public bool CMD_Reserve_Up { get; set; } = false;
         public bool CMD_Reserve_Low { get; set; }
 
@@ -282,10 +365,15 @@ namespace EquipmentManagment.MainEquipment
             Up_Pose = InputBuffer[io_location.Up_Pose];
             Down_Pose = InputBuffer[io_location.Down_Pose];
             Eqp_Status_Down = InputBuffer[io_location.Eqp_Status_Down];
+            Eqp_Status_Run = InputBuffer[io_location.Eqp_Status_Run];
+            Eqp_Status_Idle = InputBuffer[io_location.Eqp_Status_Idle];
 
             HS_EQ_L_REQ = InputBuffer[io_location.HS_EQ_L_REQ];
             HS_EQ_U_REQ = InputBuffer[io_location.HS_EQ_U_REQ];
             HS_EQ_READY = InputBuffer[io_location.HS_EQ_READY];
+            HS_EQ_UP_READY = InputBuffer[io_location.HS_EQ_UP_READY];
+            HS_EQ_LOW_READY = InputBuffer[io_location.HS_EQ_LOW_READY];
+
             HS_EQ_BUSY = InputBuffer[io_location.HS_EQ_BUSY];
 
             AGVModbusGateway.StoreEQOutpus(new bool[] { HS_EQ_L_REQ, HS_EQ_U_REQ, HS_EQ_READY, HS_EQ_BUSY });
@@ -335,8 +423,8 @@ namespace EquipmentManagment.MainEquipment
             outputs[io_location.HS_AGV_VALID] = HS_AGV_VALID;
             outputs[io_location.HS_AGV_TR_REQ] = HS_AGV_TR_REQ;
             outputs[io_location.HS_AGV_BUSY] = HS_AGV_BUSY;
-            outputs[io_location.HS_AGV_READY] = HS_AGV_READY;
             outputs[io_location.HS_AGV_COMPT] = HS_AGV_COMPT;
+            outputs[io_location.HS_AGV_READY] = HS_AGV_READY;
             WriteOutputs(0, outputs);
         }
 

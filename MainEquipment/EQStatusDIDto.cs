@@ -34,16 +34,25 @@
         public bool Up_Pose { get; set; }
         public bool Down_Pose { get; set; }
         public bool Eqp_Status_Down { get; set; }
+        public bool Eqp_Status_Run { get; set; }
+        public bool Eqp_Status_Idle { get; set; }
+
+        public bool Cmd_Reserve_Up { get; set; }
+        public bool Cmd_Reserve_Low { get; set; }
+        public bool To_EQ_Up { get; set; }
+        public bool To_EQ_Low { get; set; }
 
         public bool HS_EQ_L_REQ { get; set; }
         public bool HS_EQ_U_REQ { get; set; }
         public bool HS_EQ_READY { get; set; }
+        public bool HS_EQ_UP_READY { get; set; }
+        public bool HS_EQ_LOW_READY { get; set; }
         public bool HS_EQ_BUSY { get; set; }
 
 
-        public bool HS_AGV_VALID{ get; set; }
+        public bool HS_AGV_VALID { get; set; }
         public bool HS_AGV_TR_REQ { get; set; }
-        public bool HS_AGV_BUSY{ get; set; }
+        public bool HS_AGV_BUSY { get; set; }
         public bool HS_AGV_READY { get; set; }
         public bool HS_AGV_COMPT { get; set; }
 

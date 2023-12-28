@@ -68,14 +68,14 @@ namespace EquipmentManagment.Manager
                     if (item.Value.EqType == EQ_TYPE.EQ)
                     {
                         clsDIOModuleEmu emu = new clsDIOModuleEmu();
-                        emu.StartEmu(item.Value.ConnOptions.Port);
+                        emu.StartEmu(item.Value);
                         EqEmulators.Add(item.Key, emu);
                     }
 
                     if (item.Value.EqType == EQ_TYPE.CHARGE)
                     {
                         clsChargeStationEmu charge_emu = new clsChargeStationEmu();
-                        charge_emu.StartEmu(item.Value.ConnOptions.Port);
+                        charge_emu.StartEmu(item.Value);
                         ChargeStationEmulators.Add(item.Key, charge_emu);
                     }
                 }

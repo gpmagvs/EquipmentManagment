@@ -2,6 +2,7 @@
 using EquipmentManagment.MainEquipment;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace EquipmentManagment.Device
@@ -46,6 +47,8 @@ namespace EquipmentManagment.Device
         public string InstalledCargoID { get; set; } = "";
 
         public int Height { get; set; } = 0;
+
+        internal bool IsEmulation = false;
     }
 
     public class clsEQIOLocation
@@ -54,28 +57,33 @@ namespace EquipmentManagment.Device
         public ushort Load_Request { get; set; } = 0;
         public ushort Unload_Request { get; set; } = 1;
         public ushort Port_Exist { get; set; } = 2;
-        public ushort Up_Pose { get; set; } = 3;
-        public ushort Down_Pose { get; set; } = 4;
-        public ushort Eqp_Status_Down { get; set; } = 5;
-        public ushort HS_EQ_L_REQ { get; set; } = 8;
-        public ushort HS_EQ_U_REQ { get; set; } = 9;
-        public ushort HS_EQ_READY { get; set; } = 10;
-        public ushort HS_EQ_BUSY { get; set; } = 11;
+        public ushort Eqp_Status_Down { get; set; } = 3;
+        public ushort Eqp_Status_Run { get; set; } = 4;
+        public ushort Eqp_Status_Idle { get; set; } = 5;
+        public ushort HS_EQ_L_REQ { get; set; } = 6;
+        public ushort HS_EQ_U_REQ { get; set; } = 7;
+        public ushort HS_EQ_READY { get; set; } = 8;
+        public ushort HS_EQ_UP_READY { get; set; } = 9;
+        public ushort HS_EQ_LOW_READY { get; set; } = 10;
+        public ushort Up_Pose { get; set; } = 11;
+        public ushort Down_Pose { get; set; } = 12;
+        public ushort HS_EQ_BUSY { get; set; } = 13;
+
         #endregion
 
         #region Y-Output
 
         public ushort To_EQ_Up { get; set; } = 0;
         public ushort To_EQ_Low { get; set; } = 1;
-        public ushort CMD_Reserve_Up { get; set; } = 2;
-        public ushort CMD_Reserve_Low { get; set; } = 3;
 
+        public ushort HS_AGV_VALID { get; set; } = 2;
+        public ushort HS_AGV_TR_REQ { get; set; } = 3;
+        public ushort HS_AGV_BUSY { get; set; } = 4;
+        public ushort HS_AGV_COMPT { get; set; } = 5;
 
-        public ushort HS_AGV_VALID { get; set; } = 8;
-        public ushort HS_AGV_TR_REQ { get; set; } = 9;
-        public ushort HS_AGV_READY { get; set; } = 10;
-        public ushort HS_AGV_BUSY { get; set; } = 11;
-        public ushort HS_AGV_COMPT { get; set; } = 12;
+        public ushort CMD_Reserve_Up { get; set; } = 6;
+        public ushort CMD_Reserve_Low { get; set; } = 7;
+        public ushort HS_AGV_READY { get; set; } = 8;
 
         #endregion
     }

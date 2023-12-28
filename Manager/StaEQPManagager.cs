@@ -54,13 +54,21 @@ namespace EquipmentManagment.Manager
 
                 if (_Configs.UseEqEmu)
                 {
+                    int emu_port = 2501;
+                    foreach (var option in EQOptions.Values)
+                    {
+                        option.IsEmulation = true;
+                        option.ConnOptions.IP = "127.0.0.1";
+                        option.ConnOptions.Port = emu_port;
+                        emu_port += 1;
+                    }
                     StaEQPEmulatorsManagager.InitEmu(EQOptions);
                 }
                 foreach (KeyValuePair<string, clsChargeStationOptions> item in ChargeStationsOptions)
                 {
                     var eqName = item.Key;
                     var options = item.Value;
-                    var charge_station = options.chip_brand==2? new clsChargeStationGY7601Base(options): new clsChargeStation(options);
+                    var charge_station = options.chip_brand == 2 ? new clsChargeStationGY7601Base(options) : new clsChargeStation(options);
                     if (charge_station != null)
                     {
                         ChargeStations.Add(charge_station);
@@ -229,8 +237,16 @@ namespace EquipmentManagment.Manager
                 Up_Pose = (eq as clsEQ).Up_Pose,
                 Down_Pose = (eq as clsEQ).Down_Pose,
                 Eqp_Status_Down = (eq as clsEQ).Eqp_Status_Down,
+                Eqp_Status_Run = (eq as clsEQ).Eqp_Status_Run,
+                Eqp_Status_Idle = (eq as clsEQ).Eqp_Status_Idle,
+                Cmd_Reserve_Up = (eq as clsEQ).CMD_Reserve_Up,
+                Cmd_Reserve_Low = (eq as clsEQ).CMD_Reserve_Low,
+                To_EQ_Up = (eq as clsEQ).To_EQ_Up,
+                To_EQ_Low = (eq as clsEQ).To_EQ_Low,
                 HS_EQ_BUSY = (eq as clsEQ).HS_EQ_BUSY,
                 HS_EQ_READY = (eq as clsEQ).HS_EQ_READY,
+                HS_EQ_UP_READY = (eq as clsEQ).HS_EQ_UP_READY,
+                HS_EQ_LOW_READY = (eq as clsEQ).HS_EQ_LOW_READY,
                 HS_EQ_L_REQ = (eq as clsEQ).HS_EQ_L_REQ,
                 HS_EQ_U_REQ = (eq as clsEQ).HS_EQ_U_REQ,
                 HS_AGV_VALID = (eq as clsEQ).HS_AGV_VALID,
@@ -240,10 +256,10 @@ namespace EquipmentManagment.Manager
                 HS_AGV_COMPT = (eq as clsEQ).HS_AGV_COMPT,
                 Region = eq.EndPointOptions.Region,
                 Tag = eq.EndPointOptions.TagID
-            }).OrderBy(eq=>eq.EQName).ToList();
+            }).OrderBy(eq => eq.EQName).ToList();
         }
 
-        public static bool TryGetEQByEqName(string eqName, out clsEQ eQ , out string errorMsg)
+        public static bool TryGetEQByEqName(string eqName, out clsEQ eQ, out string errorMsg)
         {
             errorMsg = string.Empty;
             eQ = null;

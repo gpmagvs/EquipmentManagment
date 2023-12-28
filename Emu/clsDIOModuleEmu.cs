@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using EquipmentManagment.Connection;
+using EquipmentManagment.Device;
 using EquipmentManagment.Tool;
 using Modbus.Data;
 using Modbus.Device;
@@ -14,14 +15,15 @@ namespace EquipmentManagment.Emu
 {
     public class clsDIOModuleEmu : IDisposable
     {
-
+        private clsEndPointOptions options;
         private ModbusTcpSlave slave;
         private bool disposedValue;
 
 
-        public virtual void StartEmu(int port = 502)
+        public virtual void StartEmu(clsEndPointOptions value)
         {
-            slave = ModbusTcpSlave.CreateTcp(0, new TcpListener(port));
+            this.options = value;
+            slave = ModbusTcpSlave.CreateTcp(0, new TcpListener(value.ConnOptions.Port));
             slave.ModbusSlaveRequestReceived += Master_ModbusSlaveRequestReceived;
             slave.DataStore = DataStoreFactory.CreateDefaultDataStore();
             bool[] inputs = new bool[4096];
@@ -60,7 +62,7 @@ namespace EquipmentManagment.Emu
 
 
             slave.ListenAsync();
-
+            Console.WriteLine($"DIO Moudle Emulator Start(127.0.0.1:{value.ConnOptions.Port})");
         }
 
         public bool SetStatusBUSY()
@@ -76,7 +78,7 @@ namespace EquipmentManagment.Emu
         }
         public bool SetStatusUnloadable()
         {
-            ModifyInputs(0, new bool[8] { false, true, true,true, false,  true, true, false });
+            ModifyInputs(0, new bool[8] { false, true, true, true, false, true, true, false });
             return true;
         }
         public void ModifyInput(int index, bool value)
@@ -143,26 +145,34 @@ namespace EquipmentManagment.Emu
 
         public bool SetHS_L_REQ(bool state)
         {
-            ModifyInput(8, state);
+            ModifyInput(options.IOLocation.HS_EQ_L_REQ, state);
             return true;
         }
         public bool SetHS_U_REQ(bool state)
         {
-            ModifyInput(9, state);
+            ModifyInput(options.IOLocation.HS_EQ_U_REQ, state);
             return true;
         }
         public bool SetHS_READY(bool state)
         {
-            ModifyInput(10, state);
+            ModifyInput(options.IOLocation.HS_EQ_READY, state);
+            return true;
+        }
+        public bool SetHS_UP_READY(bool state)
+        {
+            ModifyInput(options.IOLocation.HS_EQ_UP_READY, state);
+            return true;
+        }
+        public bool SetHS_LOW_READY(bool state)
+        {
+            ModifyInput(options.IOLocation.HS_EQ_LOW_READY, state);
             return true;
         }
         public bool SetHS_BUSY(bool state)
         {
-            ModifyInput(11, state);
+            ModifyInput(options.IOLocation.HS_EQ_BUSY, state);
             return true;
         }
-
-
 
     }
 }
