@@ -52,9 +52,9 @@ namespace EquipmentManagment.Manager
                 _LoadEqConfigs(_Configs.EQConfigPath);
                 _LoadWipConfigs(_Configs.WIPConfigPath);
 
+                int emu_port = 2501;
                 if (_Configs.UseEqEmu)
                 {
-                    int emu_port = 2501;
                     foreach (var option in EQOptions.Values)
                     {
                         option.IsEmulation = true;
@@ -62,8 +62,17 @@ namespace EquipmentManagment.Manager
                         option.ConnOptions.Port = emu_port;
                         emu_port += 1;
                     }
-                    StaEQPEmulatorsManagager.InitEmu(EQOptions);
+
+                    foreach (var option in ChargeStationsOptions.Values)
+                    {
+                        option.IsEmulation = true;
+                        option.ConnOptions.IP = "127.0.0.1";
+                        option.ConnOptions.Port = emu_port;
+                        emu_port += 1;
+                    }
+                    StaEQPEmulatorsManagager.InitEmu(EQOptions, ChargeStationsOptions);
                 }
+
                 foreach (KeyValuePair<string, clsChargeStationOptions> item in ChargeStationsOptions)
                 {
                     var eqName = item.Key;

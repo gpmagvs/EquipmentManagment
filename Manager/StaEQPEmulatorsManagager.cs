@@ -1,4 +1,5 @@
-﻿using EquipmentManagment.Device;
+﻿using EquipmentManagment.ChargeStation;
+using EquipmentManagment.Device;
 using EquipmentManagment.Emu;
 using System;
 using System.Collections.Generic;
@@ -57,7 +58,7 @@ namespace EquipmentManagment.Manager
             EqEmulators.Clear();
         }
 
-        internal static void InitEmu(Dictionary<string, clsEndPointOptions> EQOptions)
+        internal static void InitEmu(Dictionary<string, clsEndPointOptions> EQOptions, Dictionary<string, clsChargeStationOptions> ChargeStationOptions)
         {
 
             foreach (KeyValuePair<string, clsEndPointOptions> item in EQOptions)
@@ -65,25 +66,29 @@ namespace EquipmentManagment.Manager
                 try
                 {
                     var member = item.Value;
-                    if (item.Value.EqType == EQ_TYPE.EQ)
-                    {
-                        clsDIOModuleEmu emu = new clsDIOModuleEmu();
-                        emu.StartEmu(item.Value);
-                        EqEmulators.Add(item.Key, emu);
-                    }
+                    clsDIOModuleEmu emu = new clsDIOModuleEmu();
+                    emu.StartEmu(item.Value);
+                    EqEmulators.Add(item.Key, emu);
 
-                    if (item.Value.EqType == EQ_TYPE.CHARGE)
-                    {
-                        clsChargeStationEmu charge_emu = new clsChargeStationEmu();
-                        charge_emu.StartEmu(item.Value);
-                        ChargeStationEmulators.Add(item.Key, charge_emu);
-                    }
                 }
                 catch (Exception ex)
                 {
                 }
             }
 
+            foreach (KeyValuePair<string, clsChargeStationOptions> item in ChargeStationOptions)
+            {
+                try
+                {
+                    var member = item.Value;
+                    clsChargeStationEmu charge_emu = new clsChargeStationEmu();
+                    charge_emu.StartEmu(item.Value);
+                    ChargeStationEmulators.Add(item.Key, charge_emu);
+                }
+                catch (Exception ex)
+                {
+                }
+            }
 
         }
 
