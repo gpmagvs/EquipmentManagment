@@ -1,31 +1,66 @@
-﻿namespace EquipmentManagment.MainEquipment
+﻿using EquipmentManagment.Device;
+
+namespace EquipmentManagment.MainEquipment
 {
     public class EQStatusDIDto
     {
+        public EQStatusDIDto(EQ_TYPE eqType)
+        {
+            EqType = eqType;
+        }
+
+        public enum EQ_MAIN_STATUS
+        {
+            Down,
+            BUSY,
+            Idle,
+            Unknown,
+        }
         public enum EQ_TRANSFER_STATUS
         {
             DISCONNECT,
-            Down,
-            BUSY,
             LOADABLE,
-            UNLOADABLE
+            UNLOADABLE,
+            Unknown,
         }
         public bool IsConnected { get; set; }
+
+
         public string EQName { get; set; }
+
+        public EQ_MAIN_STATUS MainStatus
+        {
+            get
+            {
+                if (EqType == EQ_TYPE.EQ)
+                {
+                    if (!Eqp_Status_Down)
+                        return EQ_MAIN_STATUS.Idle;
+                }
+                else
+                {
+                    if (Eqp_Status_Down && !Eqp_Status_Idle && !Eqp_Status_Run)
+                        return EQ_MAIN_STATUS.Down;
+                    else if (!Eqp_Status_Down && Eqp_Status_Idle && !Eqp_Status_Run)
+                        return EQ_MAIN_STATUS.Idle;
+                    else if (!Eqp_Status_Down && !Eqp_Status_Idle && Eqp_Status_Run)
+                        return EQ_MAIN_STATUS.BUSY;
+                }
+                return EQ_MAIN_STATUS.Unknown;
+            }
+        }
         public EQ_TRANSFER_STATUS TransferStatus
         {
             get
             {
                 if (!IsConnected)
                     return EQ_TRANSFER_STATUS.DISCONNECT;
-                if (Load_Request)
+                if (Load_Request && MainStatus == EQ_MAIN_STATUS.Idle)
                     return EQ_TRANSFER_STATUS.LOADABLE;
-                if (Unload_Request)
+                if (Unload_Request && MainStatus == EQ_MAIN_STATUS.Idle)
                     return EQ_TRANSFER_STATUS.UNLOADABLE;
-                if (!Eqp_Status_Down)
-                    return EQ_TRANSFER_STATUS.Down;
-                else
-                    return EQ_TRANSFER_STATUS.BUSY;
+
+                return EQ_TRANSFER_STATUS.Unknown;
             }
         }
         public bool Load_Request { get; set; }
@@ -59,6 +94,6 @@
 
         public string Region { get; set; }
         public int Tag { get; set; }
-
+        public EQ_TYPE EqType { get; }
     }
 }

@@ -26,7 +26,7 @@ namespace EquipmentManagment.Manager
         {
             get
             {
-                return EQPDevices.FindAll(device => device.EndPointOptions.EqType == EQ_TYPE.EQ).Select(eq => eq as clsEQ).ToList();
+                return EQPDevices.FindAll(device => device.EndPointOptions.IsProdution_EQ).Select(eq => eq as clsEQ).ToList();
             }
         }
         public static List<clsChargeStation> ChargeStations = new List<clsChargeStation>();
@@ -90,7 +90,7 @@ namespace EquipmentManagment.Manager
                     var options = item.Value;
 
                     EndPointDeviceAbstract EQ = null;
-                    if (item.Value.EqType == EQ_TYPE.EQ)
+                    if (item.Value.IsProdution_EQ)
                     {
                         EQ = new clsEQ(options);
                     }
@@ -236,36 +236,7 @@ namespace EquipmentManagment.Manager
         }
         public static List<EQStatusDIDto> GetEQStates()
         {
-            return EQPDevices.FindAll(eq => eq.EndPointOptions.EqType == EQ_TYPE.EQ).Select(eq => new EQStatusDIDto
-            {
-                IsConnected = eq.IsConnected,
-                EQName = eq.EQName,
-                Load_Request = (eq as clsEQ).Load_Request,
-                Unload_Request = (eq as clsEQ).Unload_Request,
-                Port_Exist = (eq as clsEQ).Port_Exist,
-                Up_Pose = (eq as clsEQ).Up_Pose,
-                Down_Pose = (eq as clsEQ).Down_Pose,
-                Eqp_Status_Down = (eq as clsEQ).Eqp_Status_Down,
-                Eqp_Status_Run = (eq as clsEQ).Eqp_Status_Run,
-                Eqp_Status_Idle = (eq as clsEQ).Eqp_Status_Idle,
-                Cmd_Reserve_Up = (eq as clsEQ).CMD_Reserve_Up,
-                Cmd_Reserve_Low = (eq as clsEQ).CMD_Reserve_Low,
-                To_EQ_Up = (eq as clsEQ).To_EQ_Up,
-                To_EQ_Low = (eq as clsEQ).To_EQ_Low,
-                HS_EQ_BUSY = (eq as clsEQ).HS_EQ_BUSY,
-                HS_EQ_READY = (eq as clsEQ).HS_EQ_READY,
-                HS_EQ_UP_READY = (eq as clsEQ).HS_EQ_UP_READY,
-                HS_EQ_LOW_READY = (eq as clsEQ).HS_EQ_LOW_READY,
-                HS_EQ_L_REQ = (eq as clsEQ).HS_EQ_L_REQ,
-                HS_EQ_U_REQ = (eq as clsEQ).HS_EQ_U_REQ,
-                HS_AGV_VALID = (eq as clsEQ).HS_AGV_VALID,
-                HS_AGV_TR_REQ = (eq as clsEQ).HS_AGV_TR_REQ,
-                HS_AGV_BUSY = (eq as clsEQ).HS_AGV_BUSY,
-                HS_AGV_READY = (eq as clsEQ).HS_AGV_READY,
-                HS_AGV_COMPT = (eq as clsEQ).HS_AGV_COMPT,
-                Region = eq.EndPointOptions.Region,
-                Tag = eq.EndPointOptions.TagID
-            }).OrderBy(eq => eq.EQName).ToList();
+            return EQPDevices.FindAll(eq => eq.EndPointOptions.IsProdution_EQ).Select(eq => (eq as clsEQ).GetEQStatusDTO()).OrderBy(eq => eq.EQName).ToList();
         }
 
         public static bool TryGetEQByEqName(string eqName, out clsEQ eQ, out string errorMsg)
@@ -288,18 +259,7 @@ namespace EquipmentManagment.Manager
             if (endpoint != null)
             {
                 var _EQ = endpoint as clsEQ;
-                return new EQStatusDIDto()
-                {
-                    Load_Request = _EQ.Load_Request,
-                    Down_Pose = _EQ.Down_Pose,
-                    EQName = _EQ.EQName,
-                    Eqp_Status_Down = _EQ.Eqp_Status_Down,
-                    Port_Exist = _EQ.Port_Exist,
-                    Up_Pose = _EQ.Up_Pose,
-                    Unload_Request = _EQ.Unload_Request,
-                    IsConnected = _EQ.IsConnected,
-                    Region = _EQ.EndPointOptions.Region,
-                };
+                return _EQ.GetEQStatusDTO();
             }
             else
                 return null;

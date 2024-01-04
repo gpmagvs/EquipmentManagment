@@ -319,7 +319,8 @@ namespace EquipmentManagment.MainEquipment
                 }
             }
         }
-        public bool To_EQ_Low {
+        public bool To_EQ_Low
+        {
 
             get => _To_EQ_LOW;
             set
@@ -393,6 +394,12 @@ namespace EquipmentManagment.MainEquipment
             To_EQ_Low = true;
             _WriteOutputSiganls();
         }
+        public void CancelToEQUpAndLow()
+        {
+            To_EQ_Up = false;
+            To_EQ_Low = false;
+            _WriteOutputSiganls();
+        }
         public void ReserveUp()
         {
             CMD_Reserve_Up = true;
@@ -437,6 +444,39 @@ namespace EquipmentManagment.MainEquipment
         protected override void WriteOutuptsData()
         {
             _WriteOutputSiganls();
+        }
+
+        internal EQStatusDIDto GetEQStatusDTO()
+        {
+            EQStatusDIDto dto = new EQStatusDIDto(this.EndPointOptions.EqType);
+            dto.IsConnected = IsConnected;
+            dto.EQName = EQName;
+            dto.Load_Request = Load_Request;
+            dto.Unload_Request = Unload_Request;
+            dto.Port_Exist = Port_Exist;
+            dto.Up_Pose = Up_Pose;
+            dto.Down_Pose = Down_Pose;
+            dto.Eqp_Status_Down = Eqp_Status_Down;
+            dto.Eqp_Status_Run = Eqp_Status_Run;
+            dto.Eqp_Status_Idle = Eqp_Status_Idle;
+            dto.Cmd_Reserve_Up = CMD_Reserve_Up;
+            dto.Cmd_Reserve_Low = CMD_Reserve_Low;
+            dto.To_EQ_Up = To_EQ_Up;
+            dto.To_EQ_Low = To_EQ_Low;
+            dto.HS_EQ_BUSY = HS_EQ_BUSY;
+            dto.HS_EQ_READY = HS_EQ_READY;
+            dto.HS_EQ_UP_READY = HS_EQ_UP_READY;
+            dto.HS_EQ_LOW_READY = HS_EQ_LOW_READY;
+            dto.HS_EQ_L_REQ = HS_EQ_L_REQ;
+            dto.HS_EQ_U_REQ = HS_EQ_U_REQ;
+            dto.HS_AGV_VALID = HS_AGV_VALID;
+            dto.HS_AGV_TR_REQ = HS_AGV_TR_REQ;
+            dto.HS_AGV_BUSY = HS_AGV_BUSY;
+            dto.HS_AGV_READY = HS_AGV_READY;
+            dto.HS_AGV_COMPT = HS_AGV_COMPT;
+            dto.Region = EndPointOptions.Region;
+            dto.Tag = EndPointOptions.TagID;
+            return dto;
         }
     }
 }

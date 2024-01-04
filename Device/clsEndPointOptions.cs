@@ -13,6 +13,7 @@ namespace EquipmentManagment.Device
         /// 機台設備，如烤箱、轉框機...
         /// </summary>
         EQ,
+        EQ_OVEN,
         /// <summary>
         /// STOCKER、WIP 
         /// </summary>
@@ -26,6 +27,7 @@ namespace EquipmentManagment.Device
         /// </summary>
         BATTERY_EXCHANGER
     }
+
 
     public class clsEndPointOptions
     {
@@ -49,6 +51,8 @@ namespace EquipmentManagment.Device
         public int Height { get; set; } = 0;
 
         internal bool IsEmulation = false;
+
+        internal bool IsProdution_EQ => EqType == EQ_TYPE.EQ | EqType == EQ_TYPE.EQ_OVEN;
     }
 
     public class clsEQIOLocation
