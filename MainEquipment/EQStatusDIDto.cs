@@ -34,8 +34,10 @@ namespace EquipmentManagment.MainEquipment
             {
                 if (EqType == EQ_TYPE.EQ)
                 {
-                    if (!Eqp_Status_Down)
+                    if (Eqp_Status_Down)
                         return EQ_MAIN_STATUS.Idle;
+                    else 
+                        return EQ_MAIN_STATUS.Down;
                 }
                 else
                 {
