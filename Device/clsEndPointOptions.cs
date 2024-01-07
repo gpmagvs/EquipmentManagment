@@ -38,6 +38,7 @@ namespace EquipmentManagment.Device
         public EQ_TYPE EqType { get; set; }
 
         public EQLDULD_TYPE LdULdType { get; set; } = EQLDULD_TYPE.LDULD;
+        public EQ_PICKUP_CARGO_MODE LoadUnloadCargoMode { get; set; } = EQ_PICKUP_CARGO_MODE.AGV_PICK_AND_PLACE;
         public string Region { get; set; } = "";
 
         public List<string> ValidDownStreamEndPointNames { get; set; }
@@ -73,6 +74,9 @@ namespace EquipmentManagment.Device
         public ushort Down_Pose { get; set; } = 12;
         public ushort HS_EQ_BUSY { get; set; } = 13;
 
+        public ushort Empty_CST { get; set; } = 14;
+        public ushort Full_CST { get; set; } = 15;
+
         #endregion
 
         #region Y-Output
@@ -88,6 +92,8 @@ namespace EquipmentManagment.Device
         public ushort CMD_Reserve_Up { get; set; } = 6;
         public ushort CMD_Reserve_Low { get; set; } = 7;
         public ushort HS_AGV_READY { get; set; } = 8;
+        public ushort To_EQ_Empty_CST { get; set; } = 9;
+        public ushort To_EQ_Full_CST { get; set; } = 10;
 
         #endregion
     }

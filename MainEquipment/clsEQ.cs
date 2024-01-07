@@ -13,6 +13,23 @@ namespace EquipmentManagment.MainEquipment
         LDULD,
         Charge
     }
+
+    /// <summary>
+    /// 設備從AGV取放貨物的方式
+    /// </summary>
+    public enum EQ_PICKUP_CARGO_MODE
+    {
+        /// <summary>
+        /// 設備無取放機構，僅透過AGV(如FORK AGV)取放貨物
+        /// </summary>
+        AGV_PICK_AND_PLACE,
+        /// <summary>
+        /// 設備有取放機構，透過撈爪升降從AGV車上取放貨物
+        /// </summary>
+        EQ_PICK_AND_PLACE
+    }
+
+
     public class clsEQ : EndPointDeviceAbstract
     {
         public clsEQ(clsEndPointOptions options) : base(options)
@@ -37,6 +54,8 @@ namespace EquipmentManagment.MainEquipment
         private bool _HS_EQ_UP_READY = false;
         private bool _HS_EQ_LOW_READY = false;
         private bool _HS_EQ_BUSY = false;
+        private bool _Empty_CST;
+        private bool _Full_CST;
         public clsStatusIOModbusGateway AGVModbusGateway { get; set; } = new clsStatusIOModbusGateway();
         public static event EventHandler<clsEQ> OnEqUnloadRequesting;
         public static event EventHandler<IOChangedEventArgs> OnIOStateChanged;
@@ -220,6 +239,37 @@ namespace EquipmentManagment.MainEquipment
         }
 
 
+        public bool Empty_CST
+        {
+            get => _Empty_CST;
+            set
+            {
+                if (_Empty_CST != value)
+                {
+                    _Empty_CST = value;
+                    OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "Empty_CST", value));
+                    Console.WriteLine($"Empty_CST Changed to :{value}");
+                    _WriteOutputSiganls();
+                }
+            }
+        }
+
+
+        public bool Full_CST
+        {
+            get => _Full_CST;
+            set
+            {
+                if (_Full_CST != value)
+                {
+                    _Full_CST = value;
+                    OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "Full_CST", value));
+                    Console.WriteLine($"Full_CST Changed to :{value}");
+                    _WriteOutputSiganls();
+                }
+            }
+        }
+
 
 
         private bool _To_EQ_UP;
@@ -229,6 +279,10 @@ namespace EquipmentManagment.MainEquipment
         private bool _HS_AGV_BUSY;
         private bool _HS_AGV_READY;
         private bool _HS_AGV_COMPT;
+
+        private bool _To_EQ_Empty_CST;
+        private bool _To_EQ_Full_CST;
+
 
         public bool HS_AGV_VALID
         {
@@ -296,6 +350,37 @@ namespace EquipmentManagment.MainEquipment
                     _HS_AGV_COMPT = value;
                     OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "AGV_COMPT", value));
                     Console.WriteLine($"AGV_COMPT Changed to :{value}");
+                    _WriteOutputSiganls();
+                }
+            }
+        }
+
+        public bool To_EQ_Empty_CST
+        {
+            get => _To_EQ_Empty_CST;
+            set
+            {
+                if (_To_EQ_Empty_CST != value)
+                {
+                    _To_EQ_Empty_CST = value;
+                    OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "To_EQ_Empty_CST", value));
+                    Console.WriteLine($"To_EQ_Empty_CST Changed to :{value}");
+                    _WriteOutputSiganls();
+                }
+            }
+        }
+
+
+        public bool To_EQ_Full_CST
+        {
+            get => _To_EQ_Full_CST;
+            set
+            {
+                if (_To_EQ_Full_CST != value)
+                {
+                    _To_EQ_Full_CST = value;
+                    OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "To_EQ_Full_CST", value));
+                    Console.WriteLine($"To_EQ_Full_CST Changed to :{value}");
                     _WriteOutputSiganls();
                 }
             }
@@ -432,6 +517,8 @@ namespace EquipmentManagment.MainEquipment
             outputs[io_location.HS_AGV_BUSY] = HS_AGV_BUSY;
             outputs[io_location.HS_AGV_COMPT] = HS_AGV_COMPT;
             outputs[io_location.HS_AGV_READY] = HS_AGV_READY;
+            outputs[io_location.To_EQ_Empty_CST] = To_EQ_Empty_CST;
+            outputs[io_location.To_EQ_Full_CST] = To_EQ_Full_CST;
             WriteOutputs(0, outputs);
         }
 
