@@ -239,7 +239,7 @@ namespace EquipmentManagment.MainEquipment
         }
 
 
-        public bool Empty_CST
+        public bool Empty_RACK_To_LDULD
         {
             get => _Empty_CST;
             set
@@ -255,7 +255,7 @@ namespace EquipmentManagment.MainEquipment
         }
 
 
-        public bool Full_CST
+        public bool Full_RACK_To_LDULD
         {
             get => _Full_CST;
             set
@@ -282,7 +282,13 @@ namespace EquipmentManagment.MainEquipment
 
         private bool _To_EQ_Empty_CST;
         private bool _To_EQ_Full_CST;
-
+        public bool Is_RACK_HAS_TRAY_OR_NOT_TO_LDULD_Unknown
+        {
+            get
+            {
+                return (Full_RACK_To_LDULD && Empty_RACK_To_LDULD) || (!Full_RACK_To_LDULD && !Empty_RACK_To_LDULD);
+            }
+        }
 
         public bool HS_AGV_VALID
         {
@@ -453,6 +459,8 @@ namespace EquipmentManagment.MainEquipment
             Eqp_Status_Down = InputBuffer[io_location.Eqp_Status_Down];
             Eqp_Status_Run = InputBuffer[io_location.Eqp_Status_Run];
             Eqp_Status_Idle = InputBuffer[io_location.Eqp_Status_Idle];
+            Full_RACK_To_LDULD = InputBuffer[io_location.Full_CST];
+            Empty_RACK_To_LDULD = InputBuffer[io_location.Empty_CST];
 
             HS_EQ_L_REQ = InputBuffer[io_location.HS_EQ_L_REQ];
             HS_EQ_U_REQ = InputBuffer[io_location.HS_EQ_U_REQ];
@@ -479,6 +487,20 @@ namespace EquipmentManagment.MainEquipment
             To_EQ_Low = true;
             _WriteOutputSiganls();
         }
+
+        public void Empty_RACK_To_EQ()
+        {
+            To_EQ_Empty_CST = true;
+            To_EQ_Full_CST = false;
+            _WriteOutputSiganls();
+        }
+        public void Full_RACK_To_EQ()
+        {
+            To_EQ_Empty_CST = false;
+            To_EQ_Full_CST = true;
+            _WriteOutputSiganls();
+        }
+
         public void CancelToEQUpAndLow()
         {
             To_EQ_Up = false;
@@ -563,6 +585,10 @@ namespace EquipmentManagment.MainEquipment
             dto.HS_AGV_COMPT = HS_AGV_COMPT;
             dto.Region = EndPointOptions.Region;
             dto.Tag = EndPointOptions.TagID;
+            dto.Full_CST = Full_RACK_To_LDULD;
+            dto.Empty_CST = Empty_RACK_To_LDULD;
+            dto.To_EQ_Full_CST = To_EQ_Full_CST;
+            dto.To_EQ_Empty_CST = To_EQ_Empty_CST;
             return dto;
         }
     }

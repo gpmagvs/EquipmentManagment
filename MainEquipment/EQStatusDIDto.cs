@@ -97,5 +97,9 @@ namespace EquipmentManagment.MainEquipment
         public string Region { get; set; }
         public int Tag { get; set; }
         public EQ_TYPE EqType { get; }
+        public bool Full_CST { get; internal set; }
+        public bool Empty_CST { get; internal set; }
+        public bool To_EQ_Full_CST { get; internal set; }
+        public bool To_EQ_Empty_CST { get; internal set; }
     }
 }
