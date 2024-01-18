@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
@@ -81,14 +82,13 @@ namespace EquipmentManagment.Manager
                     if (charge_station != null)
                     {
                         ChargeStations.Add(charge_station);
-                        await charge_station.Connect();
+                        charge_station.Connect();
                     }
                 }
                 foreach (KeyValuePair<string, clsEndPointOptions> item in EQOptions)
                 {
                     var eqName = item.Key;
                     var options = item.Value;
-
                     EndPointDeviceAbstract EQ = null;
                     if (item.Value.IsProdution_EQ)
                     {
@@ -96,20 +96,14 @@ namespace EquipmentManagment.Manager
                     }
                     else if (item.Value.EqType == EQ_TYPE.BATTERY_EXCHANGER)
                         EQ = new clsBatteryExchanger(options);
-                    if (EQ != null)
+
+                    if (EQ == null)
+                        continue;
+                    _ = Task.Factory.StartNew(async () =>
                     {
                         EQPDevices.Add(EQ);
-                        _ = Task.Factory.StartNew(async () =>
-                        {
-                            bool connected = EQ.EndPointOptions.EqType == EQ_TYPE.BATTERY_EXCHANGER ? await (EQ as clsBatteryExchanger).Connect() : await EQ.Connect();
-                            //if (connected)
-                            //{
-                            //    if (EQ.EndPointOptions.EqType == EQ_TYPE.EQ)
-                            //        ((clsEQ)EQ).ReserveUp();
-                            //}
-                        });
-
-                    }
+                        bool connected = EQ.EndPointOptions.EqType == EQ_TYPE.BATTERY_EXCHANGER ? await (EQ as clsBatteryExchanger).Connect() : await EQ.Connect();
+                    });
                 }
             }
             catch (Exception ex)
@@ -275,5 +269,22 @@ namespace EquipmentManagment.Manager
             return EQPDevices.FirstOrDefault(eq => eq.EndPointOptions.TagID == eQTag) as clsEQ;
         }
 
+        public static RACK_CONTENT_STATE CargoStartTransferToDestineHandler(clsEQ sourceEQ, clsEQ destineEQ)
+        {
+            RACK_CONTENT_STATE raack_content_state = sourceEQ.RackContentState;
+            if (raack_content_state == RACK_CONTENT_STATE.FULL)
+            {
+                destineEQ.Full_RACK_To_EQ();
+            }
+            else if (raack_content_state == RACK_CONTENT_STATE.EMPTY)
+            {
+                destineEQ.Empty_RACK_To_EQ();
+            }
+            else
+            {
+
+            }
+            return raack_content_state;
+        }
     }
 }

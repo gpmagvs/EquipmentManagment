@@ -14,6 +14,10 @@ namespace EquipmentManagment.MainEquipment
         Charge
     }
 
+    public enum RACK_CONTENT_STATE
+    {
+        EMPTY, FULL, UNKNOWN
+    }
     /// <summary>
     /// 設備從AGV取放貨物的方式
     /// </summary>
@@ -282,6 +286,19 @@ namespace EquipmentManagment.MainEquipment
 
         private bool _To_EQ_Empty_CST;
         private bool _To_EQ_Full_CST;
+
+
+        public RACK_CONTENT_STATE RackContentState
+        {
+            get
+            {
+                if (Is_RACK_HAS_TRAY_OR_NOT_TO_LDULD_Unknown)
+                    return RACK_CONTENT_STATE.UNKNOWN;
+                return Empty_RACK_To_LDULD ? RACK_CONTENT_STATE.EMPTY : RACK_CONTENT_STATE.FULL;
+            }
+
+        }
+
         public bool Is_RACK_HAS_TRAY_OR_NOT_TO_LDULD_Unknown
         {
             get
@@ -490,21 +507,25 @@ namespace EquipmentManagment.MainEquipment
 
         public void Empty_RACK_To_EQ()
         {
-            To_EQ_Empty_CST = true;
-            To_EQ_Full_CST = false;
+            Console.WriteLine($"向{EQName} 載入空框訊號ON");
+            _To_EQ_Empty_CST = true;
+            _To_EQ_Full_CST = false;
             _WriteOutputSiganls();
         }
         public void Full_RACK_To_EQ()
         {
-            To_EQ_Empty_CST = false;
-            To_EQ_Full_CST = true;
+            Console.WriteLine($"向{EQName} 載入滿框訊號ON");
+            _To_EQ_Empty_CST = false;
+            _To_EQ_Full_CST = true;
             _WriteOutputSiganls();
         }
 
         public void CancelToEQUpAndLow()
         {
-            To_EQ_Up = false;
-            To_EQ_Low = false;
+            _To_EQ_UP = false;
+            _To_EQ_LOW = false;
+            _To_EQ_Full_CST = false;
+            _To_EQ_Empty_CST = false;
             _WriteOutputSiganls();
         }
         public void ReserveUp()
