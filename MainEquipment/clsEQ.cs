@@ -429,7 +429,6 @@ namespace EquipmentManagment.MainEquipment
         }
         public bool To_EQ_Low
         {
-
             get => _To_EQ_LOW;
             set
             {
@@ -495,14 +494,12 @@ namespace EquipmentManagment.MainEquipment
         {
             To_EQ_Up = true;
             To_EQ_Low = false;
-            _WriteOutputSiganls();
         }
 
         public void ToEQLow()
         {
             To_EQ_Up = false;
             To_EQ_Low = true;
-            _WriteOutputSiganls();
         }
 
         public void Empty_RACK_To_EQ()

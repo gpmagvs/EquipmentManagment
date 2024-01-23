@@ -114,7 +114,10 @@ namespace EquipmentManagment.Device
 
         private async Task _StartRetry()
         {
-            await Connect(retry: true);
+            _ = Task.Run(async () =>
+            {
+                await Connect(retry: true);
+            });
         }
 
         /// <summary>
