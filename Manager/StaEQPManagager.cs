@@ -3,6 +3,7 @@ using EquipmentManagment.ChargeStation;
 using EquipmentManagment.Device;
 using EquipmentManagment.Emu;
 using EquipmentManagment.MainEquipment;
+using EquipmentManagment.Rack;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -31,8 +32,11 @@ namespace EquipmentManagment.Manager
             }
         }
         public static List<clsChargeStation> ChargeStations = new List<clsChargeStation>();
+        public static List<clsRack> Racks = new List<clsRack>();
+
         public static Dictionary<string, clsEndPointOptions> EQOptions = new Dictionary<string, clsEndPointOptions>();
         public static Dictionary<string, clsChargeStationOptions> ChargeStationsOptions = new Dictionary<string, clsChargeStationOptions>();
+        public static Dictionary<string, clsRackOptions> RacksOptions = new Dictionary<string, clsRackOptions>();
         public static async Task InitializeAsync()
         {
             await InitializeAsync(Configs == null ? new clsEQManagementConfigs
@@ -52,27 +56,7 @@ namespace EquipmentManagment.Manager
                 _LoadChargeStationConfigs(_Configs.ChargeStationConfigPath);
                 _LoadEqConfigs(_Configs.EQConfigPath);
                 _LoadWipConfigs(_Configs.WIPConfigPath);
-
-                int emu_port = 2501;
-                if (_Configs.UseEqEmu)
-                {
-                    foreach (var option in EQOptions.Values)
-                    {
-                        option.IsEmulation = true;
-                        option.ConnOptions.IP = "127.0.0.1";
-                        option.ConnOptions.Port = emu_port;
-                        emu_port += 1;
-                    }
-
-                    foreach (var option in ChargeStationsOptions.Values)
-                    {
-                        option.IsEmulation = true;
-                        option.ConnOptions.IP = "127.0.0.1";
-                        option.ConnOptions.Port = emu_port;
-                        emu_port += 1;
-                    }
-                    StaEQPEmulatorsManagager.InitEmu(EQOptions, ChargeStationsOptions);
-                }
+                EmulatorsInitialize(_Configs);
 
                 foreach (KeyValuePair<string, clsChargeStationOptions> item in ChargeStationsOptions)
                 {
@@ -84,6 +68,17 @@ namespace EquipmentManagment.Manager
                         ChargeStations.Add(charge_station);
                         charge_station.Connect();
                     }
+                }
+                foreach (KeyValuePair<string, clsRackOptions> item in RacksOptions)
+                {
+                    var eqName = item.Key;
+                    var options = item.Value;
+                    EndPointDeviceAbstract EQ = null;
+                    _ = Task.Factory.StartNew(async () =>
+                    {
+                        EQPDevices.Add(EQ);
+                        bool connected = EQ.EndPointOptions.EqType == EQ_TYPE.BATTERY_EXCHANGER ? await (EQ as clsBatteryExchanger).Connect() : await EQ.Connect();
+                    });
                 }
                 foreach (KeyValuePair<string, clsEndPointOptions> item in EQOptions)
                 {
@@ -111,6 +106,29 @@ namespace EquipmentManagment.Manager
 
             }
 
+        }
+
+        private static void EmulatorsInitialize(clsEQManagementConfigs _Configs)
+        {
+            if (!_Configs.UseEqEmu)
+                return;
+            int emu_port = 2501;
+            foreach (var option in EQOptions.Values)
+            {
+                option.IsEmulation = true;
+                option.ConnOptions.IP = "127.0.0.1";
+                option.ConnOptions.Port = emu_port;
+                emu_port += 1;
+            }
+
+            foreach (var option in ChargeStationsOptions.Values)
+            {
+                option.IsEmulation = true;
+                option.ConnOptions.IP = "127.0.0.1";
+                option.ConnOptions.Port = emu_port;
+                emu_port += 1;
+            }
+            StaEQPEmulatorsManagager.InitEmu(EQOptions, ChargeStationsOptions);
         }
 
         public static void DisposeEQs()

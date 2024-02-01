@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace EquipmentManagment.MainEquipment
 {
@@ -20,10 +22,50 @@ namespace EquipmentManagment.MainEquipment
         {
             Port = port;
             slave = ModbusTcpSlave.CreateTcp(0, new TcpListener(Port));
-            //slave.ModbusSlaveRequestReceived += Master_ModbusSlaveRequestReceived;
             slave.ModbusSlaveRequestReceived += Slave_ModbusSlaveRequestReceived;
             slave.DataStore = DataStoreFactory.CreateDefaultDataStore();
             slave.ListenAsync();
+            WatchMasterClientConnectionStatus();
+
+
+        }
+        private Dictionary<TcpClient, DateTime> tcpClients = new Dictionary<TcpClient, DateTime>();
+        private int _clients_num = 0;
+        public int clients_num
+        {
+            get => _clients_num;
+            set
+            {
+                if (_clients_num != value)
+                {
+                    _clients_num = value;
+                    Console.WriteLine($"AGV Modbus Getway - {Port}| Client Number changed to -{_clients_num}");
+                }
+            }
+        }
+        private void WatchMasterClientConnectionStatus()
+        {
+            Task.Factory.StartNew(() =>
+            {
+                while (true)
+                {
+                    Thread.Sleep(100);
+                    clients_num = slave.Masters.Count();
+                    foreach (var master in slave.Masters)
+                    {
+                        if (!tcpClients.ContainsKey(master))
+                            tcpClients.Add(master, DateTime.Now);
+                    }
+                    if (tcpClients.Count > 1)
+                    {
+                        for (int i = 0; i < tcpClients.Count - 1; i++)
+                        {
+                            tcpClients.Keys.ToList()[i].Close();
+                        }
+                        Console.WriteLine($"Close {tcpClients.Count - 1} connection.");
+                    }
+                }
+            });
         }
 
         public void StoreEQOutpus(bool[] outputs)
