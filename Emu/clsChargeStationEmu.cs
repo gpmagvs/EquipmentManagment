@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using EquipmentManagment.ChargeStation;
 using EquipmentManagment.Connection;
-using EquipmentManagment.Device;
+using EquipmentManagment.Device.Options;
 using EquipmentManagment.Tool;
 
 namespace EquipmentManagment.Emu
@@ -68,10 +68,7 @@ namespace EquipmentManagment.Emu
                 });
 
                 client.BeginReceive(socketState.buffer, 0, 1024, SocketFlags.None, new AsyncCallback(RecieveCallback), socketState);
-                Task.Factory.StartNew(() =>
-                {
-                    StartAcceptClientConnectIn();
-                });
+                StartAcceptClientConnectIn();
             });
         }
 

@@ -4,8 +4,9 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
 using EquipmentManagment.Connection;
-using EquipmentManagment.Device;
+using EquipmentManagment.Device.Options;
 using EquipmentManagment.Tool;
 using Modbus.Data;
 using Modbus.Device;
@@ -15,38 +16,29 @@ namespace EquipmentManagment.Emu
 {
     public class clsDIOModuleEmu : IDisposable
     {
-        private clsEndPointOptions options;
-        private ModbusTcpSlave slave;
+        public clsEndPointOptions options;
+        protected ModbusTcpSlave slave;
         private bool disposedValue;
 
 
-        public virtual void StartEmu(clsEndPointOptions value)
+        public virtual async void StartEmu(clsEndPointOptions value)
         {
+
             this.options = value;
             slave = ModbusTcpSlave.CreateTcp(0, new TcpListener(value.ConnOptions.Port));
             slave.ModbusSlaveRequestReceived += Master_ModbusSlaveRequestReceived;
             slave.DataStore = DataStoreFactory.CreateDefaultDataStore();
-            bool[] inputs = new bool[4096];
+            DefaultInputsSetting();
+            Console.WriteLine($"DIO Moudle Emulator Start(127.0.0.1:{value.ConnOptions.Port})");
+            await slave.ListenAsync();
+        }
 
+        protected virtual void DefaultInputsSetting()
+        {
             slave.DataStore.InputDiscretes[5] = true;
             slave.DataStore.InputDiscretes[6] = true;
             slave.DataStore.InputDiscretes[7] = false;
             slave.DataStore.InputDiscretes[8] = true;
-            //if (port % 2 == 0)
-            //{
-            //    slave.DataStore.InputDiscretes[1] = false;
-            //    slave.DataStore.InputDiscretes[2] = false;
-            //    slave.DataStore.InputDiscretes[3] = false;
-            //    slave.DataStore.InputDiscretes[4] = false;
-            //}
-            //else
-            //{
-            //    slave.DataStore.InputDiscretes[1] = true;
-            //    slave.DataStore.InputDiscretes[2] = false;
-            //    slave.DataStore.InputDiscretes[3] = false;
-            //    slave.DataStore.InputDiscretes[4] = false;
-            //}
-
             slave.DataStore.InputDiscretes[9] = false; //LREQ
             slave.DataStore.InputDiscretes[10] = false;//UREQ
             slave.DataStore.InputDiscretes[11] = false;//READY
@@ -55,14 +47,8 @@ namespace EquipmentManagment.Emu
             slave.DataStore.InputDiscretes[14] = false;
             slave.DataStore.InputDiscretes[15] = false;
             slave.DataStore.InputDiscretes[16] = false;
-
-
             var ushortVal = slave.DataStore.InputDiscretes.Skip(1).Take(16).ToArray().GetUshort();
             slave.DataStore.InputRegisters[1] = ushortVal;
-
-
-            slave.ListenAsync();
-            Console.WriteLine($"DIO Moudle Emulator Start(127.0.0.1:{value.ConnOptions.Port})");
         }
 
         public bool SetStatusBUSY()
@@ -76,11 +62,18 @@ namespace EquipmentManagment.Emu
             return true;
 
         }
+
         public bool SetStatusUnloadable()
         {
             ModifyInputs(0, new bool[8] { false, true, true, true, false, true, true, false });
             return true;
         }
+
+        public bool GetInput(int index)
+        {
+            return slave.DataStore.InputDiscretes[index + 1];
+        }
+
         public void ModifyInput(int index, bool value)
         {
             slave.DataStore.InputDiscretes[index + 1] = value;

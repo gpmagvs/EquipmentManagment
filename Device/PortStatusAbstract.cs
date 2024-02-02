@@ -10,4 +10,6 @@ namespace EquipmentManagment.Device
         public bool CarrierExist { get; set; }
         public DateTime InstallTime { get; set; } = DateTime.MinValue;
     }
+
+    
 }

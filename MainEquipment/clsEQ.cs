@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using EquipmentManagment.Device;
+using EquipmentManagment.Device.Options;
 
 namespace EquipmentManagment.MainEquipment
 {
@@ -464,8 +465,9 @@ namespace EquipmentManagment.MainEquipment
 
         public override PortStatusAbstract PortStatus { get; set; } = new clsEQPort();
 
-        protected override void DefineInputData()
+        protected override void InputsHandler()
         {
+
             var io_location = EndPointOptions.IOLocation;
             Load_Request = InputBuffer[io_location.Load_Request];
             Unload_Request = InputBuffer[io_location.Unload_Request];

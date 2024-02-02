@@ -1,4 +1,5 @@
 ﻿using EquipmentManagment.Device;
+using EquipmentManagment.Device.Options;
 using EquipmentManagment.PLC;
 using Newtonsoft.Json;
 using System;
@@ -17,7 +18,7 @@ namespace EquipmentManagment.BatteryExchanger
 
         public override PortStatusAbstract PortStatus { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
-        protected override void DefineInputData()
+        protected override void InputsHandler()
         {
             //TODO EQPLCMemoryTb.ReadBit();
         }

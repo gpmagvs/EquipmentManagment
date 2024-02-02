@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using EquipmentManagment.Connection;
+using EquipmentManagment.Device.Options;
 using EquipmentManagment.MainEquipment;
 using EquipmentManagment.Manager;
 using EquipmentManagment.Tool;
@@ -41,7 +42,7 @@ namespace EquipmentManagment.Device
         {
             get
             {
-                return StaEQPManagager.EQList.FindAll(eq => EndPointOptions.ValidDownStreamEndPointNames.Contains(eq.EQName));
+                return StaEQPManagager.MainEQList.FindAll(eq => EndPointOptions.ValidDownStreamEndPointNames.Contains(eq.EQName));
             }
         }
         private CONN_METHODS _ConnectionMethod => EndPointOptions.ConnOptions.ConnMethod;
@@ -82,7 +83,7 @@ namespace EquipmentManagment.Device
 
             bool connected = false;
             if (_ConnectionMethod == CONN_METHODS.MODBUS_TCP)
-                connected = await ModbusTcpConnect(EndPointOptions.ConnOptions.IP, EndPointOptions.ConnOptions.Port);
+                connected = ModbusTcpConnect(EndPointOptions.ConnOptions.IP, EndPointOptions.ConnOptions.Port);
             else if (_ConnectionMethod == CONN_METHODS.TCPIP)
             {
                 connected = await TCPIPConnect(EndPointOptions.ConnOptions.IP, EndPointOptions.ConnOptions.Port);
@@ -114,10 +115,8 @@ namespace EquipmentManagment.Device
 
         private async Task _StartRetry()
         {
-            _ = Task.Run(async () =>
-            {
-                await Connect(retry: true);
-            });
+            await Task.Delay(1000);
+            await Connect(retry: true);
         }
 
         /// <summary>
@@ -126,7 +125,7 @@ namespace EquipmentManagment.Device
         /// <param name="IP"></param>
         /// <param name="Port"></param>
         /// <returns></returns>
-        protected virtual async Task<bool> ModbusTcpConnect(string IP, int Port)
+        protected virtual bool ModbusTcpConnect(string IP, int Port)
         {
             try
             {
@@ -199,13 +198,14 @@ namespace EquipmentManagment.Device
 
         public void StartSyncData()
         {
+
             Thread thread = new Thread(async () =>
             {
                 try
                 {
                     while (IsConnected)
                     {
-                        Thread.Sleep(100);
+                        Thread.Sleep(300);
                         if (_ConnectionMethod == CONN_METHODS.MODBUS_TCP)
                         {
                             ReadInputsUseModbusTCP();
@@ -220,7 +220,9 @@ namespace EquipmentManagment.Device
                         }
                         if (_ConnectionMethod == CONN_METHODS.SERIAL_PORT)
                             ReadDataUseSerial();
-                        DefineInputData();
+
+                        if (InputBuffer.Count > 0)
+                            InputsHandler();
 
                     }
                 }
@@ -257,34 +259,51 @@ namespace EquipmentManagment.Device
         }
         protected virtual void ReadInputsUseModbusTCP()
         {
-            ushort startRegister = EndPointOptions.ConnOptions.Input_StartRegister;
-            ushort registerNum = EndPointOptions.ConnOptions.Input_RegisterNum;
-            if (EndPointOptions.ConnOptions.IO_Value_Type == IO_VALUE_TYPE.INPUT)
+            try
             {
-                var inputs = master.ReadInputs(startRegister, registerNum);
-                InputBuffer = inputs.ToList();
+
+                ushort startRegister = EndPointOptions.ConnOptions.Input_StartRegister;
+                ushort registerNum = EndPointOptions.ConnOptions.Input_RegisterNum;
+
+                if (EndPointOptions.ConnOptions.IO_Value_Type == IO_VALUE_TYPE.INPUT)
+                {
+                    var inputs = master.ReadInputs(startRegister, registerNum);
+                    InputBuffer = inputs.ToList();
+                }
+                else
+                {
+                    ushort[] input_registers = master.ReadInputRegisters(0, 1);
+                    InputBuffer = input_registers[0].GetBoolArray().ToList();
+                }
             }
-            else
+            catch (Exception ex)
             {
-                ushort[] input_registers = master.ReadInputRegisters(0, 1);
-                InputBuffer = input_registers[0].GetBoolArray().ToList();
+                throw ex;
             }
         }
         public void WriteInputsUseModbusTCP(bool[] outputs)
         {
-            var IO_Module_Brand = EndPointOptions.ConnOptions.IO_Value_Type;
-            if (IO_Module_Brand == IO_VALUE_TYPE.INPUT)
-                master.WriteMultipleCoils(1, outputs);
-
-            if (IO_Module_Brand == IO_VALUE_TYPE.INPUT_REGISTER)
+            try
             {
-                ushort WriteInValue = outputs.GetUshort();
-                master.WriteSingleRegister(0, WriteInValue); //EasyModbus從0開始計算
+                var IO_Module_Brand = EndPointOptions.ConnOptions.IO_Value_Type;
+                if (IO_Module_Brand == IO_VALUE_TYPE.INPUT)
+                    master.WriteMultipleCoils(1, outputs);
+
+                if (IO_Module_Brand == IO_VALUE_TYPE.INPUT_REGISTER)
+                {
+                    ushort WriteInValue = outputs.GetUshort();
+                    master.WriteSingleRegister(0, WriteInValue); //EasyModbus從0開始計算
+                }
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"WriteInputsUseModbusTCP Fail... {ex.Message}");
+            }
+
         }
 
         protected abstract void WriteOutuptsData();
-        protected abstract void DefineInputData();
+        protected abstract void InputsHandler();
 
         protected virtual void Dispose(bool disposing)
         {

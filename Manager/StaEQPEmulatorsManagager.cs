@@ -1,5 +1,5 @@
 ﻿using EquipmentManagment.ChargeStation;
-using EquipmentManagment.Device;
+using EquipmentManagment.Device.Options;
 using EquipmentManagment.Emu;
 using System;
 using System.Collections.Generic;
@@ -9,8 +9,9 @@ namespace EquipmentManagment.Manager
 {
     public static class StaEQPEmulatorsManagager
     {
-        internal static Dictionary<string, clsDIOModuleEmu> EqEmulators = new Dictionary<string, clsDIOModuleEmu>();
-        internal static Dictionary<string, clsChargeStationEmu> ChargeStationEmulators = new Dictionary<string, clsChargeStationEmu>();
+        public static Dictionary<string, clsDIOModuleEmu> EqEmulators = new Dictionary<string, clsDIOModuleEmu>();
+        public static Dictionary<string, clsWIPEmu> WIPEmulators = new Dictionary<string, clsWIPEmu>();
+        public static Dictionary<string, clsChargeStationEmu> ChargeStationEmulators = new Dictionary<string, clsChargeStationEmu>();
 
         /// <summary>
         /// 嘗試依據EQ名稱取得模擬設備
@@ -58,7 +59,7 @@ namespace EquipmentManagment.Manager
             EqEmulators.Clear();
         }
 
-        internal static void InitEmu(Dictionary<string, clsEndPointOptions> EQOptions, Dictionary<string, clsChargeStationOptions> ChargeStationOptions)
+        internal static void InitEmu(Dictionary<string, clsEndPointOptions> EQOptions, Dictionary<string, clsChargeStationOptions> ChargeStationOptions, Dictionary<string, clsRackOptions> racksOptions)
         {
 
             foreach (KeyValuePair<string, clsEndPointOptions> item in EQOptions)
@@ -90,6 +91,19 @@ namespace EquipmentManagment.Manager
                 }
             }
 
+            foreach (KeyValuePair<string, clsRackOptions> item in racksOptions)
+            {
+                try
+                {
+                    var member = item.Value;
+                    clsWIPEmu emu = new clsWIPEmu();
+                    emu.StartEmu(item.Value);
+                    WIPEmulators.Add(item.Key, emu);
+                }
+                catch (Exception ex)
+                {
+                }
+            }
         }
 
         public static void ALLLoad()

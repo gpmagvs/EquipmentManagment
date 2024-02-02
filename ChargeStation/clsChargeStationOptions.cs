@@ -1,4 +1,4 @@
-﻿using EquipmentManagment.Device;
+﻿using EquipmentManagment.Device.Options;
 using System;
 using System.Collections.Generic;
 using System.Text;

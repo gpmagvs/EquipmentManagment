@@ -1,9 +1,10 @@
 ﻿using EquipmentManagment.BatteryExchanger;
 using EquipmentManagment.ChargeStation;
 using EquipmentManagment.Device;
+using EquipmentManagment.Device.Options;
 using EquipmentManagment.Emu;
 using EquipmentManagment.MainEquipment;
-using EquipmentManagment.Rack;
+using EquipmentManagment.WIP;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -17,14 +18,14 @@ using System.Xml.Linq;
 
 namespace EquipmentManagment.Manager
 {
-    public class StaEQPManagager
+    public partial class StaEQPManagager
     {
         public static clsEQManagementConfigs Configs { get; set; }
         public static List<EndPointDeviceAbstract> EQPDevices = new List<EndPointDeviceAbstract>();
         /// <summary>
         /// 客戶端主設備
         /// </summary>
-        public static List<clsEQ> EQList
+        public static List<clsEQ> MainEQList
         {
             get
             {
@@ -32,176 +33,11 @@ namespace EquipmentManagment.Manager
             }
         }
         public static List<clsChargeStation> ChargeStations = new List<clsChargeStation>();
-        public static List<clsRack> Racks = new List<clsRack>();
+        public static List<clsWIP> WIPList = new List<clsWIP>();
 
         public static Dictionary<string, clsEndPointOptions> EQOptions = new Dictionary<string, clsEndPointOptions>();
         public static Dictionary<string, clsChargeStationOptions> ChargeStationsOptions = new Dictionary<string, clsChargeStationOptions>();
         public static Dictionary<string, clsRackOptions> RacksOptions = new Dictionary<string, clsRackOptions>();
-        public static async Task InitializeAsync()
-        {
-            await InitializeAsync(Configs == null ? new clsEQManagementConfigs
-            {
-                EQConfigPath = "EQConfigs.json",
-                ChargeStationConfigPath = "ChargStationConfigs.json",
-                WIPConfigPath = "WIPConfigs.json"
-            } : Configs);
-        }
-
-        public static async Task InitializeAsync(clsEQManagementConfigs _Configs)
-        {
-            try
-            {
-                //DisposeEQs();
-                Configs = _Configs;
-                _LoadChargeStationConfigs(_Configs.ChargeStationConfigPath);
-                _LoadEqConfigs(_Configs.EQConfigPath);
-                _LoadWipConfigs(_Configs.WIPConfigPath);
-                EmulatorsInitialize(_Configs);
-
-                foreach (KeyValuePair<string, clsChargeStationOptions> item in ChargeStationsOptions)
-                {
-                    var eqName = item.Key;
-                    var options = item.Value;
-                    var charge_station = options.chip_brand == 2 ? new clsChargeStationGY7601Base(options) : new clsChargeStation(options);
-                    if (charge_station != null)
-                    {
-                        ChargeStations.Add(charge_station);
-                        charge_station.Connect();
-                    }
-                }
-                foreach (KeyValuePair<string, clsRackOptions> item in RacksOptions)
-                {
-                    var eqName = item.Key;
-                    var options = item.Value;
-                    EndPointDeviceAbstract EQ = null;
-                    _ = Task.Factory.StartNew(async () =>
-                    {
-                        EQPDevices.Add(EQ);
-                        bool connected = EQ.EndPointOptions.EqType == EQ_TYPE.BATTERY_EXCHANGER ? await (EQ as clsBatteryExchanger).Connect() : await EQ.Connect();
-                    });
-                }
-                foreach (KeyValuePair<string, clsEndPointOptions> item in EQOptions)
-                {
-                    var eqName = item.Key;
-                    var options = item.Value;
-                    EndPointDeviceAbstract EQ = null;
-                    if (item.Value.IsProdution_EQ)
-                    {
-                        EQ = new clsEQ(options);
-                    }
-                    else if (item.Value.EqType == EQ_TYPE.BATTERY_EXCHANGER)
-                        EQ = new clsBatteryExchanger(options);
-
-                    if (EQ == null)
-                        continue;
-                    _ = Task.Factory.StartNew(async () =>
-                    {
-                        EQPDevices.Add(EQ);
-                        bool connected = EQ.EndPointOptions.EqType == EQ_TYPE.BATTERY_EXCHANGER ? await (EQ as clsBatteryExchanger).Connect() : await EQ.Connect();
-                    });
-                }
-            }
-            catch (Exception ex)
-            {
-
-            }
-
-        }
-
-        private static void EmulatorsInitialize(clsEQManagementConfigs _Configs)
-        {
-            if (!_Configs.UseEqEmu)
-                return;
-            int emu_port = 2501;
-            foreach (var option in EQOptions.Values)
-            {
-                option.IsEmulation = true;
-                option.ConnOptions.IP = "127.0.0.1";
-                option.ConnOptions.Port = emu_port;
-                emu_port += 1;
-            }
-
-            foreach (var option in ChargeStationsOptions.Values)
-            {
-                option.IsEmulation = true;
-                option.ConnOptions.IP = "127.0.0.1";
-                option.ConnOptions.Port = emu_port;
-                emu_port += 1;
-            }
-            StaEQPEmulatorsManagager.InitEmu(EQOptions, ChargeStationsOptions);
-        }
-
-        public static void DisposeEQs()
-        {
-            StaEQPEmulatorsManagager.DisposeEQEmus();
-            foreach (EndPointDeviceAbstract eq in EQPDevices)
-            {
-                eq.Dispose();
-            }
-            EQPDevices.Clear();
-        }
-
-        private static void _LoadChargeStationConfigs(string charge_station_ConfigPath)
-        {
-            string json = _LoadConfigJson(charge_station_ConfigPath);
-            if (json != "")
-            {
-                ChargeStationsOptions = JsonConvert.DeserializeObject<Dictionary<string, clsChargeStationOptions>>(json);
-            }
-            else
-            {
-                ChargeStationsOptions = new Dictionary<string, clsChargeStationOptions>()
-                {
-                    {"Charge_1", new clsChargeStationOptions
-                    {
-                         ConnOptions = new Connection.ConnectOptions(),
-                         Name = "Charge_1",
-                         TagID = 1,
-                          EqType = EQ_TYPE.CHARGE,
-                           LdULdType = EQLDULD_TYPE.Charge,
-
-                    } }
-                };
-            }
-            SaveChargeStationConfigs();
-
-        }
-        private static void _LoadEqConfigs(string eQConfigPath)
-        {
-            string json = _LoadConfigJson(eQConfigPath);
-            if (json != "")
-            {
-                EQOptions = JsonConvert.DeserializeObject<Dictionary<string, clsEndPointOptions>>(json);
-            }
-            else
-            {
-                EQOptions = new Dictionary<string, clsEndPointOptions>()
-                {
-                    {"EQ-1", new clsEndPointOptions
-                    {
-                         ConnOptions = new Connection.ConnectOptions(),
-                         Name = "EQ-1",
-                         TagID = 1
-                    } }
-                };
-            }
-            var alleqnames = EQOptions.Keys.ToList();
-            var fin = EQOptions.Values.Where(val => val.ValidDownStreamEndPointNames.Any(name => !alleqnames.Contains(name)));
-            if (fin.Any())
-            {
-                foreach (var item in fin)
-                {
-                    item.ValidDownStreamEndPointNames = item.ValidDownStreamEndPointNames.FindAll(nam => alleqnames.Contains(nam)).ToList();
-                }
-            }
-            SaveEqConfigs();
-
-        }
-        private static void _LoadWipConfigs(string wIPConfigPath)
-        {
-            string json = _LoadConfigJson(wIPConfigPath);
-        }
-
         private static string _LoadConfigJson(string configPath)
         {
             if (File.Exists(configPath))
@@ -215,7 +51,7 @@ namespace EquipmentManagment.Manager
         {
             foreach (KeyValuePair<string, clsEndPointOptions> item in EQOptions)
             {
-                var _eq = EQList.FirstOrDefault(eq => eq.EndPointOptions.TagID == item.Value.TagID);
+                var _eq = MainEQList.FirstOrDefault(eq => eq.EndPointOptions.TagID == item.Value.TagID);
                 if (_eq != null)
                 {
                     var oriName = _eq.EndPointOptions.Name;

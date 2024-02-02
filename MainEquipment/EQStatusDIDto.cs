@@ -1,4 +1,4 @@
-﻿using EquipmentManagment.Device;
+﻿using EquipmentManagment.Device.Options;
 
 namespace EquipmentManagment.MainEquipment
 {

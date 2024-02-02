@@ -1,4 +1,4 @@
-﻿using EquipmentManagment.Device;
+﻿using EquipmentManagment.Device.Options;
 using EquipmentManagment.Tool;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Bson;
@@ -36,7 +36,7 @@ namespace EquipmentManagment.ChargeStation
         {
         }
 
-        protected override void DefineInputData()
+        protected override void InputsHandler()
         {
 
         }

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace EquipmentManagment.Device
+namespace EquipmentManagment.Device.Options
 {
     public enum EQ_TYPE
     {
@@ -33,6 +33,10 @@ namespace EquipmentManagment.Device
     {
         public ConnectOptions ConnOptions { get; set; } = new ConnectOptions();
         public string Name { get; set; } = "";
+        /// <summary>
+        /// 設備唯一ID，可供MCS系統識別使用
+        /// </summary>
+        public string DeviceID { get; set; } = "SYS2341G23";
         public int TagID { get; set; }
 
         public EQ_TYPE EqType { get; set; }
@@ -97,17 +101,9 @@ namespace EquipmentManagment.Device
 
         #endregion
     }
-
-    public class clsRackOptions : clsEndPointOptions
-    {
-        public int Columns { get; set; } = 3;
-        public int Rows { get; set; } = 3;
-
-        public new clsRackIOLocation IOLocation { get; set; } = new clsRackIOLocation();
-
-    }
     public class clsRackIOLocation
     {
+
         #region X-Input
         public ushort Tray_Sensor1 { get; set; } = 0;
         public ushort Tray_Sensor2 { get; set; } = 1;

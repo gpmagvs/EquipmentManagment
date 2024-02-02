@@ -1,5 +1,6 @@
 using EquipmentManagment.Device;
-using EquipmentManagment.Rack;
+using EquipmentManagment.Device.Options;
+using EquipmentManagment.WIP;
 using EquipmentManagment.Tool;
 using System;
 using System.Collections.Generic;
@@ -144,7 +145,7 @@ namespace EquipmentManagment.ChargeStation
         public clsChargeStation(clsEndPointOptions options) : base(options)
         {
         }
-        public override PortStatusAbstract PortStatus { get; set; } = new clsRackPort();
+        public override PortStatusAbstract PortStatus { get; set; } = new clsWIPPort();
         ManualResetEvent readStop = new ManualResetEvent(true);
         protected override  void ReadInputsUseTCPIP()
         {
@@ -209,7 +210,7 @@ namespace EquipmentManagment.ChargeStation
             {
             }
         }
-        protected override void DefineInputData()
+        protected override void InputsHandler()
         {
 
             if (DataBuffer.Count != 57)
