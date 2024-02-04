@@ -11,11 +11,11 @@ namespace EquipmentManagment.Manager
 
         public struct WIPController
         {
-            public static bool TryGetWIPByWIPName(string name, out clsWIP wip)
+            public static bool TryGetWIPByWIPName(string name, out clsRack wip)
             {
                 try
                 {
-                    wip = WIPList.FirstOrDefault(rack => rack.EQName == name);
+                    wip = RacksList.FirstOrDefault(rack => rack.EQName == name);
                     return wip != null;
                 }
                 catch (Exception)

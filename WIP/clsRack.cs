@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using EquipmentManagment.Device;
 using EquipmentManagment.Device.Options;
-using static EquipmentManagment.WIP.clsWIPPort;
+using static EquipmentManagment.WIP.clsPortOfRack;
 
 namespace EquipmentManagment.WIP
 {
     /// <summary>
     /// 表示一個WIP架
     /// </summary>
-    public class clsWIP : EndPointDeviceAbstract
+    public class clsRack : EndPointDeviceAbstract
     {
         public clsRackOptions RackOption { get; set; }
         /// <summary>
@@ -19,10 +19,10 @@ namespace EquipmentManagment.WIP
         /// </summary>
         public int TotalZones => RackOption.Columns * RackOption.Rows;
 
-        public clsWIPPort[] PortsStatus { get; set; } = new clsWIPPort[0];
+        public clsPortOfRack[] PortsStatus { get; set; } = new clsPortOfRack[0];
 
         public override PortStatusAbstract PortStatus { get; set; }
-        public clsWIP(clsRackOptions options) : base(options)
+        public clsRack(clsRackOptions options) : base(options)
         {
             RackOption = options;
             Initialize();
@@ -46,7 +46,7 @@ namespace EquipmentManagment.WIP
                 }
             }
 
-            foreach (clsWIPPort port in PortsStatus)
+            foreach (clsPortOfRack port in PortsStatus)
             {
 
                 port.UpdateIO(ref InputBuffer);
@@ -60,13 +60,13 @@ namespace EquipmentManagment.WIP
         private void Initialize()
         {
             PortsStatus = RackOption.PortsOptions.Select(option =>
-                   new clsWIPPort(option)
+                   new clsPortOfRack(option)
                ).ToArray();
         }
 
         internal void ModifyPortCargoID(string portID, string newCargoID)
         {
-            clsWIPPort _PortFound = PortsStatus.FirstOrDefault(port => port.Properties.ID == portID);
+            clsPortOfRack _PortFound = PortsStatus.FirstOrDefault(port => port.Properties.ID == portID);
             if (_PortFound != null)
             {
                 _PortFound.CarrierID = newCargoID;

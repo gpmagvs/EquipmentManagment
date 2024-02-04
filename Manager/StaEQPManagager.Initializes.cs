@@ -54,8 +54,8 @@ namespace EquipmentManagment.Manager
                 {
                     var eqName = item.Key;
                     var options = item.Value;
-                    clsWIP Rack = new clsWIP(options);
-                    WIPList.Add(Rack);
+                    clsRack Rack = new clsRack(options);
+                    RacksList.Add(Rack);
                     ConnectTo(Rack);
                 }
                 foreach (KeyValuePair<string, clsEndPointOptions> item in EQOptions)

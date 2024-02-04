@@ -33,7 +33,7 @@ namespace EquipmentManagment.Manager
             }
         }
         public static List<clsChargeStation> ChargeStations = new List<clsChargeStation>();
-        public static List<clsWIP> WIPList = new List<clsWIP>();
+        public static List<clsRack> RacksList = new List<clsRack>();
 
         public static Dictionary<string, clsEndPointOptions> EQOptions = new Dictionary<string, clsEndPointOptions>();
         public static Dictionary<string, clsChargeStationOptions> ChargeStationsOptions = new Dictionary<string, clsChargeStationOptions>();

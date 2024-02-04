@@ -147,7 +147,7 @@ namespace EquipmentManagment.ChargeStation
         public clsChargeStation(clsEndPointOptions options) : base(options)
         {
         }
-        public override PortStatusAbstract PortStatus { get; set; } = new clsWIPPort();
+        public override PortStatusAbstract PortStatus { get; set; } = new clsPortOfRack();
         ManualResetEvent readStop = new ManualResetEvent(true);
 
         public override async void StartSyncData()

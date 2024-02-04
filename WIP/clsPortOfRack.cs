@@ -10,7 +10,7 @@ namespace EquipmentManagment.WIP
     /// <summary>
     /// 表示一個儲存格
     /// </summary>
-    public class clsWIPPort : PortStatusAbstract
+    public class clsPortOfRack : PortStatusAbstract
     {
         public enum CARGO_PLACEMENT_STATUS
         {
@@ -64,10 +64,10 @@ namespace EquipmentManagment.WIP
                 return GetPlacementState(ExistSensorStates[SENSOR_LOCATION.RACK_1], ExistSensorStates[SENSOR_LOCATION.RACK_2]);
             }
         }
-        public clsWIPPort()
+        public clsPortOfRack()
         {
         }
-        public clsWIPPort(clsRackPortOptions option)
+        public clsPortOfRack(clsRackPortOptions option)
         {
             this.Properties = option;
         }
