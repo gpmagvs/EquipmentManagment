@@ -11,10 +11,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using EquipmentManagment.Connection;
 using EquipmentManagment.Device.Options;
+using EquipmentManagment.Exceptions;
 using EquipmentManagment.MainEquipment;
 using EquipmentManagment.Manager;
 using EquipmentManagment.Tool;
 using Modbus.Device;
+using Newtonsoft.Json.Converters;
 
 namespace EquipmentManagment.Device
 {
@@ -56,12 +58,13 @@ namespace EquipmentManagment.Device
             {
                 if (_IsConnected != value)
                 {
-                    if (!value)
+                    _IsConnected = value;
+                    if (!_IsConnected)
+                    {
                         OnEQDisconnected?.Invoke(this, this);
+                    }
                     else
                         OnEQConnected?.Invoke(this, this);
-                    _IsConnected = value;
-
                 }
             }
         }
@@ -81,36 +84,32 @@ namespace EquipmentManagment.Device
         {
             await Task.Delay(1);
 
-            bool connected = false;
             if (_ConnectionMethod == CONN_METHODS.MODBUS_TCP)
-                connected = ModbusTcpConnect(EndPointOptions.ConnOptions.IP, EndPointOptions.ConnOptions.Port);
+                IsConnected = ModbusTcpConnect(EndPointOptions.ConnOptions.IP, EndPointOptions.ConnOptions.Port);
             else if (_ConnectionMethod == CONN_METHODS.TCPIP)
             {
-                connected = await TCPIPConnect(EndPointOptions.ConnOptions.IP, EndPointOptions.ConnOptions.Port);
+                IsConnected = await TCPIPConnect(EndPointOptions.ConnOptions.IP, EndPointOptions.ConnOptions.Port);
             }
             else if (_ConnectionMethod == CONN_METHODS.MODBUS_RTU | _ConnectionMethod == CONN_METHODS.SERIAL_PORT)
-                connected = await SerialPortConnect(EndPointOptions.ConnOptions.ComPort);
+                IsConnected = await SerialPortConnect(EndPointOptions.ConnOptions.ComPort);
 
             else if (_ConnectionMethod == CONN_METHODS.MC)
             {
-                connected = await MCProtocolConnect(EndPointOptions.ConnOptions.IP, EndPointOptions.ConnOptions.Port);
+                IsConnected = await MCProtocolConnect(EndPointOptions.ConnOptions.IP, EndPointOptions.ConnOptions.Port);
             }
-            if (connected)
+            if (IsConnected)
             {
-                IsConnected = true;
                 if (!use_for_conn_test)
                     StartSyncData();
-                return IsConnected;
             }
             else
             {
                 if (!retry)
                     OnEQDisconnected?.Invoke(this, this);
-                IsConnected = false;
                 if (!use_for_conn_test)
                     _StartRetry();
-                return IsConnected;
             }
+            return IsConnected;
         }
 
         private async Task _StartRetry()
@@ -131,9 +130,11 @@ namespace EquipmentManagment.Device
             {
                 tcp_client = new TcpClient(IP, Port);
                 master = ModbusIpMaster.CreateIp(tcp_client);
-                master.Transport.ReadTimeout = 1000;
+                master.Transport.WaitToRetryMilliseconds = 200;
+                master.Transport.RetryOnOldResponseThreshold = 10;
+                master.Transport.ReadTimeout = 300;
                 master.Transport.WriteTimeout = 1000;
-                master.Transport.Retries = 2;
+                master.Transport.Retries = 3;
                 return true;
             }
             catch (Exception ex)
@@ -196,16 +197,22 @@ namespace EquipmentManagment.Device
             }
         }
 
-        public void StartSyncData()
+        public virtual void StartSyncData()
         {
 
             Thread thread = new Thread(async () =>
             {
-                try
+                while (true)
                 {
-                    while (IsConnected)
+                    Thread.Sleep(300);
+                    try
                     {
-                        Thread.Sleep(300);
+                        if (!_IsConnected)
+                        {
+                            await Connect();
+                            continue;
+                        }
+
                         if (_ConnectionMethod == CONN_METHODS.MODBUS_TCP)
                         {
                             ReadInputsUseModbusTCP();
@@ -221,20 +228,29 @@ namespace EquipmentManagment.Device
                         if (_ConnectionMethod == CONN_METHODS.SERIAL_PORT)
                             ReadDataUseSerial();
 
-                        if (InputBuffer.Count > 0)
+                        if (InputBuffer.Count > 0 || DataBuffer.Count > 0)
                             InputsHandler();
 
                     }
-                }
-                catch (NullReferenceException ex)
-                {
-                    IsConnected = false;
-                    _StartRetry();
-                }
-                catch (Exception ex)
-                {
-                    IsConnected = false;
-                    _StartRetry();
+                    catch (ModbusReadInputException ex)
+                    {
+                        _IsConnected = false;
+                        Console.WriteLine(ex.Message);
+                        continue;
+                    }
+                    catch (ChargeStationNoResponseException ex)
+                    {
+                        //若觸發這個例外，表示充電站沒AGV在充電.
+                        await Task.Delay(5000);
+                        Console.WriteLine($"Charge Station No Charging action...");
+                        continue;
+                    }
+                    catch (Exception ex)
+                    {
+                        IsConnected = false;
+                        await Task.Delay(3000);
+                        continue;
+                    }
                 }
 
             });
@@ -261,7 +277,6 @@ namespace EquipmentManagment.Device
         {
             try
             {
-
                 ushort startRegister = EndPointOptions.ConnOptions.Input_StartRegister;
                 ushort registerNum = EndPointOptions.ConnOptions.Input_RegisterNum;
 
@@ -272,8 +287,15 @@ namespace EquipmentManagment.Device
                 }
                 else
                 {
-                    ushort[] input_registers = master.ReadInputRegisters(0, 1);
-                    InputBuffer = input_registers[0].GetBoolArray().ToList();
+                    try
+                    {
+                        ushort[] input_registers = master.ReadInputRegisters(0, 1);
+                        InputBuffer = input_registers[0].GetBoolArray().ToList();
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new ModbusReadInputException(ex.Message);
+                    }
                 }
             }
             catch (Exception ex)

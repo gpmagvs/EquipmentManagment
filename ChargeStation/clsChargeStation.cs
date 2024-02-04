@@ -9,6 +9,8 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using EquipmentManagment.Exceptions;
+using EquipmentManagment.Connection;
 
 namespace EquipmentManagment.ChargeStation
 {
@@ -147,7 +149,41 @@ namespace EquipmentManagment.ChargeStation
         }
         public override PortStatusAbstract PortStatus { get; set; } = new clsWIPPort();
         ManualResetEvent readStop = new ManualResetEvent(true);
-        protected override  void ReadInputsUseTCPIP()
+
+        public override async void StartSyncData()
+        {
+            while (true)
+            {
+                Thread.Sleep(300);
+                try
+                {
+                    if (!_IsConnected)
+                    {
+                        await Connect();
+                        continue;
+                    }
+                    ReadInputsUseTCPIP();
+                    if (DataBuffer.Count > 0)
+                        InputsHandler();
+
+                }
+                catch (ChargeStationNoResponseException ex)
+                {
+                    //若觸發這個例外，表示充電站沒AGV在充電.
+                    await Task.Delay(5000);
+                    Console.WriteLine($"Charge Station No Charging action...");
+                    continue;
+                }
+                catch (Exception ex)
+                {
+                    IsConnected = false;
+                    await Task.Delay(3000);
+                    continue;
+                }
+            }
+        }
+
+        protected override void ReadInputsUseTCPIP()
         {
             try
             {
@@ -156,7 +192,6 @@ namespace EquipmentManagment.ChargeStation
                 //定義充電站的通訊交握
                 if (WriteSettingFlag)
                 {
-
                     tcp_client.Client.Send(ReadChargerStatesCmd, 0, 57, SocketFlags.None);
                     WriteSettingFlag = false;
                 }
@@ -172,7 +207,7 @@ namespace EquipmentManagment.ChargeStation
                         //tcp_client.Client.Send(ReadChargerStatesCmd);
                         if (cts.IsCancellationRequested)
                         {
-                            throw new SocketException();
+                            throw new ChargeStationNoResponseException();
                         }
                         continue;
                     }
@@ -183,6 +218,7 @@ namespace EquipmentManagment.ChargeStation
                     ArraySegment<byte> recvData = new ArraySegment<byte>(buffer, 0, recLength);
                     DataBuffer.AddRange(recvData.ToArray());
                 }
+
             }
             catch (SocketException sckex)
             {
@@ -227,10 +263,10 @@ namespace EquipmentManagment.ChargeStation
             Datas.Vin = GetValue(Indexes.VIN_H, Indexes.VIN_L) / 10.0;
             Datas.Vout = GetValue(Indexes.VOUT_H, Indexes.VOUT_L) / 10.0;
             Datas.Iout = GetValue(Indexes.IOUT_H, Indexes.IOUT_L) / 10.0;
-            Datas.CC = GetValue(Indexes.CC_H,Indexes.CC_L)/10.0;
-            Datas.TC = GetValue(Indexes.TC_H, Indexes.TC_L) /10.0;
-            Datas.FV = GetValue(Indexes.FV_H, Indexes.FV_L) /10.0;
-            Datas.CV = GetValue(Indexes.CV_H,Indexes.CV_L)/10.0;
+            Datas.CC = GetValue(Indexes.CC_H, Indexes.CC_L) / 10.0;
+            Datas.TC = GetValue(Indexes.TC_H, Indexes.TC_L) / 10.0;
+            Datas.FV = GetValue(Indexes.FV_H, Indexes.FV_L) / 10.0;
+            Datas.CV = GetValue(Indexes.CV_H, Indexes.CV_L) / 10.0;
             Datas.Temperature = DataBuffer[Indexes.TEMPERATURE];
             Datas.Time = DateTime.FromBinary(GetValue(Indexes.TIME_L1, Indexes.TIME_L2, Indexes.TIME_H1, Indexes.TIME_H2));
             Datas.UpdateTime = DateTime.Now;

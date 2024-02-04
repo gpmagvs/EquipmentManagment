@@ -17,9 +17,9 @@ namespace EquipmentManagment.Manager
 {
     public partial class StaEQPManagager
     {
-        public static async Task InitializeAsync()
+        public static async void InitializeAsync()
         {
-            await InitializeAsync(Configs == null ? new clsEQManagementConfigs
+            InitializeAsync(Configs == null ? new clsEQManagementConfigs
             {
                 EQConfigPath = "EQConfigs.json",
                 ChargeStationConfigPath = "ChargStationConfigs.json",
@@ -27,7 +27,7 @@ namespace EquipmentManagment.Manager
             } : Configs);
         }
 
-        public static async Task InitializeAsync(clsEQManagementConfigs _Configs)
+        public static void InitializeAsync(clsEQManagementConfigs _Configs)
         {
             try
             {
@@ -38,17 +38,17 @@ namespace EquipmentManagment.Manager
                 _LoadWipConfigs(_Configs.WIPConfigPath);
                 EmulatorsInitialize(_Configs);
 
-                //foreach (KeyValuePair<string, clsChargeStationOptions> item in ChargeStationsOptions)
-                //{
-                //    var eqName = item.Key;
-                //    var options = item.Value;
-                //    var charge_station = options.chip_brand == 2 ? new clsChargeStationGY7601Base(options) : new clsChargeStation(options);
-                //    if (charge_station != null)
-                //    {
-                //        ChargeStations.Add(charge_station);
-                //        ConnectTo(charge_station);
-                //    }
-                //}
+                foreach (KeyValuePair<string, clsChargeStationOptions> item in ChargeStationsOptions)
+                {
+                    var eqName = item.Key;
+                    var options = item.Value;
+                    var charge_station = options.chip_brand == 2 ? new clsChargeStationGY7601Base(options) : new clsChargeStation(options);
+                    if (charge_station != null)
+                    {
+                        ChargeStations.Add(charge_station);
+                        ConnectTo(charge_station);
+                    }
+                }
 
                 foreach (KeyValuePair<string, clsRackOptions> item in RacksOptions)
                 {
@@ -74,15 +74,14 @@ namespace EquipmentManagment.Manager
                         continue;
                     EQPDevices.Add(EQ);
                     ConnectTo(EQ.EndPointOptions.EqType == EQ_TYPE.BATTERY_EXCHANGER ? (EQ as clsBatteryExchanger) : EQ);
-                    //bool connected = EQ.EndPointOptions.EqType == EQ_TYPE.BATTERY_EXCHANGER ? await (EQ as clsBatteryExchanger).Connect() : await EQ.Connect();
                 }
 
 
                 void ConnectTo(EndPointDeviceAbstract device)
                 {
-                    Thread _connectThread = new Thread(() =>
+                    Thread _connectThread = new Thread(async () =>
                     {
-                        device.Connect();
+                        await device.Connect();
                     });
                     _connectThread.Start();
                 }
@@ -98,7 +97,7 @@ namespace EquipmentManagment.Manager
         {
             if (!_Configs.UseEqEmu)
                 return;
-            int emu_port = 2501;
+            int emu_port = 5600;
             foreach (var option in EQOptions.Values)
             {
                 option.IsEmulation = true;
@@ -115,7 +114,7 @@ namespace EquipmentManagment.Manager
                 emu_port += 2;
             }
 
-            int rack_emu_port = 2300;
+            int rack_emu_port = 6300;
             foreach (var option in RacksOptions.Values)
             {
                 option.IsEmulation = true;

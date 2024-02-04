@@ -29,7 +29,7 @@ namespace EquipmentManagment.Emu
             slave.ModbusSlaveRequestReceived += Master_ModbusSlaveRequestReceived;
             slave.DataStore = DataStoreFactory.CreateDefaultDataStore();
             DefaultInputsSetting();
-            Console.WriteLine($"DIO Moudle Emulator Start(127.0.0.1:{value.ConnOptions.Port})");
+            Console.WriteLine($"DIO Moudle Emulator Start({options.ConnOptions.IP}:{options.ConnOptions.Port})");
             await slave.ListenAsync();
         }
 
