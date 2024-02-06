@@ -1,5 +1,6 @@
 ﻿using EquipmentManagment.Connection;
 using EquipmentManagment.MainEquipment;
+using Modbus.Data;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -28,9 +29,19 @@ namespace EquipmentManagment.Device.Options
         BATTERY_EXCHANGER
     }
 
+    public enum AGV_TYPE
+    {
+        ALL,
+        FORK,
+        SUBMERGED_SHIELD,
+    }
 
     public class clsEndPointOptions
     {
+        public Dictionary<string, string> Notes { get; set; } = new Dictionary<string, string>()
+        {
+            { "Accept_AGV_Type","允許進行任務之車輛種類(0:所有車種,1:叉車AGV, 2:潛盾AGV)" }
+        };
         public ConnectOptions ConnOptions { get; set; } = new ConnectOptions();
         public string Name { get; set; } = "";
         /// <summary>
@@ -43,6 +54,10 @@ namespace EquipmentManagment.Device.Options
 
         public EQLDULD_TYPE LdULdType { get; set; } = EQLDULD_TYPE.LDULD;
         public EQ_PICKUP_CARGO_MODE LoadUnloadCargoMode { get; set; } = EQ_PICKUP_CARGO_MODE.AGV_PICK_AND_PLACE;
+        /// <summary>
+        /// 允許取放貨之車輛類型
+        /// </summary>
+        public AGV_TYPE Accept_AGV_Type { get; set; } = AGV_TYPE.ALL;
         public string Region { get; set; } = "";
 
         public List<string> ValidDownStreamEndPointNames { get; set; }
