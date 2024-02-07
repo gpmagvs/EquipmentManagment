@@ -24,6 +24,10 @@ namespace EquipmentManagment.Device
     {
         public static event EventHandler<EndPointDeviceAbstract> OnEQDisconnected;
         public static event EventHandler<EndPointDeviceAbstract> OnEQConnected;
+        /// <summary>
+        /// 數據長度不足
+        /// </summary>
+        public static event EventHandler<EndPointDeviceAbstract> OnEQInputDataSizeNotEnough;
         public EndPointDeviceAbstract(clsEndPointOptions options)
         {
             EndPointOptions = options;
@@ -243,6 +247,13 @@ namespace EquipmentManagment.Device
                         //若觸發這個例外，表示充電站沒AGV在充電.
                         await Task.Delay(5000);
                         Console.WriteLine($"Charge Station No Charging action...");
+                        continue;
+                    }
+                    catch (IndexOutOfRangeException ex)
+                    {
+                        Console.WriteLine($"{EndPointOptions.Name}- Error:Out of Range(Current InputBuffer Size:{InputBuffer.Count}/ DataBuffer Size:{this.DataBuffer.Count} )");
+                        await Task.Delay(1000);
+                        OnEQInputDataSizeNotEnough?.Invoke(this, this);
                         continue;
                     }
                     catch (Exception ex)

@@ -467,29 +467,31 @@ namespace EquipmentManagment.MainEquipment
 
         protected override void InputsHandler()
         {
-
             var io_location = EndPointOptions.IOLocation;
-            Load_Request = InputBuffer[io_location.Load_Request];
-            Unload_Request = InputBuffer[io_location.Unload_Request];
-            Port_Exist = InputBuffer[io_location.Port_Exist];
-            Up_Pose = InputBuffer[io_location.Up_Pose];
-            Down_Pose = InputBuffer[io_location.Down_Pose];
-            Eqp_Status_Down = InputBuffer[io_location.Eqp_Status_Down];
-            Eqp_Status_Run = InputBuffer[io_location.Eqp_Status_Run];
-            Eqp_Status_Idle = InputBuffer[io_location.Eqp_Status_Idle];
-            Full_RACK_To_LDULD = InputBuffer[io_location.Full_CST];
-            Empty_RACK_To_LDULD = InputBuffer[io_location.Empty_CST];
-
-            HS_EQ_L_REQ = InputBuffer[io_location.HS_EQ_L_REQ];
-            HS_EQ_U_REQ = InputBuffer[io_location.HS_EQ_U_REQ];
-            HS_EQ_READY = InputBuffer[io_location.HS_EQ_READY];
-            HS_EQ_UP_READY = InputBuffer[io_location.HS_EQ_UP_READY];
-            HS_EQ_LOW_READY = InputBuffer[io_location.HS_EQ_LOW_READY];
-
-            HS_EQ_BUSY = InputBuffer[io_location.HS_EQ_BUSY];
-
+            try
+            {
+                Load_Request = InputBuffer[io_location.Load_Request];
+                Unload_Request = InputBuffer[io_location.Unload_Request];
+                Port_Exist = InputBuffer[io_location.Port_Exist];
+                Up_Pose = InputBuffer[io_location.Up_Pose];
+                Down_Pose = InputBuffer[io_location.Down_Pose];
+                Eqp_Status_Down = InputBuffer[io_location.Eqp_Status_Down];
+                Eqp_Status_Run = InputBuffer[io_location.Eqp_Status_Run];
+                Eqp_Status_Idle = InputBuffer[io_location.Eqp_Status_Idle];
+                Full_RACK_To_LDULD = InputBuffer[io_location.Full_CST];
+                Empty_RACK_To_LDULD = InputBuffer[io_location.Empty_CST];
+                HS_EQ_L_REQ = InputBuffer[io_location.HS_EQ_L_REQ];
+                HS_EQ_U_REQ = InputBuffer[io_location.HS_EQ_U_REQ];
+                HS_EQ_READY = InputBuffer[io_location.HS_EQ_READY];
+                HS_EQ_UP_READY = InputBuffer[io_location.HS_EQ_UP_READY];
+                HS_EQ_LOW_READY = InputBuffer[io_location.HS_EQ_LOW_READY];
+                HS_EQ_BUSY = InputBuffer[io_location.HS_EQ_BUSY];
+            }
+            catch (Exception ex)
+            {
+                throw new IndexOutOfRangeException(ex.Message, ex);
+            }
             AGVModbusGateway.StoreEQOutpus(new bool[] { HS_EQ_L_REQ, HS_EQ_U_REQ, HS_EQ_READY, HS_EQ_BUSY });
-
         }
 
         public void ToEQUp()
