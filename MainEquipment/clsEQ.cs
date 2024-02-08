@@ -293,6 +293,10 @@ namespace EquipmentManagment.MainEquipment
         {
             get
             {
+
+                if (!EndPointOptions.CheckRackContentStateIOSignal)
+                    return RACK_CONTENT_STATE.FULL;
+
                 if (Is_RACK_HAS_TRAY_OR_NOT_TO_LDULD_Unknown)
                     return RACK_CONTENT_STATE.UNKNOWN;
                 return Empty_RACK_To_LDULD ? RACK_CONTENT_STATE.EMPTY : RACK_CONTENT_STATE.FULL;
