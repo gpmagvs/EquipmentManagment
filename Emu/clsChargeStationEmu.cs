@@ -75,7 +75,7 @@ namespace EquipmentManagment.Emu
                     {
                         Thread.Sleep(1000);
                         if (!_IsCharging)
-                            continue;   
+                            continue;
                         byte[] data = new byte[57];
                         if (!SettingFlag)
                         {
@@ -107,8 +107,16 @@ namespace EquipmentManagment.Emu
                             SettingFlag = false;
                         }
 
-                        var _num = client.Send(data);
-                        
+                        try
+                        {
+                            var _num = client.Send(data);
+                        }
+                        catch (Exception)
+                        {
+                            return;
+                        }
+
+
                     };
                 });
 
