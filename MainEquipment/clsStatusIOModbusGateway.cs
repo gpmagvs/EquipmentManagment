@@ -25,7 +25,7 @@ namespace EquipmentManagment.MainEquipment
             slave.ModbusSlaveRequestReceived += Slave_ModbusSlaveRequestReceived;
             slave.DataStore = DataStoreFactory.CreateDefaultDataStore();
             slave.ListenAsync();
-            WatchMasterClientConnectionStatus();
+            //WatchMasterClientConnectionStatus();
 
 
         }
