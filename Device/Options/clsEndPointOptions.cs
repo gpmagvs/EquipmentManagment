@@ -29,7 +29,7 @@ namespace EquipmentManagment.Device.Options
         BATTERY_EXCHANGER
     }
 
-    public enum AGV_TYPE
+    public enum VEHICLE_TYPE
     {
         ALL,
         FORK,
@@ -58,7 +58,7 @@ namespace EquipmentManagment.Device.Options
         /// <summary>
         /// 允許取放貨之車輛類型
         /// </summary>
-        public AGV_TYPE Accept_AGV_Type { get; set; } = AGV_TYPE.ALL;
+        public VEHICLE_TYPE Accept_AGV_Type { get; set; } = VEHICLE_TYPE.ALL;
         public string Region { get; set; } = "";
 
         public List<string> ValidDownStreamEndPointNames { get; set; }
