@@ -311,13 +311,13 @@ namespace EquipmentManagment.ChargeStation
             else
                 Datas.ErrorCodes.Remove(StatusErrorCode);
         }
-        public virtual bool SetCC(double val, out string message)
+        public virtual bool SetCCAsync(double val, out string message)
         {
             int valToWrite = int.Parse(Math.Round(val * 10) + "");
             Datas.CC_Setting = valToWrite;
             return SendSettingsToCharger(out message);
         }
-        public virtual bool SetCV(double val, out string message)
+        public virtual bool SetCVAsync(double val, out string message)
         {
             int valToWrite = int.Parse(Math.Round(val * 10) + "");
             Datas.CV_Setting = valToWrite;
@@ -332,7 +332,7 @@ namespace EquipmentManagment.ChargeStation
             return SendSettingsToCharger(out message);
 
         }
-        public virtual bool SetTC(double val, out string message)
+        public virtual bool SetTCAsync(double val, out string message)
         {
             int valToWrite = int.Parse(Math.Round(val * 10) + "");
             Datas.TC_Setting = valToWrite;

@@ -1,4 +1,5 @@
 ﻿using EquipmentManagment.Device.Options;
+using EquipmentManagment.Exceptions;
 using EquipmentManagment.Tool;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Bson;
@@ -6,16 +7,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace EquipmentManagment.ChargeStation
 {
     public class clsChargeStationGY7601Base : clsChargeStation
     {
-        private bool _write_setting_flag = false;
-        private bool _ready_to_write_flag = false;
         private bool _OperationONOFF_Donw_flag = false;
+
+        private SemaphoreSlim SocketSemaphoreSlim = new SemaphoreSlim(1, 1);
+        private SemaphoreSlim ReadDataSemaphoreSlim = new SemaphoreSlim(1, 1);
         public enum COMMAND_CODES : byte
         {
             STATUS_TEMPERATURE = 0x7D,
@@ -42,55 +46,86 @@ namespace EquipmentManagment.ChargeStation
         }
         protected override void ReadDataUseSerial()
         {
-            ReadDatas();
+            ReadDatasAsync();
         }
 
         protected override void ReadInputsUseTCPIP()
         {
-            ReadDatas();
+            try
+            {
+                ReadDatasAsync().Wait();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                ReadDataSemaphoreSlim.Release();
+            }
         }
 
-        private void ReadDatas()
+        private async Task<bool> ReadDatasAsync()
         {
-            if (!_OperationONOFF_Donw_flag)
+
+            try
             {
-                if (!OperationONOFFCtrl())
-                {
-                    throw new Exception("Operation ON/OFF Fail");
-                }
-                _OperationONOFF_Donw_flag = true;
-                _write_setting_flag = false;
+                //    if (!_OperationONOFF_Donw_flag)
+                //    {
+                //        //if (!await OperationONOFFCtrlAsync())
+                //        //{
+                //        //    throw new Exception("Operation ON/OFF Fail");
+                //        //}
+                //        if (!await SetChargeConfigAsync())
+                //        {
+                //            throw new Exception("Operation ON/OFF Fail");
+                //        }
+                //        _OperationONOFF_Donw_flag = true;
+                //    }
+
+                await ReadDataSemaphoreSlim.WaitAsync();
+                Datas.Vin = ReadVin();
+                Datas.Vout = Math.Round(ReadVout(), 2);
+                Datas.Iout = ReadIout();
+                Datas.CC = ReadCC();
+                Datas.CV = ReadCV();
+                Datas.FV = ReadFV();
+                Datas.TC = ReadTC();
+                Datas.Fan_Speed_1 = ReadFAN_Speed_1();
+                Datas.Fan_Speed_2 = ReadFAN_Speed_2();
+                Datas.Temperature = ReadTemperature();
+                ReadCURVE_CONFIG();
+                ReadChargeStatus();
+                Datas.Time = DateTime.Now;
+                //Console.WriteLine($"{JsonConvert.SerializeObject(Datas, Formatting.Indented)}");
+                return true;
             }
-            if (_write_setting_flag)
+            catch (SocketException ex)
             {
-                _ready_to_write_flag = true;
-                return;
+                throw new ChargeStationNoResponseException();
             }
-            _ready_to_write_flag = false;
-            Datas.Vin = ReadVin();
-            Datas.Vout = ReadVout();
-            Datas.Iout = ReadIout();
-            Datas.CC = ReadCC();
-            Datas.CV = ReadCV();
-            Datas.FV = ReadFV();
-            Datas.TC = ReadTC();
-            Datas.Fan_Speed_1 = ReadFAN_Speed_1();
-            Datas.Fan_Speed_2 = ReadFAN_Speed_2();
-            Datas.Temperature = ReadTemperature();
-            ReadCURVE_CONFIG();
-            ReadChargeStatus();
-            Datas.Time = DateTime.Now;
-            Console.WriteLine($"{JsonConvert.SerializeObject(Datas, Formatting.Indented)}");
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+            }
+
+
         }
-        private bool OperationONOFFCtrl()
+        private async Task<bool> SetChargeConfigAsync()
         {
-            _ready_to_write_flag = true;
-            bool _success = SendWriteCommnad(0x01, new byte[] { 0x80 }, out string msg);
+            var result = await SendWriteCommnadAsync((byte)COMMAND_CODES.CURVE_CONFIG, new byte[2] { 44, 00 });
+            return result.Item1;
+        }
+        private async Task<bool> OperationONOFFCtrlAsync()
+        {
+            bool _success = (await SendWriteCommnadAsync(0x01, new byte[] { 0x80 })).Item1;
             if (!_success)
                 return false;
-            _success = SendWriteCommnad(0x01, new byte[] { 0x00 }, out msg);
-            _ready_to_write_flag = false;
-            if (!_success)
+            var result = await SendWriteCommnadAsync(0x01, new byte[] { 0x00 });
+            if (!result.Item1)
                 return false;
             else
                 return true;
@@ -107,7 +142,7 @@ namespace EquipmentManagment.ChargeStation
         private double ReadVin()
         {
             var raw_data = SendReadCommnad((byte)COMMAND_CODES.READ_VIN, 2);
-            return raw_data.Reverse().Linear11ToDouble(-1);
+            return raw_data.Linear11ToDouble(-1);
         }
         private double ReadVout()
         {
@@ -158,25 +193,25 @@ namespace EquipmentManagment.ChargeStation
             var raw_data = SendReadCommnad((byte)COMMAND_CODES.READ_FAN_SPEED_2, 2);
             return raw_data.Linear11ToDouble(5);
         }
-        public override bool SetCC(double val, out string message)
+        public new async Task<(bool, string message)> SetCCAsync(double val)
         {
             var bytes = val.DoubleToLinear11(-2);
-            return SendWriteCommnad((byte)COMMAND_CODES.CURVE_CC, bytes, out message);
+            return await SendWriteCommnadAsync((byte)COMMAND_CODES.CURVE_CC, bytes);
         }
-        public override bool SetCV(double val, out string message)
-        {
-            var bytes = val.DoubleToLinear16(-2).Reverse().ToArray();
-            return SendWriteCommnad((byte)COMMAND_CODES.CURVE_CV, bytes, out message);
-        }
-        public override bool SetFV(double val, out string message)
+        public new async Task<(bool, string message)> SetCVAsync(double val)
         {
             var bytes = val.DoubleToLinear16(-2);
-            return SendWriteCommnad((byte)COMMAND_CODES.CURVE_FV, bytes, out message);
+            return await SendWriteCommnadAsync((byte)COMMAND_CODES.CURVE_CV, bytes);
         }
-        public override bool SetTC(double val, out string message)
+        public new async Task<(bool, string message)> SetFV(double val)
+        {
+            var bytes = val.DoubleToLinear16(-2);
+            return await SendWriteCommnadAsync((byte)COMMAND_CODES.CURVE_FV, bytes);
+        }
+        public new async Task<(bool, string message)> SetTCAsync(double val)
         {
             var bytes = val.DoubleToLinear11(-2);
-            return SendWriteCommnad((byte)COMMAND_CODES.CURVE_TC, bytes, out message);
+            return await SendWriteCommnadAsync((byte)COMMAND_CODES.CURVE_TC, bytes);
         }
         private byte[] SendReadCommnad(byte command_code, int data_len)
         {
@@ -185,7 +220,19 @@ namespace EquipmentManagment.ChargeStation
             byte[] return_val = new byte[data_len];
             if (connection_method == Connection.CONN_METHODS.TCPIP)
             {
-
+                this.tcp_client.Client.Send(command, command.Length, System.Net.Sockets.SocketFlags.None);
+                int dateLenRev = 0;
+                List<byte> bytes = new List<byte>();
+                while (dateLenRev != data_len)
+                {
+                    Thread.Sleep(1);
+                    int _ava = tcp_client.Client.Available;
+                    byte[] buffer = new byte[_ava];
+                    int _num = this.tcp_client.Client.Receive(buffer, _ava, System.Net.Sockets.SocketFlags.None);
+                    dateLenRev += _num;
+                    bytes.AddRange(buffer);
+                }
+                return_val = bytes.ToArray();
             }
             else if (connection_method == Connection.CONN_METHODS.SERIAL_PORT)
             {
@@ -196,24 +243,23 @@ namespace EquipmentManagment.ChargeStation
             }
             return return_val;
         }
-        private bool SendWriteCommnad(byte command_code, IEnumerable<byte> dataBytes, out string error_message)
+        private async Task<(bool, string error_message)> SendWriteCommnadAsync(byte command_code, IEnumerable<byte> dataBytes)
         {
-            error_message = string.Empty;
-            _write_setting_flag = true;
-            while (!_ready_to_write_flag)
-            {
-                Thread.Sleep(1);
-            }
+            await ReadDataSemaphoreSlim.WaitAsync();
             try
             {
                 Connection.CONN_METHODS connection_method = EndPointOptions.ConnOptions.ConnMethod;
-                var command = new byte[dataBytes.Count() + 2];
+                var command = new byte[dataBytes.Count() + 3];
                 command[0] = 0x44;
                 command[1] = 0x8E;
-                Array.Copy(dataBytes.ToArray(), 0, command, 2, dataBytes.Count());
+                command[2] = command_code;
+                Array.Copy(dataBytes.ToArray(), 0, command, 3, dataBytes.Count());
                 byte[] return_val = new byte[1];
                 if (connection_method == Connection.CONN_METHODS.TCPIP)
                 {
+                    tcp_client.Client.Send(command, command.Length, System.Net.Sockets.SocketFlags.None);
+                    Thread.Sleep(100);
+                    tcp_client.Client.Receive(return_val, 1, System.Net.Sockets.SocketFlags.None);
 
                 }
                 else if (connection_method == Connection.CONN_METHODS.SERIAL_PORT)
@@ -224,16 +270,18 @@ namespace EquipmentManagment.ChargeStation
                     Thread.Sleep(100);
                     serial.Read(return_val, 0, return_val.Length);
                 }
-                _write_setting_flag = false;
-                return return_val[0] == 0xAA;
-
+                Console.WriteLine($"Command Code:{command_code.ToString("X2")} Write:{string.Join(",", dataBytes.Select(b => b.ToString("X2")))},Module Return:{return_val[0].ToString("X2")}");
+                bool _isReturnOk = return_val[0] == 0xAA;
+                return (_isReturnOk, _isReturnOk ? "" : "Return value incorrect");
             }
             catch (Exception ex)
             {
-                error_message = ex.Message;
-                return false;
+                return (false, ex.Message);
             }
-
+            finally
+            {
+                ReadDataSemaphoreSlim.Release();
+            }
         }
     }
 }
