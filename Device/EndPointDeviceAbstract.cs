@@ -79,7 +79,7 @@ namespace EquipmentManagment.Device
         private bool disposedValue;
 
         /// <summary>
-        /// 使用Modbus Tcp 連線
+        /// 
         /// </summary>
         /// <param name="IP"></param>
         /// <param name="Port"></param>
@@ -294,7 +294,8 @@ namespace EquipmentManagment.Device
                 if (EndPointOptions.ConnOptions.IO_Value_Type == IO_VALUE_TYPE.INPUT)
                 {
                     var inputs = master.ReadInputs(startRegister, registerNum);
-                    InputBuffer = inputs.ToList();
+                    if (!inputs.SequenceEqual(InputBuffer))
+                        InputBuffer = inputs.ToList();
                 }
                 else
                 {

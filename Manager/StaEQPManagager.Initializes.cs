@@ -38,6 +38,7 @@ namespace EquipmentManagment.Manager
                 _LoadWipConfigs(_Configs.WIPConfigPath);
                 EmulatorsInitialize(_Configs);
 
+                List<Task> ConnectTasks = new List<Task>();
                 foreach (KeyValuePair<string, clsChargeStationOptions> item in ChargeStationsOptions)
                 {
                     var eqName = item.Key;
@@ -46,7 +47,7 @@ namespace EquipmentManagment.Manager
                     if (charge_station != null)
                     {
                         ChargeStations.Add(charge_station);
-                        ConnectTo(charge_station);
+                        ConnectTasks.Add(ConnectTo(charge_station));
                     }
                 }
 
@@ -56,8 +57,10 @@ namespace EquipmentManagment.Manager
                     var options = item.Value;
                     clsRack Rack = new clsRack(options);
                     RacksList.Add(Rack);
-                    ConnectTo(Rack);
+                    ConnectTasks.Add(ConnectTo(Rack));
                 }
+
+
                 foreach (KeyValuePair<string, clsEndPointOptions> item in EQOptions)
                 {
                     var eqName = item.Key;
@@ -73,17 +76,13 @@ namespace EquipmentManagment.Manager
                     if (EQ == null)
                         continue;
                     EQPDevices.Add(EQ);
-                    ConnectTo(EQ.EndPointOptions.EqType == EQ_TYPE.BATTERY_EXCHANGER ? (EQ as clsBatteryExchanger) : EQ);
+                    ConnectTasks.Add(ConnectTo(EQ.EndPointOptions.EqType == EQ_TYPE.BATTERY_EXCHANGER ? (EQ as clsBatteryExchanger) : EQ));
                 }
+                Task.WhenAll(ConnectTasks);
 
-
-                void ConnectTo(EndPointDeviceAbstract device)
+                async Task ConnectTo(EndPointDeviceAbstract device)
                 {
-                    Thread _connectThread = new Thread(async () =>
-                    {
-                        await device.Connect();
-                    });
-                    _connectThread.Start();
+                    await device.Connect();
                 }
             }
             catch (Exception ex)

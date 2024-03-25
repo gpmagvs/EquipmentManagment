@@ -32,14 +32,14 @@ namespace EquipmentManagment.Tool
         {
             return BitConverter.GetBytes((short)value);
         }
-        public static double Linear16ToDouble(this IEnumerable<byte> raw_data, int N)
+        public static float Linear16ToDouble(this IEnumerable<byte> raw_data, int N)
         {
             // 擴展陣列到8個字節
             byte[] extendedArray = new byte[8];
             Array.Copy(raw_data.ToArray(), extendedArray, raw_data.Count());
             // 轉換為十進制
             long decimalValue = BitConverter.ToInt64(extendedArray, 0);
-            return Math.Pow(2, N) * decimalValue;
+            return (float) Math.Pow(2, N) * decimalValue;
         }
 
         public static byte[] DoubleToLinear16(this double value, int N)
@@ -49,12 +49,6 @@ namespace EquipmentManagment.Tool
             mantissa = mantissa >> 1;
             var bytes = BitConverter.GetBytes(mantissa);
             return new byte[] { bytes[1], bytes[0] };
-
-            // 將double數值轉換為long
-            long longValue = Convert.ToInt64(value * Math.Pow(2, N));
-            // 將long轉換為byte陣列
-            byte[] byteArray = BitConverter.GetBytes(longValue);
-            return byteArray.Reverse().ToArray();
         }
         public static double Linear11ToDouble(this IEnumerable<byte> data, int N)
         {
