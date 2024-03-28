@@ -197,6 +197,7 @@ namespace EquipmentManagment.ChargeStation
                 }
                 DataBuffer.Clear();
                 CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromSeconds(3));
+                //tcp_client.Client.Send(ReadChargerStatesCmd);
 
                 while (DataBuffer.Count != 57)
                 {
@@ -251,7 +252,7 @@ namespace EquipmentManagment.ChargeStation
 
             if (DataBuffer.Count != 57)
                 return;
-            if (DataBuffer[13] == 0x61 | DataBuffer[13] == 0x60)
+            if (DataBuffer[13] == 0x61 || DataBuffer[13] == 0x60)
             {
                 Datas.CC = GetValue(Indexes_Write.CC_H, Indexes_Write.CC_L) / 10.0;
                 Datas.CV = GetValue(Indexes_Write.CV_H, Indexes_Write.CV_L) / 10.0;
@@ -374,7 +375,7 @@ namespace EquipmentManagment.ChargeStation
 
             CancellationTokenSource timeout = new CancellationTokenSource(TimeSpan.FromSeconds(10));
 
-            while (Datas.CC_Setting / 10.0 != Datas.CC | Datas.CV_Setting / 10.0 != Datas.CV | Datas.FV_Setting / 10.0 != Datas.FV | Datas.TC_Setting / 10.0 != Datas.TC)
+            while (Datas.CC_Setting / 10.0 != Datas.CC || Datas.CV_Setting / 10.0 != Datas.CV || Datas.FV_Setting / 10.0 != Datas.FV || Datas.TC_Setting / 10.0 != Datas.TC)
             {
                 Thread.Sleep(1);
                 if (timeout.IsCancellationRequested)
