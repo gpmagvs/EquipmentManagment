@@ -213,6 +213,7 @@ namespace EquipmentManagment.Device
                     {
                         if (!_IsConnected)
                         {
+                            Thread.Sleep(1000);
                             await Connect();
                             continue;
                         }
