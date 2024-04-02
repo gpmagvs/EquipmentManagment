@@ -17,7 +17,7 @@
 
   <ItemGroup>
     <None Update="CIMComponent.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
