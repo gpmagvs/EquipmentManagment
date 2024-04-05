@@ -43,6 +43,10 @@ namespace EquipmentManagment.Manager
                 {
                     var eqName = item.Key;
                     var options = item.Value;
+
+                    if (options.Name != item.Key)
+                        options.Name = eqName;
+
                     var charge_station = options.chip_brand == 2 ? new clsChargeStationGY7601Base(options) : new clsChargeStation(options);
                     if (charge_station != null)
                     {
@@ -55,6 +59,10 @@ namespace EquipmentManagment.Manager
                 {
                     var eqName = item.Key;
                     var options = item.Value;
+
+                    if (options.Name != item.Key)
+                        options.Name = eqName;
+
                     clsRack Rack = new clsRack(options);
                     RacksList.Add(Rack);
                     ConnectTasks.Add(ConnectTo(Rack));
@@ -65,6 +73,10 @@ namespace EquipmentManagment.Manager
                 {
                     var eqName = item.Key;
                     var options = item.Value;
+
+                    if (options.Name != item.Key)
+                        options.Name = eqName;
+
                     EndPointDeviceAbstract EQ = null;
                     if (item.Value.IsProdution_EQ)
                     {
@@ -87,7 +99,7 @@ namespace EquipmentManagment.Manager
             }
             catch (Exception ex)
             {
-
+                throw ex;
             }
 
         }
@@ -223,6 +235,5 @@ namespace EquipmentManagment.Manager
                 RacksOptions = JsonConvert.DeserializeObject<Dictionary<string, clsRackOptions>>(json);
             }
         }
-
     }
 }
