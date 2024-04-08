@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Ports;
@@ -259,7 +259,7 @@ namespace EquipmentManagment.Device
                     }
                     catch (Exception ex)
                     {
-                        IsConnected = false;
+                        _IsConnected = false;
                         await Task.Delay(3000);
                         continue;
                     }
