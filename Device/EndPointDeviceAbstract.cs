@@ -108,8 +108,6 @@ namespace EquipmentManagment.Device
             }
             else
             {
-                if (!retry)
-                    OnEQDisconnected?.Invoke(this, this);
                 if (!use_for_conn_test)
                     _StartRetry();
             }
@@ -211,7 +209,7 @@ namespace EquipmentManagment.Device
                     Thread.Sleep(300);
                     try
                     {
-                        if (!_IsConnected)
+                        if (!IsConnected)
                         {
                             Thread.Sleep(1000);
                             await Connect();
@@ -239,7 +237,7 @@ namespace EquipmentManagment.Device
                     }
                     catch (ModbusReadInputException ex)
                     {
-                        _IsConnected = false;
+                        IsConnected = false;
                         Console.WriteLine(ex.Message);
                         continue;
                     }
@@ -252,6 +250,7 @@ namespace EquipmentManagment.Device
                     }
                     catch (IndexOutOfRangeException ex)
                     {
+                        IsConnected = false;
                         Console.WriteLine($"{EndPointOptions.Name}- Error:Out of Range(Current InputBuffer Size:{InputBuffer.Count}/ DataBuffer Size:{this.DataBuffer.Count} )");
                         await Task.Delay(1000);
                         OnEQInputDataSizeNotEnough?.Invoke(this, this);
@@ -259,7 +258,7 @@ namespace EquipmentManagment.Device
                     }
                     catch (Exception ex)
                     {
-                        _IsConnected = false;
+                        IsConnected = false;
                         await Task.Delay(3000);
                         continue;
                     }
@@ -322,17 +321,18 @@ namespace EquipmentManagment.Device
             {
                 var IO_Module_Brand = EndPointOptions.ConnOptions.IO_Value_Type;
                 if (IO_Module_Brand == IO_VALUE_TYPE.INPUT)
-                    master.WriteMultipleCoils(1, outputs);
+                    master?.WriteMultipleCoils(1, outputs);
 
                 if (IO_Module_Brand == IO_VALUE_TYPE.INPUT_REGISTER)
                 {
                     ushort WriteInValue = outputs.GetUshort();
-                    master.WriteSingleRegister(0, WriteInValue); //EasyModbus從0開始計算
+                    master?.WriteSingleRegister(0, WriteInValue); //EasyModbus從0開始計算
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"WriteInputsUseModbusTCP Fail... {ex.Message}");
+                throw ex;
             }
 
         }

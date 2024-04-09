@@ -122,6 +122,10 @@ namespace EquipmentManagment.Manager
         {
             return EQPDevices.FirstOrDefault(eq => eq.EndPointOptions.TagID == eQTag) as clsEQ;
         }
+        public static clsRack GetRackByTag(int eQTag)
+        {
+            return RacksList.FirstOrDefault(eq => eq.EndPointOptions.TagID == eQTag) as clsRack;
+        }
 
         public static RACK_CONTENT_STATE CargoStartTransferToDestineHandler(clsEQ sourceEQ, clsEQ destineEQ)
         {
