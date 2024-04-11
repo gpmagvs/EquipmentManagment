@@ -199,19 +199,19 @@ namespace EquipmentManagment.Device
             }
         }
 
-        public virtual void StartSyncData()
+        public virtual async Task StartSyncData()
         {
 
-            Thread thread = new Thread(async () =>
+            await Task.Run(async () =>
             {
                 while (true)
                 {
-                    Thread.Sleep(300);
+                    await Task.Delay(300);
                     try
                     {
                         if (!IsConnected)
                         {
-                            Thread.Sleep(1000);
+                            await Task.Delay(1000);
                             await Connect();
                             continue;
                         }
@@ -265,7 +265,6 @@ namespace EquipmentManagment.Device
                 }
 
             });
-            thread.Start();
         }
 
         protected virtual void ReadDataUseSerial() { }

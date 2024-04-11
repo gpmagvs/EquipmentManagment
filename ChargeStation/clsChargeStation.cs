@@ -150,37 +150,42 @@ namespace EquipmentManagment.ChargeStation
         public override PortStatusAbstract PortStatus { get; set; } = new clsPortOfRack();
         ManualResetEvent readStop = new ManualResetEvent(true);
 
-        public override async void StartSyncData()
+        public override async Task StartSyncData()
         {
-            while (true)
+            await Task.Run(async() =>
             {
-                Thread.Sleep(300);
-                try
+                while (true)
                 {
-                    if (!_IsConnected)
+                    await Task.Delay(300);
+                    try
                     {
-                        await Connect();
+                        if (!_IsConnected)
+                        {
+                            await Connect();
+                            continue;
+                        }
+                        ReadInputsUseTCPIP();
+                        if (DataBuffer.Count > 0)
+                            InputsHandler();
+
+                    }
+                    catch (ChargeStationNoResponseException ex)
+                    {
+                        //若觸發這個例外，表示充電站沒AGV在充電.
+                        await Task.Delay(5000);
+                        Console.WriteLine($"Charge Station No Charging action...");
                         continue;
                     }
-                    ReadInputsUseTCPIP();
-                    if (DataBuffer.Count > 0)
-                        InputsHandler();
+                    catch (Exception ex)
+                    {
+                        IsConnected = false;
+                        await Task.Delay(3000);
+                        continue;
+                    }
+                }
 
-                }
-                catch (ChargeStationNoResponseException ex)
-                {
-                    //若觸發這個例外，表示充電站沒AGV在充電.
-                    await Task.Delay(5000);
-                    Console.WriteLine($"Charge Station No Charging action...");
-                    continue;
-                }
-                catch (Exception ex)
-                {
-                    IsConnected = false;
-                    await Task.Delay(3000);
-                    continue;
-                }
-            }
+
+            });
         }
 
         protected override void ReadInputsUseTCPIP()

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using EquipmentManagment.Device;
 using EquipmentManagment.Device.Options;
@@ -446,9 +447,40 @@ namespace EquipmentManagment.MainEquipment
                 }
             }
         }
-        public bool CMD_Reserve_Up { get; set; } = false;
-        public bool CMD_Reserve_Low { get; set; }
 
+
+        public bool _CMD_Reserve_Up = false;
+        public bool _CMD_Reserve_Low = false;
+
+
+        public bool CMD_Reserve_Up
+        {
+            get => _CMD_Reserve_Up;
+            set
+            {
+                if (_CMD_Reserve_Up != value)
+                {
+                    _CMD_Reserve_Up = value;
+                    OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "CMD_Reserve_Up ", value));
+                    Console.WriteLine($"CMD_Reserve_Up Changed to :{value}");
+                    _WriteOutputSiganls();
+                }
+            }
+        }
+        public bool CMD_Reserve_Low
+        {
+            get => _CMD_Reserve_Low;
+            set
+            {
+                if (_CMD_Reserve_Low != value)
+                {
+                    _CMD_Reserve_Low = value;
+                    OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "CMD_Reserve_Low ", value));
+                    Console.WriteLine($"CMD_Reserve_Low Changed to :{value}");
+                    _WriteOutputSiganls();
+                }
+            }
+        }
         #endregion
         public EQLDULD_TYPE lduld_type
         {
@@ -537,37 +569,46 @@ namespace EquipmentManagment.MainEquipment
         {
             CMD_Reserve_Up = true;
             CMD_Reserve_Low = false;
-            _WriteOutputSiganls();
         }
         public void ReserveLow()
         {
             CMD_Reserve_Up = false;
             CMD_Reserve_Low = true;
-            _WriteOutputSiganls();
         }
         public void CancelReserve()
         {
             CMD_Reserve_Low = CMD_Reserve_Up = false;
-            _WriteOutputSiganls();
         }
-        private void _WriteOutputSiganls()
+        private SemaphoreSlim _WriteOuputSignalsSemaphore = new SemaphoreSlim(1, 1);
+        private async Task _WriteOutputSiganls()
         {
-            var io_location = EndPointOptions.IOLocation;
-            bool[] outputs = new bool[16];
+            await _WriteOuputSignalsSemaphore.WaitAsync();
+            try
+            {
+                var io_location = EndPointOptions.IOLocation;
+                bool[] outputs = new bool[16];
 
-            outputs[io_location.To_EQ_Up] = To_EQ_Up;
-            outputs[io_location.To_EQ_Low] = To_EQ_Low;
-            outputs[io_location.CMD_Reserve_Up] = CMD_Reserve_Up;
-            outputs[io_location.CMD_Reserve_Low] = CMD_Reserve_Low;
-
-            outputs[io_location.HS_AGV_VALID] = HS_AGV_VALID;
-            outputs[io_location.HS_AGV_TR_REQ] = HS_AGV_TR_REQ;
-            outputs[io_location.HS_AGV_BUSY] = HS_AGV_BUSY;
-            outputs[io_location.HS_AGV_COMPT] = HS_AGV_COMPT;
-            outputs[io_location.HS_AGV_READY] = HS_AGV_READY;
-            outputs[io_location.To_EQ_Empty_CST] = To_EQ_Empty_CST;
-            outputs[io_location.To_EQ_Full_CST] = To_EQ_Full_CST;
-            WriteOutputs(0, outputs);
+                outputs[io_location.To_EQ_Up] = To_EQ_Up;
+                outputs[io_location.To_EQ_Low] = To_EQ_Low;
+                outputs[io_location.CMD_Reserve_Up] = CMD_Reserve_Up;
+                outputs[io_location.CMD_Reserve_Low] = CMD_Reserve_Low;
+                outputs[io_location.HS_AGV_VALID] = HS_AGV_VALID;
+                outputs[io_location.HS_AGV_TR_REQ] = HS_AGV_TR_REQ;
+                outputs[io_location.HS_AGV_BUSY] = HS_AGV_BUSY;
+                outputs[io_location.HS_AGV_COMPT] = HS_AGV_COMPT;
+                outputs[io_location.HS_AGV_READY] = HS_AGV_READY;
+                outputs[io_location.To_EQ_Empty_CST] = To_EQ_Empty_CST;
+                outputs[io_location.To_EQ_Full_CST] = To_EQ_Full_CST;
+                WriteOutputs(0, outputs);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString() + ex.StackTrace);
+            }
+            finally
+            {
+                _WriteOuputSignalsSemaphore.Release();
+            }
         }
 
         public void WriteOutputs(ushort start, bool[] value)
