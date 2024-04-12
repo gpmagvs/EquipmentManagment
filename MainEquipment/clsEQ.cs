@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -545,25 +546,22 @@ namespace EquipmentManagment.MainEquipment
         public void Empty_RACK_To_EQ()
         {
             Console.WriteLine($"向{EQName} 載入空框訊號ON");
-            _To_EQ_Empty_CST = true;
-            _To_EQ_Full_CST = false;
-            _WriteOutputSiganls();
+            To_EQ_Empty_CST = true;
+            To_EQ_Full_CST = false;
         }
         public void Full_RACK_To_EQ()
         {
             Console.WriteLine($"向{EQName} 載入滿框訊號ON");
-            _To_EQ_Empty_CST = false;
-            _To_EQ_Full_CST = true;
-            _WriteOutputSiganls();
+            To_EQ_Empty_CST = false;
+            To_EQ_Full_CST = true;
         }
 
         public void CancelToEQUpAndLow()
         {
-            _To_EQ_UP = false;
-            _To_EQ_LOW = false;
-            _To_EQ_Full_CST = false;
-            _To_EQ_Empty_CST = false;
-            _WriteOutputSiganls();
+            To_EQ_Up =
+            To_EQ_Low =
+            To_EQ_Full_CST =
+            To_EQ_Empty_CST = false;
         }
         public void ReserveUp()
         {
