@@ -144,5 +144,26 @@ namespace EquipmentManagment.Manager
             }
             return raack_content_state;
         }
+
+        public static List<int> GetBlockedTagsByEqIsMainain()
+        {
+            IEnumerable<clsEQ> maintainingEqCollection = MainEQList.Where(eq => eq.IsMaintaining);
+            if (!maintainingEqCollection.Any())
+                return new List<int>();
+
+            return maintainingEqCollection.Select(eq => eq.EndPointOptions.TagID).ToList();
+
+        }
+
+        public static IEnumerable<int> GetUsableChargeStationTags(string agv_name)
+        {
+
+            if (ChargeStations.Count == 0)
+            {
+                return Enumerable.Empty<int>();
+            }
+            return  ChargeStations.Where(station=>station.IsAGVUsable(agv_name)).Select(station => station.EndPointOptions.TagID);
+
+        }
     }
 }

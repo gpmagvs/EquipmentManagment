@@ -76,6 +76,12 @@ namespace EquipmentManagment.Device
         public List<bool> InputBuffer = new List<bool>();
         public List<byte> DataBuffer { get; protected set; } = new List<byte>();
 
+        /// <summary>
+        /// 設備是否在維修PM中
+        /// </summary>
+        public abstract bool IsMaintaining { get; }
+
+
         private bool disposedValue;
 
         /// <summary>

@@ -501,6 +501,26 @@ namespace EquipmentManagment.MainEquipment
         }
 
         public override PortStatusAbstract PortStatus { get; set; } = new clsEQPort();
+        private bool _MaintainingSimulation = false;
+        public void SetMaintaining(bool isMaintain)
+        {
+            _MaintainingSimulation = isMaintain;
+            Console.WriteLine($"{EQName} now is maintaining? {isMaintain}");
+        }
+        public override bool IsMaintaining
+        {
+            get
+            {
+                if (this.EndPointOptions.IsEmulation)
+                {
+                    return _MaintainingSimulation;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
 
         protected override void InputsHandler()
         {

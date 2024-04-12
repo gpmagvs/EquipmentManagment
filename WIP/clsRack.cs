@@ -30,6 +30,8 @@ namespace EquipmentManagment.WIP
         public int EmptyPortNum => PortsStatus.Where(port => port.ExistSensorStates.Values.Any(exist => exist)).Count();
         public int HasCargoPortNum => PortsStatus.Count() - PortsStatus.Where(port => port.ExistSensorStates.Values.Any(exist => exist)).Count();
 
+        public override bool IsMaintaining { get => throw new NotImplementedException(); }
+
         protected override void InputsHandler()
         {
 

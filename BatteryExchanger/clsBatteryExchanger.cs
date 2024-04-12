@@ -17,6 +17,7 @@ namespace EquipmentManagment.BatteryExchanger
         }
 
         public override PortStatusAbstract PortStatus { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public override bool IsMaintaining { get => throw new NotImplementedException(); }
 
         protected override void InputsHandler()
         {

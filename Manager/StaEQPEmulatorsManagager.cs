@@ -1,8 +1,10 @@
 ﻿using EquipmentManagment.ChargeStation;
 using EquipmentManagment.Device.Options;
 using EquipmentManagment.Emu;
+using EquipmentManagment.MainEquipment;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace EquipmentManagment.Manager
@@ -49,6 +51,21 @@ namespace EquipmentManagment.Manager
 
             emulator.ModifyInputs(index, values);
             return true;
+        }
+
+
+        public static bool MaintainStatusSimulation(string eqName, bool isMaintain)
+        {
+
+            Device.EndPointDeviceAbstract eqFound = StaEQPManagager.EQPDevices.FirstOrDefault(eq => eq.EQName == eqName);
+            if (eqFound != null)
+            {
+                (eqFound as clsEQ).SetMaintaining(isMaintain);
+                return true;
+            }
+            else
+                return false;
+
         }
         internal static void DisposeEQEmus()
         {

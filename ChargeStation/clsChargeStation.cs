@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EquipmentManagment.Exceptions;
 using EquipmentManagment.Connection;
+using System.Net.Http.Headers;
 
 namespace EquipmentManagment.ChargeStation
 {
@@ -146,13 +147,17 @@ namespace EquipmentManagment.ChargeStation
         public clsChargerData Datas = new clsChargerData();
         public clsChargeStation(clsEndPointOptions options) : base(options)
         {
+            Datas.UsableAGVNames = (options as clsChargeStationOptions).usableAGVList;
         }
         public override PortStatusAbstract PortStatus { get; set; } = new clsPortOfRack();
+        public override bool IsMaintaining { get => throw new NotImplementedException(); }
+
         ManualResetEvent readStop = new ManualResetEvent(true);
 
         public override async Task StartSyncData()
         {
-            await Task.Run(async() =>
+
+            await Task.Run(async () =>
             {
                 while (true)
                 {
@@ -416,6 +421,17 @@ namespace EquipmentManagment.ChargeStation
 
         protected override void WriteOutuptsData()
         {
+        }
+
+        public bool IsAGVUsable(string agv_name)
+        {
+            return (EndPointOptions as clsChargeStationOptions).usableAGVList.Contains(agv_name);
+        }
+
+        public void SetUsableAGVList(string[] agvNames)
+        {
+            Datas.UsableAGVNames = (EndPointOptions as clsChargeStationOptions).usableAGVList = agvNames;
+            
         }
     }
 }
