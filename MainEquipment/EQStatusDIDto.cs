@@ -36,7 +36,7 @@ namespace EquipmentManagment.MainEquipment
                 {
                     if (Eqp_Status_Down)
                         return EQ_MAIN_STATUS.Idle;
-                    else 
+                    else
                         return EQ_MAIN_STATUS.Down;
                 }
                 else
@@ -101,5 +101,8 @@ namespace EquipmentManagment.MainEquipment
         public bool Empty_CST { get; internal set; }
         public bool To_EQ_Full_CST { get; internal set; }
         public bool To_EQ_Empty_CST { get; internal set; }
+
+        public bool IsMaintaining { get; internal set; }
+
     }
 }

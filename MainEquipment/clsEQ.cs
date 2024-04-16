@@ -674,6 +674,7 @@ namespace EquipmentManagment.MainEquipment
             dto.Empty_CST = Empty_RACK_To_LDULD;
             dto.To_EQ_Full_CST = To_EQ_Full_CST;
             dto.To_EQ_Empty_CST = To_EQ_Empty_CST;
+            dto.IsMaintaining = IsMaintaining;
             return dto;
         }
     }
