@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml.Linq;
 
 namespace EquipmentManagment.Manager
 {
@@ -54,9 +55,19 @@ namespace EquipmentManagment.Manager
         }
 
 
+        public static bool MaintainStatusSimulation(int tagNumber, bool isMaintain)
+        {
+            Device.EndPointDeviceAbstract eqFound = StaEQPManagager.EQPDevices.FirstOrDefault(eq => eq.EndPointOptions.TagID == tagNumber);
+            if (eqFound != null)
+            {
+                (eqFound as clsEQ).SetMaintaining(isMaintain);
+                return true;
+            }
+            else
+                return false;
+        }
         public static bool MaintainStatusSimulation(string eqName, bool isMaintain)
         {
-
             Device.EndPointDeviceAbstract eqFound = StaEQPManagager.EQPDevices.FirstOrDefault(eq => eq.EQName == eqName);
             if (eqFound != null)
             {
@@ -65,7 +76,6 @@ namespace EquipmentManagment.Manager
             }
             else
                 return false;
-
         }
         internal static void DisposeEQEmus()
         {
@@ -138,5 +148,6 @@ namespace EquipmentManagment.Manager
                 eq_emu.SetStatusBUSY();
             }
         }
+
     }
 }
