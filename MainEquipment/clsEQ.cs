@@ -522,8 +522,10 @@ namespace EquipmentManagment.MainEquipment
             }
         }
 
-        protected override void InputsHandler()
+        protected override async void InputsHandler()
         {
+            await _SyncInputSignalsSemaphore.WaitAsync();
+
             var io_location = EndPointOptions.IOLocation;
             try
             {
@@ -547,6 +549,10 @@ namespace EquipmentManagment.MainEquipment
             catch (Exception ex)
             {
                 throw new IndexOutOfRangeException(ex.Message, ex);
+            }
+            finally
+            {
+                _SyncInputSignalsSemaphore.Release();
             }
             AGVModbusGateway.StoreEQOutpus(new bool[] { HS_EQ_L_REQ, HS_EQ_U_REQ, HS_EQ_READY, HS_EQ_BUSY });
         }
@@ -598,6 +604,7 @@ namespace EquipmentManagment.MainEquipment
             CMD_Reserve_Low = CMD_Reserve_Up = false;
         }
         private SemaphoreSlim _WriteOuputSignalsSemaphore = new SemaphoreSlim(1, 1);
+        private SemaphoreSlim _SyncInputSignalsSemaphore = new SemaphoreSlim(1, 1);
         private async Task _WriteOutputSiganls()
         {
             await _WriteOuputSignalsSemaphore.WaitAsync();
@@ -640,8 +647,9 @@ namespace EquipmentManagment.MainEquipment
             _WriteOutputSiganls();
         }
 
-        internal EQStatusDIDto GetEQStatusDTO()
+        internal async Task<EQStatusDIDto> GetEQStatusDTOAsync()
         {
+            await _SyncInputSignalsSemaphore.WaitAsync();
             EQStatusDIDto dto = new EQStatusDIDto(this.EndPointOptions.EqType);
             dto.IsConnected = IsConnected;
             dto.EQName = EQName;
@@ -675,6 +683,7 @@ namespace EquipmentManagment.MainEquipment
             dto.To_EQ_Full_CST = To_EQ_Full_CST;
             dto.To_EQ_Empty_CST = To_EQ_Empty_CST;
             dto.IsMaintaining = IsMaintaining;
+            _SyncInputSignalsSemaphore.Release();
             return dto;
         }
     }

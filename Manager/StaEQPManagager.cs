@@ -84,7 +84,7 @@ namespace EquipmentManagment.Manager
         }
         public static List<EQStatusDIDto> GetEQStates()
         {
-            return EQPDevices.FindAll(eq => eq.EndPointOptions.IsProdution_EQ).Select(eq => (eq as clsEQ).GetEQStatusDTO()).OrderBy(eq => eq.EQName).ToList();
+            return EQPDevices.FindAll(eq => eq.EndPointOptions.IsProdution_EQ).Select(eq => (eq as clsEQ).GetEQStatusDTOAsync().GetAwaiter().GetResult()).OrderBy(eq => eq.EQName).ToList();
         }
 
         public static bool TryGetEQByEqName(string eqName, out clsEQ eQ, out string errorMsg)
@@ -107,7 +107,7 @@ namespace EquipmentManagment.Manager
             if (endpoint != null)
             {
                 var _EQ = endpoint as clsEQ;
-                return _EQ.GetEQStatusDTO();
+                return _EQ.GetEQStatusDTOAsync().GetAwaiter().GetResult();
             }
             else
                 return null;
@@ -162,7 +162,7 @@ namespace EquipmentManagment.Manager
             {
                 return Enumerable.Empty<int>();
             }
-            return  ChargeStations.Where(station=>station.IsAGVUsable(agv_name)).Select(station => station.EndPointOptions.TagID);
+            return ChargeStations.Where(station => station.IsAGVUsable(agv_name)).Select(station => station.EndPointOptions.TagID);
 
         }
     }
