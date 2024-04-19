@@ -638,7 +638,27 @@ namespace EquipmentManagment.MainEquipment
 
         public void WriteOutputs(ushort start, bool[] value)
         {
-            WriteInputsUseModbusTCP(value);
+            switch (this.EndPointOptions.ConnOptions.ConnMethod)
+            {
+                case Connection.CONN_METHODS.MODBUS_TCP:
+                    WriteInputsUseModbusTCP(value);
+                    break;
+                case Connection.CONN_METHODS.MODBUS_RTU:
+                    break;
+                case Connection.CONN_METHODS.TCPIP:
+                    break;
+                case Connection.CONN_METHODS.SERIAL_PORT:
+                    break;
+                case Connection.CONN_METHODS.MX:
+                    break;
+                case Connection.CONN_METHODS.MC:
+                    WriteOutputsUseMCProtocol(value);
+                    break;
+                default:
+                    break;
+            }
+
+         
             //master.WriteMultipleCoils(start, value);
         }
 

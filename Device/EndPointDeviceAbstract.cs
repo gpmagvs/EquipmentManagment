@@ -37,7 +37,9 @@ namespace EquipmentManagment.Device
         public TcpClient tcp_client { get; private set; }
         protected ModbusIpMaster master;
         protected SerialPort serial;
-        public CIMComponent.clsMC_EthIF McInterface { get; private set; } = new CIMComponent.clsMC_EthIF();
+        //public CIMComponent.clsMC_EthIF McInterface { get; private set; } = new CIMComponent.clsMC_EthIF();
+        private EquipmentManagment.PLC.clsMCE71Interface McInterface { get; set; } = new PLC.clsMCE71Interface();
+
 
         public clsEndPointOptions EndPointOptions { get; set; } = new clsEndPointOptions();
 
@@ -54,7 +56,7 @@ namespace EquipmentManagment.Device
         private CONN_METHODS _ConnectionMethod => EndPointOptions.ConnOptions.ConnMethod;
         public abstract PortStatusAbstract PortStatus { get; set; }
 
-        protected bool _IsConnected=true;
+        protected bool _IsConnected = true;
         public virtual bool IsConnected
         {
             get => _IsConnected;
@@ -170,7 +172,8 @@ namespace EquipmentManagment.Device
         {
             try
             {
-                int ret_code = McInterface.Open(IP, Port, 5000, 5000);
+                //int ret_code = McInterface.Open(IP, Port, 5000, 5000);
+                int ret_code = McInterface.Open(IP, Port, 5000, 5000, PLC.clsMC_TCPCnt.enuDataType.ByteArr_02);
                 return ret_code == 0;
             }
             catch (Exception)
@@ -281,8 +284,28 @@ namespace EquipmentManagment.Device
         /// </summary>
         private void ReadDataUseMCProtocol()
         {
+            if (EQPLCMemoryTb == null)
+            {
+                EQPLCMemoryTb = new CIMComponent.MemoryTable(1024, true, 1024, true, 32);
+                EQPLCMemoryTb.SetMemoryStart("B", "0100", "W", "0400");
+            }
+            if (PLCMemOption == null)
+            {
+                PLCMemOption = new PLC.clsPLCMemOption();
+            }
+            PLCMemOption.EQP_Bit_Start_Address = "B0100";
+            PLCMemOption.EQP_Bit_Size = 64;
+            PLCMemOption.IsEQP_Bit_Hex = true;
+            PLCMemOption.EQP_Word_Start_Address = "W0400";
+            PLCMemOption.EQP_Word_Size = 64;
+            PLCMemOption.IsEQP_Word_Hex = true;
+
             McInterface.ReadBit(ref EQPLCMemoryTb, PLCMemOption.EQPBitAreaName, PLCMemOption.EQPBitStartAddressName, PLCMemOption.EQP_Bit_Size);
             McInterface.ReadWord(ref EQPLCMemoryTb, PLCMemOption.EQPWordAreaName, PLCMemOption.EQPWordStartAddressName, PLCMemOption.EQP_Word_Size);
+            bool[] b = new bool[PLCMemOption.EQP_Bit_Size];
+            EQPLCMemoryTb.ReadBit(PLCMemOption.EQP_Bit_Start_Address, PLCMemOption.EQP_Bit_Size, ref b);
+            InputBuffer.Clear();
+            InputBuffer = b.ToList();
         }
 
         protected virtual void ReadInputsUseTCPIP()
@@ -340,6 +363,21 @@ namespace EquipmentManagment.Device
                 throw ex;
             }
 
+        }
+
+        public void WriteOutputsUseMCProtocol(bool[] _value)
+        {
+            if (EQPLCMemoryTb_Write == null)
+            {
+                EQPLCMemoryTb_Write = new CIMComponent.MemoryTable(1024, true, 1024, true, 32);
+                EQPLCMemoryTb_Write.SetMemoryStart("B", "0000", "W", "0000");
+            }
+            if (PLCMemOption == null)
+            {
+                PLCMemOption = new PLC.clsPLCMemOption();
+            }
+            EQPLCMemoryTb_Write.WriteBit(PLCMemOption.AGVS_Bit_Start_Address, ref _value);
+            McInterface.WriteBit(ref EQPLCMemoryTb_Write, "B", "0", 16);
         }
 
         protected abstract void WriteOutuptsData();
