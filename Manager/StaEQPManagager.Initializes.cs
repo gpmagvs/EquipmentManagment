@@ -111,7 +111,8 @@ namespace EquipmentManagment.Manager
             int emu_port = 5600;
             foreach (var option in EQOptions.Values)
             {
-                option.IsEmulation = true;
+                if (option.IsEmulation == false)
+                    continue;
                 option.ConnOptions.IP = "127.0.0.1";
                 option.ConnOptions.Port = emu_port;
                 emu_port += 2;
@@ -119,7 +120,8 @@ namespace EquipmentManagment.Manager
 
             foreach (var option in ChargeStationsOptions.Values)
             {
-                option.IsEmulation = true;
+                if (option.IsEmulation == false)
+                    continue;
                 option.ConnOptions.IP = "127.0.0.1";
                 option.ConnOptions.Port = emu_port;
                 emu_port += 2;
@@ -128,7 +130,8 @@ namespace EquipmentManagment.Manager
             int rack_emu_port = 6300;
             foreach (var option in RacksOptions.Values)
             {
-                option.IsEmulation = true;
+                if (option.IsEmulation == false)
+                    continue;
                 option.ConnOptions.IP = "127.0.0.1";
                 option.ConnOptions.Port = rack_emu_port;
                 rack_emu_port += 1;
