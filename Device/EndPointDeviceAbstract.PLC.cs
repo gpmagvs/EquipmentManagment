@@ -9,6 +9,7 @@ namespace EquipmentManagment.Device
     public partial class EndPointDeviceAbstract
     {
         public MemoryTable EQPLCMemoryTb;
+        public MemoryTable EQPLCMemoryTb_Write;
         public MemoryTable AGVSMemoryTb;
         public clsPLCMemOption PLCMemOption;
 
