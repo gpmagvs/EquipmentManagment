@@ -501,31 +501,11 @@ namespace EquipmentManagment.MainEquipment
         }
 
         public override PortStatusAbstract PortStatus { get; set; } = new clsEQPort();
-        private bool _MaintainingSimulation = false;
-        public void SetMaintaining(bool isMaintain)
-        {
-            _MaintainingSimulation = isMaintain;
-            Console.WriteLine($"{EQName} now is maintaining? {isMaintain}");
-        }
-        public override bool IsMaintaining
-        {
-            get
-            {
-                if (this.EndPointOptions.IsEmulation)
-                {
-                    return _MaintainingSimulation;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-        }
+
+
 
         protected override async void InputsHandler()
         {
-            await _SyncInputSignalsSemaphore.WaitAsync();
-
             var io_location = EndPointOptions.IOLocation;
             try
             {
@@ -545,6 +525,8 @@ namespace EquipmentManagment.MainEquipment
                 HS_EQ_UP_READY = InputBuffer[io_location.HS_EQ_UP_READY];
                 HS_EQ_LOW_READY = InputBuffer[io_location.HS_EQ_LOW_READY];
                 HS_EQ_BUSY = InputBuffer[io_location.HS_EQ_BUSY];
+                IsMaintaining = InputBuffer[io_location.Eqp_Maintaining];
+                IsPartsReplacing = InputBuffer[io_location.Eqp_PartsReplacing];
             }
             catch (Exception ex)
             {
@@ -552,7 +534,6 @@ namespace EquipmentManagment.MainEquipment
             }
             finally
             {
-                _SyncInputSignalsSemaphore.Release();
             }
             AGVModbusGateway.StoreEQOutpus(new bool[] { HS_EQ_L_REQ, HS_EQ_U_REQ, HS_EQ_READY, HS_EQ_BUSY });
         }
@@ -607,7 +588,6 @@ namespace EquipmentManagment.MainEquipment
         private SemaphoreSlim _SyncInputSignalsSemaphore = new SemaphoreSlim(1, 1);
         private async Task _WriteOutputSiganls()
         {
-            await _WriteOuputSignalsSemaphore.WaitAsync();
             try
             {
                 var io_location = EndPointOptions.IOLocation;
@@ -632,7 +612,6 @@ namespace EquipmentManagment.MainEquipment
             }
             finally
             {
-                _WriteOuputSignalsSemaphore.Release();
             }
         }
 
@@ -649,7 +628,6 @@ namespace EquipmentManagment.MainEquipment
 
         internal async Task<EQStatusDIDto> GetEQStatusDTOAsync()
         {
-            await _SyncInputSignalsSemaphore.WaitAsync();
             EQStatusDIDto dto = new EQStatusDIDto(this.EndPointOptions.EqType);
             dto.IsConnected = IsConnected;
             dto.EQName = EQName;
@@ -683,7 +661,7 @@ namespace EquipmentManagment.MainEquipment
             dto.To_EQ_Full_CST = To_EQ_Full_CST;
             dto.To_EQ_Empty_CST = To_EQ_Empty_CST;
             dto.IsMaintaining = IsMaintaining;
-            _SyncInputSignalsSemaphore.Release();
+            dto.IsPartsReplacing = IsPartsReplacing;
             return dto;
         }
     }

@@ -100,6 +100,9 @@ namespace EquipmentManagment.Device.Options
         public ushort Empty_CST { get; set; } = 14;
         public ushort Full_CST { get; set; } = 15;
 
+        public ushort Eqp_Maintaining { get; set; } = 16;
+        public ushort Eqp_PartsReplacing { get; set; } = 17;
+
         #endregion
 
         #region Y-Output

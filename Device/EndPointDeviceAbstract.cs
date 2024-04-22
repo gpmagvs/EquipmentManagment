@@ -28,6 +28,8 @@ namespace EquipmentManagment.Device
         /// 數據長度不足
         /// </summary>
         public static event EventHandler<EndPointDeviceAbstract> OnEQInputDataSizeNotEnough;
+        public static event EventHandler<EndPointDeviceAbstract> OnPartsStartReplacing;
+        public static event EventHandler<EndPointDeviceAbstract> OnPartsEndReplacing;
         public EndPointDeviceAbstract(clsEndPointOptions options)
         {
             EndPointOptions = options;
@@ -54,7 +56,7 @@ namespace EquipmentManagment.Device
         private CONN_METHODS _ConnectionMethod => EndPointOptions.ConnOptions.ConnMethod;
         public abstract PortStatusAbstract PortStatus { get; set; }
 
-        protected bool _IsConnected=true;
+        protected bool _IsConnected = true;
         public virtual bool IsConnected
         {
             get => _IsConnected;
@@ -79,9 +81,50 @@ namespace EquipmentManagment.Device
         /// <summary>
         /// 設備是否在維修PM中
         /// </summary>
-        public abstract bool IsMaintaining { get; }
+        private bool _IsMaintaining = false;
+        public virtual bool IsMaintaining
+        {
+            set
+            {
+                _IsMaintaining = value;
+            }
+            get
+            {
+                if (this.EndPointOptions.IsEmulation)
+                {
+                    return _MaintainingSimulation;
+                }
+                else
+                {
+                    return _IsMaintaining;
+                }
+            }
+        }
+        private bool _MaintainingSimulation = false;
+        private bool _PartsReplacingSimulation = false;
 
-
+        private bool _IsPartsReplacing = false;
+        public virtual bool IsPartsReplacing
+        {
+            get
+            {
+                if (this.EndPointOptions.IsEmulation)
+                    return _PartsReplacingSimulation;
+                else
+                    return _IsPartsReplacing;
+            }
+            set
+            {
+                if (_IsPartsReplacing != value)
+                {
+                    _IsPartsReplacing = value;
+                    if (_IsPartsReplacing)
+                        OnPartsEndReplacing?.Invoke(this, this);
+                    else
+                        OnPartsEndReplacing?.Invoke(this, this);
+                }
+            }
+        }
         private bool disposedValue;
 
         /// <summary>
@@ -204,7 +247,20 @@ namespace EquipmentManagment.Device
                 return false;
             }
         }
-
+        public void SetMaintaining(bool isMaintain)
+        {
+            _MaintainingSimulation = isMaintain;
+            Console.WriteLine($"{EQName} now is maintaining? {isMaintain}");
+        }
+        public void SePartsReplacing(bool isReplacing)
+        {
+            _PartsReplacingSimulation = isReplacing;
+            if (_PartsReplacingSimulation)
+                OnPartsStartReplacing?.Invoke(this, this);
+            else
+                OnPartsEndReplacing?.Invoke(this, this);
+            Console.WriteLine($"{EQName} now is parts replacing (emu)? {isReplacing}");
+        }
         public virtual async Task StartSyncData()
         {
 
