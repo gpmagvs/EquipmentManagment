@@ -66,6 +66,20 @@ namespace EquipmentManagment.Manager
             else
                 return false;
         }
+
+        public static bool PartsReplacingSimulation(int tagNumber, bool isReplacing)
+        {
+            Device.EndPointDeviceAbstract eqFound = StaEQPManagager.EQPDevices.FirstOrDefault(eq => eq.EndPointOptions.TagID == tagNumber);
+            if (eqFound != null)
+            {
+                (eqFound as clsEQ).SePartsReplacing(isReplacing);
+                return true;
+            }
+            else
+                return false;
+
+        }
+
         public static bool MaintainStatusSimulation(string eqName, bool isMaintain)
         {
             Device.EndPointDeviceAbstract eqFound = StaEQPManagager.EQPDevices.FirstOrDefault(eq => eq.EQName == eqName);

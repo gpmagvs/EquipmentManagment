@@ -102,6 +102,7 @@ namespace EquipmentManagment.MainEquipment
         public bool To_EQ_Empty_CST { get; internal set; }
 
         public bool IsMaintaining { get; internal set; }
+        public bool IsPartsReplacing { get; internal set; }
 
     }
 }
