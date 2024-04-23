@@ -57,11 +57,10 @@ namespace EquipmentManagment.MainEquipment
             {
                 if (!IsConnected)
                     return EQ_TRANSFER_STATUS.DISCONNECT;
-                if (Load_Request && MainStatus == EQ_MAIN_STATUS.Idle)
+                if (Load_Request )
                     return EQ_TRANSFER_STATUS.LOADABLE;
-                if (Unload_Request && MainStatus == EQ_MAIN_STATUS.Idle)
+                if (Unload_Request )
                     return EQ_TRANSFER_STATUS.UNLOADABLE;
-
                 return EQ_TRANSFER_STATUS.Unknown;
             }
         }

@@ -324,7 +324,8 @@ namespace EquipmentManagment.MainEquipment
                     _HS_AGV_VALID = value;
                     OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "AGV_VALID", value));
                     Console.WriteLine($"AGV_VALID Changed to :{value}");
-                    _WriteOutputSiganls();
+                    _WriteOutputSiganls().GetAwaiter().GetResult();
+
                 }
             }
         }
@@ -338,7 +339,8 @@ namespace EquipmentManagment.MainEquipment
                     _HS_AGV_TR_REQ = value;
                     OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "AGV_TR_REQ", value));
                     Console.WriteLine($"AGV_TR_REQ Changed to :{value}");
-                    _WriteOutputSiganls();
+                    _WriteOutputSiganls().GetAwaiter().GetResult();
+
                 }
             }
         }
@@ -352,7 +354,7 @@ namespace EquipmentManagment.MainEquipment
                     _HS_AGV_BUSY = value;
                     OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "AGV_BUSY", value));
                     Console.WriteLine($"AGV_BUSY Changed to :{value}");
-                    _WriteOutputSiganls();
+                    _WriteOutputSiganls().GetAwaiter().GetResult();
                 }
             }
         }
@@ -366,7 +368,7 @@ namespace EquipmentManagment.MainEquipment
                     _HS_AGV_READY = value;
                     OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "AGV_READY", value));
                     Console.WriteLine($"AGV_READY Changed to :{value}");
-                    _WriteOutputSiganls();
+                    _WriteOutputSiganls().GetAwaiter().GetResult();
                 }
             }
         }
@@ -380,7 +382,7 @@ namespace EquipmentManagment.MainEquipment
                     _HS_AGV_COMPT = value;
                     OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "AGV_COMPT", value));
                     Console.WriteLine($"AGV_COMPT Changed to :{value}");
-                    _WriteOutputSiganls();
+                    _WriteOutputSiganls().GetAwaiter().GetResult();
                 }
             }
         }
@@ -395,7 +397,7 @@ namespace EquipmentManagment.MainEquipment
                     _To_EQ_Empty_CST = value;
                     OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "To_EQ_Empty_CST", value));
                     Console.WriteLine($"To_EQ_Empty_CST Changed to :{value}");
-                    _WriteOutputSiganls();
+                    _WriteOutputSiganls().GetAwaiter().GetResult();
                 }
             }
         }
@@ -411,7 +413,7 @@ namespace EquipmentManagment.MainEquipment
                     _To_EQ_Full_CST = value;
                     OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "To_EQ_Full_CST", value));
                     Console.WriteLine($"To_EQ_Full_CST Changed to :{value}");
-                    _WriteOutputSiganls();
+                    _WriteOutputSiganls().GetAwaiter().GetResult();
                 }
             }
         }
@@ -430,7 +432,7 @@ namespace EquipmentManagment.MainEquipment
                     _To_EQ_UP = value;
                     OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "To_EQ_Up", value));
                     Console.WriteLine($"To_EQ_Up Changed to :{value}");
-                    _WriteOutputSiganls();
+                    _WriteOutputSiganls().GetAwaiter().GetResult();
                 }
             }
         }
@@ -444,7 +446,7 @@ namespace EquipmentManagment.MainEquipment
                     _To_EQ_LOW = value;
                     OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "To_EQ_Low ", value));
                     Console.WriteLine($"To_EQ_Low Changed to :{value}");
-                    _WriteOutputSiganls();
+                    _WriteOutputSiganls().GetAwaiter().GetResult();
                 }
             }
         }
@@ -464,7 +466,7 @@ namespace EquipmentManagment.MainEquipment
                     _CMD_Reserve_Up = value;
                     OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "CMD_Reserve_Up ", value));
                     Console.WriteLine($"CMD_Reserve_Up Changed to :{value}");
-                    _WriteOutputSiganls();
+                    _WriteOutputSiganls().GetAwaiter().GetResult();
                 }
             }
         }
@@ -478,7 +480,7 @@ namespace EquipmentManagment.MainEquipment
                     _CMD_Reserve_Low = value;
                     OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "CMD_Reserve_Low ", value));
                     Console.WriteLine($"CMD_Reserve_Low Changed to :{value}");
-                    _WriteOutputSiganls();
+                    _WriteOutputSiganls().GetAwaiter().GetResult();
                 }
             }
         }
@@ -613,17 +615,17 @@ namespace EquipmentManagment.MainEquipment
                 var io_location = EndPointOptions.IOLocation;
                 bool[] outputs = new bool[16];
 
-                outputs[io_location.To_EQ_Up] = To_EQ_Up;
-                outputs[io_location.To_EQ_Low] = To_EQ_Low;
-                outputs[io_location.CMD_Reserve_Up] = CMD_Reserve_Up;
-                outputs[io_location.CMD_Reserve_Low] = CMD_Reserve_Low;
-                outputs[io_location.HS_AGV_VALID] = HS_AGV_VALID;
-                outputs[io_location.HS_AGV_TR_REQ] = HS_AGV_TR_REQ;
-                outputs[io_location.HS_AGV_BUSY] = HS_AGV_BUSY;
-                outputs[io_location.HS_AGV_COMPT] = HS_AGV_COMPT;
-                outputs[io_location.HS_AGV_READY] = HS_AGV_READY;
-                outputs[io_location.To_EQ_Empty_CST] = To_EQ_Empty_CST;
-                outputs[io_location.To_EQ_Full_CST] = To_EQ_Full_CST;
+                outputs[io_location.To_EQ_Up] = _To_EQ_UP;
+                outputs[io_location.To_EQ_Low] = _To_EQ_LOW;
+                outputs[io_location.CMD_Reserve_Up] = _CMD_Reserve_Up;
+                outputs[io_location.CMD_Reserve_Low] = _CMD_Reserve_Low;
+                outputs[io_location.HS_AGV_VALID] = _HS_AGV_VALID;
+                outputs[io_location.HS_AGV_TR_REQ] = _HS_AGV_TR_REQ;
+                outputs[io_location.HS_AGV_BUSY] = _HS_AGV_BUSY;
+                outputs[io_location.HS_AGV_COMPT] = _HS_AGV_COMPT;
+                outputs[io_location.HS_AGV_READY] = _HS_AGV_READY;
+                outputs[io_location.To_EQ_Empty_CST] = _To_EQ_Empty_CST;
+                outputs[io_location.To_EQ_Full_CST] = _To_EQ_Full_CST;
                 WriteOutputs(0, outputs);
             }
             catch (Exception ex)
@@ -658,7 +660,7 @@ namespace EquipmentManagment.MainEquipment
                     break;
             }
 
-         
+
             //master.WriteMultipleCoils(start, value);
         }
 

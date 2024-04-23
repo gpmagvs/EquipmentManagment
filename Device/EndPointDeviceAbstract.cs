@@ -284,28 +284,43 @@ namespace EquipmentManagment.Device
         /// </summary>
         private void ReadDataUseMCProtocol()
         {
-            if (EQPLCMemoryTb == null)
+            try
             {
-                EQPLCMemoryTb = new CIMComponent.MemoryTable(1024, true, 1024, true, 32);
-                EQPLCMemoryTb.SetMemoryStart("B", "0100", "W", "0400");
-            }
-            if (PLCMemOption == null)
-            {
-                PLCMemOption = new PLC.clsPLCMemOption();
-            }
-            PLCMemOption.EQP_Bit_Start_Address = "B0100";
-            PLCMemOption.EQP_Bit_Size = 64;
-            PLCMemOption.IsEQP_Bit_Hex = true;
-            PLCMemOption.EQP_Word_Start_Address = "W0400";
-            PLCMemOption.EQP_Word_Size = 64;
-            PLCMemOption.IsEQP_Word_Hex = true;
+                if (EQPLCMemoryTb == null)
+                {
+                    EQPLCMemoryTb = new CIMComponent.MemoryTable(1024, true, 1024, true, 32);
+                    EQPLCMemoryTb.SetMemoryStart("B", "100", "W", "400");
+                }
+                if (PLCMemOption == null)
+                {
+                    PLCMemOption = new PLC.clsPLCMemOption();
+                }
+                PLCMemOption.EQP_Bit_Start_Address = "B100";
+                PLCMemOption.EQP_Bit_Size = 64;
+                PLCMemOption.IsEQP_Bit_Hex = true;
+                PLCMemOption.EQP_Word_Start_Address = "W400";
+                PLCMemOption.EQP_Word_Size = 64;
+                PLCMemOption.IsEQP_Word_Hex = true;
 
-            McInterface.ReadBit(ref EQPLCMemoryTb, PLCMemOption.EQPBitAreaName, PLCMemOption.EQPBitStartAddressName, PLCMemOption.EQP_Bit_Size);
-            McInterface.ReadWord(ref EQPLCMemoryTb, PLCMemOption.EQPWordAreaName, PLCMemOption.EQPWordStartAddressName, PLCMemOption.EQP_Word_Size);
-            bool[] b = new bool[PLCMemOption.EQP_Bit_Size];
-            EQPLCMemoryTb.ReadBit(PLCMemOption.EQP_Bit_Start_Address, PLCMemOption.EQP_Bit_Size, ref b);
-            InputBuffer.Clear();
-            InputBuffer = b.ToList();
+                int resultCode = McInterface.ReadBit(ref EQPLCMemoryTb, PLCMemOption.EQPBitAreaName, PLCMemOption.EQPBitStartAddressName, PLCMemOption.EQP_Bit_Size);
+
+                if (resultCode != 0)
+                    throw new Exception("");
+                resultCode = McInterface.ReadWord(ref EQPLCMemoryTb, PLCMemOption.EQPWordAreaName, PLCMemOption.EQPWordStartAddressName, PLCMemOption.EQP_Word_Size);
+                if (resultCode != 0)
+                    throw new Exception("");
+
+                bool[] b = new bool[PLCMemOption.EQP_Bit_Size];
+                EQPLCMemoryTb.ReadBit(PLCMemOption.EQP_Bit_Start_Address, PLCMemOption.EQP_Bit_Size, ref b);
+                InputBuffer.Clear();
+                InputBuffer = b.ToList();
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+          
         }
 
         protected virtual void ReadInputsUseTCPIP()
