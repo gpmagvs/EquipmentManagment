@@ -106,8 +106,8 @@ namespace EquipmentManagment.Manager
 
         private static void EmulatorsInitialize(clsEQManagementConfigs _Configs)
         {
-            if (!_Configs.UseEqEmu)
-                return;
+            //if (!_Configs.UseEqEmu)
+            //    return;
             int emu_port = 5600;
             foreach (var option in EQOptions.Values)
             {

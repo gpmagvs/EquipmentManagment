@@ -84,7 +84,7 @@ namespace EquipmentManagment.WIP
 
 
 
-        internal void UpdateIO(ref List<bool> inputBuffer)
+        internal void UpdateIO(ref bool[] inputBuffer)
         {
             clsRackPortOptions.clsPortIOLocation ioLocation = Properties.IOLocation;
             try

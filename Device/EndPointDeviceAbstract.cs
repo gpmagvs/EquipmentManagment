@@ -77,7 +77,7 @@ namespace EquipmentManagment.Device
             }
         }
 
-        public List<bool> InputBuffer = new List<bool>();
+        public bool[] InputBuffer = new bool[64];
         public List<byte> DataBuffer { get; protected set; } = new List<byte>();
 
         /// <summary>
@@ -296,7 +296,7 @@ namespace EquipmentManagment.Device
                         if (_ConnectionMethod == CONN_METHODS.SERIAL_PORT)
                             ReadDataUseSerial();
 
-                        if (InputBuffer.Count > 0 || DataBuffer.Count > 0)
+                        if (InputBuffer.Length > 0 || DataBuffer.Count > 0)
                             InputsHandler();
 
                     }
@@ -316,7 +316,7 @@ namespace EquipmentManagment.Device
                     catch (IndexOutOfRangeException ex)
                     {
                         IsConnected = false;
-                        Console.WriteLine($"{EndPointOptions.Name}- Error:Out of Range(Current InputBuffer Size:{InputBuffer.Count}/ DataBuffer Size:{this.DataBuffer.Count} )");
+                        Console.WriteLine($"{EndPointOptions.Name}- Error:Out of Range(Current InputBuffer Size:{InputBuffer.Length}/ DataBuffer Size:{this.DataBuffer.Count} )");
                         await Task.Delay(1000);
                         OnEQInputDataSizeNotEnough?.Invoke(this, this);
                         continue;
@@ -366,17 +366,16 @@ namespace EquipmentManagment.Device
                 if (resultCode != 0)
                     throw new Exception("");
 
-                bool[] b = new bool[PLCMemOption.EQP_Bit_Size];
-                EQPLCMemoryTb.ReadBit(PLCMemOption.EQP_Bit_Start_Address, PLCMemOption.EQP_Bit_Size, ref b);
-                InputBuffer.Clear();
-                InputBuffer = b.ToList();
+                bool[] inputs = new bool[PLCMemOption.EQP_Bit_Size];
+                EQPLCMemoryTb.ReadBit(PLCMemOption.EQP_Bit_Start_Address, PLCMemOption.EQP_Bit_Size, ref inputs);
+                Array.Copy(inputs, 0, InputBuffer, 0, inputs.Length);
             }
             catch (Exception ex)
             {
 
                 throw ex;
             }
-          
+
         }
 
         protected virtual void ReadInputsUseTCPIP()
@@ -393,15 +392,15 @@ namespace EquipmentManagment.Device
                 if (EndPointOptions.ConnOptions.IO_Value_Type == IO_VALUE_TYPE.INPUT)
                 {
                     var inputs = master.ReadInputs(startRegister, registerNum);
-                    if (!inputs.SequenceEqual(InputBuffer))
-                        InputBuffer = inputs.ToList();
+                    Array.Copy(inputs, 0, InputBuffer, 0, inputs.Length);
                 }
                 else
                 {
                     try
                     {
                         ushort[] input_registers = master.ReadInputRegisters(0, 1);
-                        InputBuffer = input_registers[0].GetBoolArray().ToList();
+                        var inputs = input_registers[0].GetBoolArray();
+                        Array.Copy(inputs, 0, InputBuffer, 0, inputs.Length);
                     }
                     catch (Exception ex)
                     {
