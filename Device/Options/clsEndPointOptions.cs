@@ -73,7 +73,7 @@ namespace EquipmentManagment.Device.Options
 
         public bool CheckRackContentStateIOSignal { get; set; } = false;
 
-        public bool IsEmulation = true;
+        public bool IsEmulation { get; set; } = true;
 
         internal bool IsProdution_EQ => EqType == EQ_TYPE.EQ || EqType == EQ_TYPE.EQ_OVEN;
 

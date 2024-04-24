@@ -120,8 +120,8 @@ namespace EquipmentManagment.Manager
             emu_port = 6600;
             foreach (var option in ChargeStationsOptions.Values)
             {
-                //if (option.IsEmulation == false)
-                //    continue;
+                if (option.IsEmulation == false)
+                    continue;
                 option.ConnOptions.IP = "127.0.0.1";
                 option.ConnOptions.Port = emu_port;
                 emu_port += 2;
@@ -130,14 +130,18 @@ namespace EquipmentManagment.Manager
             int rack_emu_port = 6300;
             foreach (var option in RacksOptions.Values)
             {
-                //if (option.IsEmulation == false)
-                //    continue;
+                if (option.IsEmulation == false)
+                    continue;
                 option.ConnOptions.IP = "127.0.0.1";
                 option.ConnOptions.Port = rack_emu_port;
                 rack_emu_port += 1;
             }
 
-            StaEQPEmulatorsManagager.InitEmu(EQOptions, ChargeStationsOptions, RacksOptions);
+            StaEQPEmulatorsManagager.InitEmu(
+                    EQOptions.Where(opt => opt.Value.IsEmulation).ToDictionary(kp => kp.Key, kp => kp.Value),
+                    ChargeStationsOptions.Where(opt => opt.Value.IsEmulation).ToDictionary(kp => kp.Key, kp => kp.Value),
+                    RacksOptions.Where(opt => opt.Value.IsEmulation).ToDictionary(kp => kp.Key, kp => kp.Value)
+                );
         }
 
         public static void DisposeEQs()
