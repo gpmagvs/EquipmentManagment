@@ -240,6 +240,17 @@ namespace EquipmentManagment.Manager
             {
                 string json = _LoadConfigJson(wIPConfigPath);
                 RacksOptions = JsonConvert.DeserializeObject<Dictionary<string, clsRackOptions>>(json);
+                foreach (var rackOpt in RacksOptions.Values)
+                {
+                    if (rackOpt.ColumnTagMap.Count == 0)
+                    {
+                        for (int i = 0; i < rackOpt.Columns; i++)
+                        {
+                            rackOpt.ColumnTagMap.Add(i, new int[1] { i });
+                        }
+                    }
+                }
+                File.WriteAllText(wIPConfigPath, JsonConvert.SerializeObject(RacksOptions, Formatting.Indented));//write back
             }
         }
     }

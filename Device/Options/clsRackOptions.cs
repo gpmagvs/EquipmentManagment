@@ -13,7 +13,10 @@ namespace EquipmentManagment.Device.Options
         [Obsolete]
         public new clsRackIOLocation IOLocation { get; set; } = new clsRackIOLocation();
 
-
+        /// <summary>
+        /// key: colunm index , value: tag陣列(因為有可能有貼雙Tag)
+        /// </summary>
+        public Dictionary<int, int[]> ColumnTagMap = new Dictionary<int, int[]>();
         public class clsLayoutInfo
         {
             public int Width { get; set; } = 400;
@@ -30,6 +33,16 @@ namespace EquipmentManagment.Device.Options
         public int Row { get; set; } = 0;
         public int Column { get; set; } = 0;
         public clsPortIOLocation IOLocation { get; set; } = new clsPortIOLocation();
+        public clsPortUseToEQProperty EQInstall { get; set; } = new clsPortUseToEQProperty();
+
+        public class clsPortUseToEQProperty
+        {
+            /// <summary>
+            /// Just like QX Converter or GPM LawDrop(?)
+            /// </summary>
+            public bool IsUseForEQ { get; set; } = false;
+            public string BindingEQName { get; set; } = "";
+        }
 
         public class clsPortIOLocation
         {
