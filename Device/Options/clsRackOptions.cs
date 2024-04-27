@@ -9,7 +9,7 @@ namespace EquipmentManagment.Device.Options
         public int Rows { get; set; } = 3;
         public clsLayoutInfo LayoutInfo { get; set; } = new clsLayoutInfo();
 
-        public List<clsRackPortOptions> PortsOptions { get; set; } = new List<clsRackPortOptions>();
+        public List<clsRackPortProperty> PortsOptions { get; set; } = new List<clsRackPortProperty>();
         [Obsolete]
         public new clsRackIOLocation IOLocation { get; set; } = new clsRackIOLocation();
 
@@ -24,7 +24,7 @@ namespace EquipmentManagment.Device.Options
     /// <summary>
     /// 每一個儲存格的參數屬性
     /// </summary>
-    public class clsRackPortOptions
+    public class clsRackPortProperty
     {
         public string ID => $"{Row}-{Column}";
         public int Row { get; set; } = 0;

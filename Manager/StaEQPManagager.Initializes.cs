@@ -225,7 +225,7 @@ namespace EquipmentManagment.Manager
                 {
                     for (int col = 0; col < _defaultRackOption.Columns; col++)
                     {
-                        _defaultRackOption.PortsOptions.Add(new clsRackPortOptions
+                        _defaultRackOption.PortsOptions.Add(new clsRackPortProperty
                         {
                             Row = row,
                             Column = col,
