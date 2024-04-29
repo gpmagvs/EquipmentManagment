@@ -92,7 +92,7 @@ namespace EquipmentManagment.Device
             }
             get
             {
-                if (this.EndPointOptions.IsEmulation)
+                if (this.EndPointOptions.IsEmulation==true|| this.EndPointOptions.EmulationMode==1)
                 {
                     return _MaintainingSimulation;
                 }
@@ -110,7 +110,7 @@ namespace EquipmentManagment.Device
         {
             get
             {
-                if (this.EndPointOptions.IsEmulation)
+                if (this.EndPointOptions.IsEmulation == true || this.EndPointOptions.EmulationMode == 1)
                     return _PartsReplacingSimulation;
                 else
                     return _IsPartsReplacing;

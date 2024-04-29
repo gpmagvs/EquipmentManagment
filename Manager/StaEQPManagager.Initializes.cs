@@ -138,9 +138,9 @@ namespace EquipmentManagment.Manager
             }
 
             StaEQPEmulatorsManagager.InitEmu(
-                    EQOptions.Where(opt => opt.Value.IsEmulation).ToDictionary(kp => kp.Key, kp => kp.Value),
-                    ChargeStationsOptions.Where(opt => opt.Value.IsEmulation).ToDictionary(kp => kp.Key, kp => kp.Value),
-                    RacksOptions.Where(opt => opt.Value.IsEmulation).ToDictionary(kp => kp.Key, kp => kp.Value)
+                    EQOptions.Where(opt => opt.Value.IsEmulation || opt.Value.EmulationMode == 1).ToDictionary(kp => kp.Key, kp => kp.Value),
+                    ChargeStationsOptions.Where(opt => opt.Value.IsEmulation || opt.Value.EmulationMode == 1).ToDictionary(kp => kp.Key, kp => kp.Value),
+                    RacksOptions.Where(opt => opt.Value.IsEmulation || opt.Value.EmulationMode == 1).ToDictionary(kp => kp.Key, kp => kp.Value)
                 );
         }
 

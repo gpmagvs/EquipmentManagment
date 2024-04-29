@@ -73,7 +73,8 @@ namespace EquipmentManagment.Device.Options
 
         public bool CheckRackContentStateIOSignal { get; set; } = false;
 
-        public bool IsEmulation { get; set; } = true;
+        public bool IsEmulation { get; set; } = true; // 是否使用GLAC內部模擬器, 要改用EmulationMode控制
+        public int EmulationMode { get; set; } = 0; //[0]:不模擬連外部設備(外部模擬器), [1]:內建模擬器, [2]:GlacEQSimulator用
 
         internal bool IsProdution_EQ => EqType == EQ_TYPE.EQ || EqType == EQ_TYPE.EQ_OVEN;
 
