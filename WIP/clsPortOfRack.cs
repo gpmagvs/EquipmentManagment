@@ -33,7 +33,7 @@ namespace EquipmentManagment.WIP
             RACK_1, RACK_2
         }
 
-        public clsRackPortOptions Properties = new clsRackPortOptions();
+        public clsRackPortProperty Properties = new clsRackPortProperty();
 
         public Dictionary<SENSOR_LOCATION, bool> ExistSensorStates = new Dictionary<SENSOR_LOCATION, bool>()
         {
@@ -67,7 +67,7 @@ namespace EquipmentManagment.WIP
         public clsPortOfRack()
         {
         }
-        public clsPortOfRack(clsRackPortOptions option)
+        public clsPortOfRack(clsRackPortProperty option)
         {
             this.Properties = option;
         }
@@ -86,7 +86,7 @@ namespace EquipmentManagment.WIP
 
         internal void UpdateIO(ref bool[] inputBuffer)
         {
-            clsRackPortOptions.clsPortIOLocation ioLocation = Properties.IOLocation;
+            clsRackPortProperty.clsPortIOLocation ioLocation = Properties.IOLocation;
             try
             {
                 ExistSensorStates[SENSOR_LOCATION.TRAY_1] = inputBuffer[ioLocation.Tray_Sensor1];
