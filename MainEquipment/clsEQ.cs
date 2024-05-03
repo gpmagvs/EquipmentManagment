@@ -567,9 +567,9 @@ namespace EquipmentManagment.MainEquipment
 
         public void CancelToEQUpAndLow()
         {
-            To_EQ_Up =
-            To_EQ_Low =
-            To_EQ_Full_CST =
+            To_EQ_Up = false;
+            To_EQ_Low = false;
+            To_EQ_Full_CST = false;
             To_EQ_Empty_CST = false;
         }
         public void ReserveUp()
