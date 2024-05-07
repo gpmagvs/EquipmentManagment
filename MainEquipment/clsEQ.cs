@@ -648,7 +648,7 @@ namespace EquipmentManagment.MainEquipment
             _WriteOutputSiganls();
         }
 
-        internal async Task<EQStatusDIDto> GetEQStatusDTOAsync()
+        internal EQStatusDIDto GetEQStatusDTO()
         {
             EQStatusDIDto dto = new EQStatusDIDto(this.EndPointOptions.EqType);
             dto.IsConnected = IsConnected;
