@@ -187,7 +187,7 @@ namespace EquipmentManagment.Device
                 master.Transport.RetryOnOldResponseThreshold = 10;
                 master.Transport.ReadTimeout = 300;
                 master.Transport.WriteTimeout = 1000;
-                master.Transport.Retries = 3;                
+                master.Transport.Retries = 3;
                 return true;
             }
             catch (Exception ex)
@@ -422,10 +422,10 @@ namespace EquipmentManagment.Device
         {
             try
             {
-                byte byteSlaveId=EndPointOptions.ConnOptions.byteSlaveId;
+                byte byteSlaveId = EndPointOptions.ConnOptions.byteSlaveId;
                 var IO_Module_Brand = EndPointOptions.ConnOptions.IO_Value_Type;
                 if (IO_Module_Brand == IO_VALUE_TYPE.INPUT)
-                    master?.WriteMultipleCoils(byteSlaveId,0, outputs);
+                    master?.WriteMultipleCoils(byteSlaveId, 0, outputs);
 
                 if (IO_Module_Brand == IO_VALUE_TYPE.INPUT_REGISTER)
                 {
