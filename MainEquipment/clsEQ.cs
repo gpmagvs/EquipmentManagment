@@ -593,7 +593,7 @@ namespace EquipmentManagment.MainEquipment
             try
             {
                 var io_location = EndPointOptions.IOLocation;
-                bool[] outputs = new bool[16];
+                bool[] outputs = new bool[64];
 
                 outputs[io_location.To_EQ_Up] = _To_EQ_UP;
                 outputs[io_location.To_EQ_Low] = _To_EQ_LOW;

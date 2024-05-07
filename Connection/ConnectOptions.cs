@@ -16,6 +16,9 @@ namespace EquipmentManagment.Connection
         public int AGVModbusGatewayPort { get; set; } = 502;
         public string ComPort { get; set; } = "COM1";
 
+        public byte byteSlaveId = 1;
+
+        public bool IsPLCAddress_Base_1 = false;
         public ushort Input_StartRegister { get; set; } = 0;
         public ushort Input_RegisterNum { get; set; } = 1;
 

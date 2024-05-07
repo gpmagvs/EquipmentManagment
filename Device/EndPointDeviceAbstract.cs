@@ -92,7 +92,7 @@ namespace EquipmentManagment.Device
             }
             get
             {
-                if (this.EndPointOptions.IsEmulation==true|| this.EndPointOptions.EmulationMode==1)
+                if (this.EndPointOptions.IsEmulation == true || this.EndPointOptions.EmulationMode == 1)
                 {
                     return _MaintainingSimulation;
                 }
@@ -187,7 +187,7 @@ namespace EquipmentManagment.Device
                 master.Transport.RetryOnOldResponseThreshold = 10;
                 master.Transport.ReadTimeout = 300;
                 master.Transport.WriteTimeout = 1000;
-                master.Transport.Retries = 3;
+                master.Transport.Retries = 3;                
                 return true;
             }
             catch (Exception ex)
@@ -386,13 +386,18 @@ namespace EquipmentManagment.Device
         {
             try
             {
+                bool IsPLCAddress = EndPointOptions.ConnOptions.IsPLCAddress_Base_1;
+                byte byteSlaveId = EndPointOptions.ConnOptions.byteSlaveId;
                 ushort startRegister = EndPointOptions.ConnOptions.Input_StartRegister;
                 ushort registerNum = EndPointOptions.ConnOptions.Input_RegisterNum;
 
                 if (EndPointOptions.ConnOptions.IO_Value_Type == IO_VALUE_TYPE.INPUT)
                 {
-                    var inputs = master.ReadInputs(startRegister, registerNum);
-                    Array.Copy(inputs, 0, InputBuffer, 0, inputs.Length);
+                    var inputs = master.ReadInputs(byteSlaveId, startRegister, registerNum);
+                    if (IsPLCAddress == true)
+                        Array.Copy(inputs, 0, InputBuffer, 1, inputs.Length);
+                    else
+                        Array.Copy(inputs, 0, InputBuffer, 0, inputs.Length);
                 }
                 else
                 {
@@ -417,14 +422,15 @@ namespace EquipmentManagment.Device
         {
             try
             {
+                byte byteSlaveId=EndPointOptions.ConnOptions.byteSlaveId;
                 var IO_Module_Brand = EndPointOptions.ConnOptions.IO_Value_Type;
                 if (IO_Module_Brand == IO_VALUE_TYPE.INPUT)
-                    master?.WriteMultipleCoils(1, outputs);
+                    master?.WriteMultipleCoils(byteSlaveId,0, outputs);
 
                 if (IO_Module_Brand == IO_VALUE_TYPE.INPUT_REGISTER)
                 {
                     ushort WriteInValue = outputs.GetUshort();
-                    master?.WriteSingleRegister(0, WriteInValue); //EasyModbus從0開始計算
+                    master?.WriteSingleRegister(byteSlaveId, 0, WriteInValue); //EasyModbus從0開始計算
                 }
             }
             catch (Exception ex)
