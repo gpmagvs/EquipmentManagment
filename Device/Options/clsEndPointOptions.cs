@@ -78,6 +78,7 @@ namespace EquipmentManagment.Device.Options
 
         internal bool IsProdution_EQ => EqType == EQ_TYPE.EQ || EqType == EQ_TYPE.EQ_OVEN;
 
+        public List<int> AcceptTransferTag { get; set; }=new List<int>();
     }
 
     public class clsEQIOLocation
