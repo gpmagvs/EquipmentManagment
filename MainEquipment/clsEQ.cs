@@ -35,8 +35,14 @@ namespace EquipmentManagment.MainEquipment
         /// </summary>
         EQ_PICK_AND_PLACE
     }
-
-
+    /// <summary>
+    /// 設備可接受貨物類型
+    /// ref: AGVSystemCommonNet6.AGVDispatch.Messages->CST_TYPE
+    /// </summary>
+    public enum EQ_ACCEPT_CARGO_TYPE
+    {
+        None = 0 /*用在不限orCST_TYPE未指派*/, KUAN = 200, TRAY = 201
+    }
     public class clsEQ : EndPointDeviceAbstract
     {
         public clsEQ(clsEndPointOptions options) : base(options)

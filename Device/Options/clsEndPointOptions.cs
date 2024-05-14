@@ -55,6 +55,9 @@ namespace EquipmentManagment.Device.Options
 
         public EQLDULD_TYPE LdULdType { get; set; } = EQLDULD_TYPE.LDULD;
         public EQ_PICKUP_CARGO_MODE LoadUnloadCargoMode { get; set; } = EQ_PICKUP_CARGO_MODE.AGV_PICK_AND_PLACE;
+
+        public EQ_ACCEPT_CARGO_TYPE EQAcceeptCargoType { get; set; } = EQ_ACCEPT_CARGO_TYPE.None;
+
         /// <summary>
         /// 允許取放貨之車輛類型
         /// </summary>
@@ -78,7 +81,7 @@ namespace EquipmentManagment.Device.Options
 
         internal bool IsProdution_EQ => EqType == EQ_TYPE.EQ || EqType == EQ_TYPE.EQ_OVEN;
 
-        public List<int> AcceptTransferTag { get; set; }=new List<int>();
+        public List<int> AcceptTransferTag { get; set; } = new List<int>();
     }
 
     public class clsEQIOLocation
