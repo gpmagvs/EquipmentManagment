@@ -100,17 +100,7 @@ namespace EquipmentManagment.Device
                         OnDeviceMaintainFinish?.Invoke(this, this);
                 }
             }
-            get
-            {
-                if (this.EndPointOptions.IsEmulation == true || this.EndPointOptions.EmulationMode == 1)
-                {
-                    return _MaintainingSimulation;
-                }
-                else
-                {
-                    return _IsMaintaining;
-                }
-            }
+            get => _IsMaintaining;
         }
         private bool _MaintainingSimulation = false;
         private bool _PartsReplacingSimulation = false;

@@ -64,7 +64,7 @@ namespace EquipmentManagment.Manager
                 {
                     emu.ModifyInput(eqFound.EndPointOptions.IOLocation.Eqp_Maintaining, isMaintain);
                 }
-                (eqFound as clsEQ).SetMaintaining(isMaintain);
+                //(eqFound as clsEQ).SetMaintaining(isMaintain);
                 return true;
             }
             else
