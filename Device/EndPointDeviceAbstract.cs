@@ -30,6 +30,9 @@ namespace EquipmentManagment.Device
         public static event EventHandler<EndPointDeviceAbstract> OnEQInputDataSizeNotEnough;
         public static event EventHandler<EndPointDeviceAbstract> OnPartsStartReplacing;
         public static event EventHandler<EndPointDeviceAbstract> OnPartsEndReplacing;
+        public static event EventHandler<EndPointDeviceAbstract> OnDeviceMaintainStart;
+        public static event EventHandler<EndPointDeviceAbstract> OnDeviceMaintainFinish;
+
         public EndPointDeviceAbstract(clsEndPointOptions options)
         {
             EndPointOptions = options;
@@ -88,7 +91,14 @@ namespace EquipmentManagment.Device
         {
             set
             {
-                _IsMaintaining = value;
+                if (_IsMaintaining != value)
+                {
+                    _IsMaintaining = value;
+                    if (_IsMaintaining)
+                        OnDeviceMaintainStart?.Invoke(this, this);
+                    else
+                        OnDeviceMaintainFinish?.Invoke(this, this);
+                }
             }
             get
             {

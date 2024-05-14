@@ -60,6 +60,10 @@ namespace EquipmentManagment.Manager
             Device.EndPointDeviceAbstract eqFound = StaEQPManagager.EQPDevices.FirstOrDefault(eq => eq.EndPointOptions.TagID == tagNumber);
             if (eqFound != null)
             {
+                if (EqEmulators.TryGetValue(eqFound.EndPointOptions.Name, out var emu))
+                {
+                    emu.ModifyInput(eqFound.EndPointOptions.IOLocation.Eqp_Maintaining, isMaintain);
+                }
                 (eqFound as clsEQ).SetMaintaining(isMaintain);
                 return true;
             }
