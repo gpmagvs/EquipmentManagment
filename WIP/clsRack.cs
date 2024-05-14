@@ -27,8 +27,8 @@ namespace EquipmentManagment.WIP
             RackOption = options;
             Initialize();
         }
-        public int EmptyPortNum => PortsStatus.Where(port => port.ExistSensorStates.Values.Any(exist => exist)).Count();
-        public int HasCargoPortNum => PortsStatus.Count() - PortsStatus.Where(port => port.ExistSensorStates.Values.Any(exist => exist)).Count();
+        public int EmptyPortNum => PortsStatus.Where(port => port.ExistSensorStates.Values.Any(exist => exist == SENSOR_STATUS.ON)).Count();
+        public int HasCargoPortNum => PortsStatus.Count() - PortsStatus.Where(port => port.ExistSensorStates.Values.Any(exist => exist == SENSOR_STATUS.ON)).Count();
 
         public override bool IsMaintaining { get => throw new NotImplementedException(); }
 
