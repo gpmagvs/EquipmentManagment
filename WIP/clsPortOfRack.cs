@@ -35,6 +35,9 @@ namespace EquipmentManagment.WIP
 
         public clsRackPortProperty Properties = new clsRackPortProperty();
 
+        [NonSerialized]
+        public readonly clsRack ParentRack;
+
         public Dictionary<SENSOR_LOCATION, bool> ExistSensorStates = new Dictionary<SENSOR_LOCATION, bool>()
         {
             { SENSOR_LOCATION.TRAY_1 ,false },
@@ -67,9 +70,10 @@ namespace EquipmentManagment.WIP
         public clsPortOfRack()
         {
         }
-        public clsPortOfRack(clsRackPortProperty option)
+        public clsPortOfRack(clsRackPortProperty option, clsRack parentRack)
         {
             this.Properties = option;
+            ParentRack = parentRack;
         }
 
         private CARGO_PLACEMENT_STATUS GetPlacementState(bool sensor1, bool sensor2)

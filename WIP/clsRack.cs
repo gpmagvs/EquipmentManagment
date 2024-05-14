@@ -62,7 +62,7 @@ namespace EquipmentManagment.WIP
         private void Initialize()
         {
             PortsStatus = RackOption.PortsOptions.Select(option =>
-                   new clsPortOfRack(option)
+                   new clsPortOfRack(option, this)
                ).ToArray();
         }
 
