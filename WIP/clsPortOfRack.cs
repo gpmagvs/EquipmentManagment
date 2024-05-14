@@ -86,7 +86,7 @@ namespace EquipmentManagment.WIP
 
         private CARGO_PLACEMENT_STATUS GetPlacementState(SENSOR_STATUS sensor1, SENSOR_STATUS sensor2)
         {
-            
+
             if (sensor1 == SENSOR_STATUS.ON && sensor2 == SENSOR_STATUS.ON)
                 return CARGO_PLACEMENT_STATUS.PLACED_NORMAL;
             else if ((sensor1 == SENSOR_STATUS.ON && sensor2 == SENSOR_STATUS.OFF) || (sensor1 == SENSOR_STATUS.ON && sensor2 == SENSOR_STATUS.OFF))
@@ -108,7 +108,7 @@ namespace EquipmentManagment.WIP
         }
         private void CheckSensorClick2()
         {
-            if (DateTime.Now.Second % 2 == 0)
+            if (DateTime.Now.Second % 3 == 0)
             {
                 try
                 {
@@ -117,7 +117,7 @@ namespace EquipmentManagment.WIP
                             { SENSOR_LOCATION.TRAY_2 ,new int[]{0,0,0 } },
                             { SENSOR_LOCATION.RACK_1 ,new int[]{0,0,0 } },
                             { SENSOR_LOCATION.RACK_2 ,new int[]{0,0,0 } },
-                        }; 
+                        };
                     //Dictionary<SENSOR_LOCATION, bool> temp_ExistSensorStates = new Dictionary<SENSOR_LOCATION, bool>() {
                     //    { SENSOR_LOCATION.TRAY_1 ,false},
                     //        { SENSOR_LOCATION.TRAY_2 ,false },
@@ -125,28 +125,33 @@ namespace EquipmentManagment.WIP
                     //        { SENSOR_LOCATION.RACK_2 ,false },
                     //};
                     //  TODO 判別狀態
-                    foreach (var item in statuscounter)
-                    {
-                        int intQuCount = QueExistSensorStates.Count();
-                        if (intQuCount <= 0)
-                            continue;
-                        item.Value[0] = intQuCount;
+                    //foreach (var item in statuscounter)
+                    //{
+                    //    int intQuCount = QueExistSensorStates.Count();
+                    //    if (intQuCount <= 0)
+                    //        continue;
+                    //    item.Value[0] = intQuCount;
 
-                        for (int i = 0; i < intQuCount; i++)
-                        {
-                            Dictionary<SENSOR_LOCATION, bool>  temp_ExistSensorStates = QueExistSensorStates.Dequeue();
-                            if (temp_ExistSensorStates[item.Key] == true)
-                                item.Value[1]++;
-                            else
-                                item.Value[2]++;
-                        }
-                        if (item.Value[0] == item.Value[1])
-                            ExistSensorStates[item.Key] = SENSOR_STATUS.ON;
-                        else if (item.Value[0] == item.Value[2])
-                            ExistSensorStates[item.Key] = SENSOR_STATUS.OFF;
-                        else
-                            ExistSensorStates[item.Key] = SENSOR_STATUS.FLASH;
-                        //ExistSensorStates[item.Key] = SENSOR_STATUS.OFF;
+                    //    for (int i = 0; i < intQuCount; i++)
+                    //    {
+                    //        Dictionary<SENSOR_LOCATION, bool> temp_ExistSensorStates = QueExistSensorStates.Dequeue();
+                    //        if (temp_ExistSensorStates[item.Key] == true)
+                    //            item.Value[1]++;
+                    //        else
+                    //            item.Value[2]++;
+                    //    }
+                    //    if (item.Value[0] == item.Value[1])
+                    //        ExistSensorStates[item.Key] = SENSOR_STATUS.ON;
+                    //    else if (item.Value[0] == item.Value[2])
+                    //        ExistSensorStates[item.Key] = SENSOR_STATUS.OFF;
+                    //    else
+                    //        ExistSensorStates[item.Key] = SENSOR_STATUS.FLASH;
+                    //    //ExistSensorStates[item.Key] = SENSOR_STATUS.OFF;
+                    //}
+
+                    foreach (var item in ExistSensorStates)
+                    {
+                        ExistSensorStates[item.Key] = current_ExistSensorStates[item.Key] == true ? SENSOR_STATUS.ON : SENSOR_STATUS.OFF;
                     }
                 }
                 catch (Exception)
@@ -155,30 +160,30 @@ namespace EquipmentManagment.WIP
                 }
             }
         }
-
-        Dictionary<SENSOR_LOCATION, bool> _previousSensorStates = new Dictionary<SENSOR_LOCATION, bool>();
-        internal void UpdateIO(ref bool[] inputBuffer)
-        {
-            clsRackPortProperty.clsPortIOLocation ioLocation = Properties.IOLocation;
-            try
-            {
-                Dictionary<SENSOR_LOCATION, bool> current_ExistSensorStates = new Dictionary<SENSOR_LOCATION, bool>()
+        Dictionary<SENSOR_LOCATION, bool> current_ExistSensorStates = new Dictionary<SENSOR_LOCATION, bool>()
                 {
                     { SENSOR_LOCATION.TRAY_1 ,false },
                     { SENSOR_LOCATION.TRAY_2 ,false },
                     { SENSOR_LOCATION.RACK_1 ,false },
                     { SENSOR_LOCATION.RACK_2 ,false },
                 };
+        Dictionary<SENSOR_LOCATION, bool> _previousSensorStates = new Dictionary<SENSOR_LOCATION, bool>();
+        internal void UpdateIO(ref bool[] inputBuffer)
+        {
+            clsRackPortProperty.clsPortIOLocation ioLocation = Properties.IOLocation;
+            try
+            {
                 current_ExistSensorStates[SENSOR_LOCATION.TRAY_1] = inputBuffer[ioLocation.Tray_Sensor1];
                 current_ExistSensorStates[SENSOR_LOCATION.TRAY_2] = inputBuffer[ioLocation.Tray_Sensor2];
                 current_ExistSensorStates[SENSOR_LOCATION.RACK_1] = inputBuffer[ioLocation.Box_Sensor1];
                 current_ExistSensorStates[SENSOR_LOCATION.RACK_2] = inputBuffer[ioLocation.Box_Sensor2];
 
-                if(_previousSensorStates.Values.Where(s=>!s).Count()!= current_ExistSensorStates.Values.Where(s => !s).Count())
+                if (_previousSensorStates.Values.Where(s => !s).Count() != current_ExistSensorStates.Values.Where(s => !s).Count())
+                { }
+                if (Properties.Row == 1 && Properties.Column == 2)
                 {
 
                 }
-
                 _previousSensorStates = current_ExistSensorStates;
                 QueExistSensorStates.Enqueue(current_ExistSensorStates);
             }

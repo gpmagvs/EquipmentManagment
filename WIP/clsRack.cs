@@ -50,9 +50,7 @@ namespace EquipmentManagment.WIP
 
             foreach (clsPortOfRack port in PortsStatus)
             {
-
                 port.UpdateIO(ref InputBuffer);
-
             }
         }
 
