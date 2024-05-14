@@ -79,7 +79,6 @@ namespace EquipmentManagment.WIP
 
         private CARGO_PLACEMENT_STATUS GetPlacementState(bool sensor1, bool sensor2)
         {
-            CheckSensorClick();
             if (sensor1 && sensor2)
                 return CARGO_PLACEMENT_STATUS.PLACED_NORMAL;
             else if ((sensor1 && !sensor2) || (!sensor1 && sensor2))
@@ -108,31 +107,6 @@ namespace EquipmentManagment.WIP
             }
         }
         bool NO_CARGO_BUT_CLICK = false;
-        private void CheckSensorClick()
-        {
-            bool Traysensor1 = ExistSensorStates[SENSOR_LOCATION.TRAY_1];
-            bool Traysensor2 = ExistSensorStates[SENSOR_LOCATION.TRAY_2];
-            bool Racksensor1 = ExistSensorStates[SENSOR_LOCATION.RACK_1];
-            bool Racksensor2 = ExistSensorStates[SENSOR_LOCATION.RACK_2];
-            int count = 0;
-            while (ExistSensorStates[SENSOR_LOCATION.TRAY_1] || ExistSensorStates[SENSOR_LOCATION.TRAY_2] || ExistSensorStates[SENSOR_LOCATION.RACK_1] || ExistSensorStates[SENSOR_LOCATION.RACK_2])
-            {
-                if (Traysensor1 != ExistSensorStates[SENSOR_LOCATION.TRAY_1] || Traysensor2 != ExistSensorStates[SENSOR_LOCATION.TRAY_2] || Racksensor1 != ExistSensorStates[SENSOR_LOCATION.RACK_1] || Racksensor2 != ExistSensorStates[SENSOR_LOCATION.RACK_2])
-                {
-                    Traysensor1 = ExistSensorStates[SENSOR_LOCATION.TRAY_1];
-                    Traysensor2 = ExistSensorStates[SENSOR_LOCATION.TRAY_2];
-                    Racksensor1 = ExistSensorStates[SENSOR_LOCATION.RACK_1];
-                    Racksensor2 = ExistSensorStates[SENSOR_LOCATION.RACK_2];
-                    count += 1;
-                }
-                if (count == 5)
-                {
-                    NO_CARGO_BUT_CLICK = true;
-                    Console.WriteLine($"NO_CARGO_BUT_CLICK={NO_CARGO_BUT_CLICK}");
-                    break;
-                }
-                Thread.Sleep(400);
-            }
-        }
+
     }
 }
