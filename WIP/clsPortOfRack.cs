@@ -47,6 +47,8 @@ namespace EquipmentManagment.WIP
 
         public clsRackPortProperty Properties = new clsRackPortProperty();
 
+        public clsRack ParentRack { get; }
+
         public ConcurrentQueue<Dictionary<SENSOR_LOCATION, bool>> QueExistSensorStates = new ConcurrentQueue<Dictionary<SENSOR_LOCATION, bool>>();
 
         public Dictionary<SENSOR_LOCATION, SENSOR_STATUS> ExistSensorStates = new Dictionary<SENSOR_LOCATION, SENSOR_STATUS>()
@@ -81,9 +83,10 @@ namespace EquipmentManagment.WIP
         public clsPortOfRack()
         {
         }
-        public clsPortOfRack(clsRackPortProperty option)
+        public clsPortOfRack(clsRackPortProperty option, clsRack parentRack)
         {
             this.Properties = option;
+            ParentRack = parentRack;
         }
 
         private CARGO_PLACEMENT_STATUS GetPlacementState(SENSOR_STATUS sensor1, SENSOR_STATUS sensor2)
