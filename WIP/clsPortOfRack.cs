@@ -120,14 +120,18 @@ namespace EquipmentManagment.WIP
                             { SENSOR_LOCATION.RACK_1 ,new int[]{0,0,0 } },
                             { SENSOR_LOCATION.RACK_2 ,new int[]{0,0,0 } },
                         };
-
-
+                    bool lastExistSensorStates = false;
+                    int count = 0;
                     while (QueExistSensorStates.TryDequeue(out Dictionary<SENSOR_LOCATION, bool> temp_ExistSensorStates))
                     {
                         foreach (var item in ExistSensorStates)
                         {
                             statuscounter[item.Key][0]++;
-                            bool lastExistSensorStates = temp_ExistSensorStates[item.Key];
+                            if (temp_ExistSensorStates[item.Key] != lastExistSensorStates)
+                            {
+                                lastExistSensorStates = temp_ExistSensorStates[item.Key];
+                                count+=1;
+                            }
                             if (temp_ExistSensorStates[item.Key] == true)
                                 statuscounter[item.Key][1]++;
                             else
@@ -141,7 +145,7 @@ namespace EquipmentManagment.WIP
                             ExistSensorStates[item.Key] = SENSOR_STATUS.ON;
                         else if (statuscounter[item.Key][0] == statuscounter[item.Key][2])
                             ExistSensorStates[item.Key] = SENSOR_STATUS.OFF;
-                        else
+                        else if(count >7)
                             ExistSensorStates[item.Key] = SENSOR_STATUS.FLASH;
                     }
 
