@@ -47,7 +47,8 @@ namespace EquipmentManagment.WIP
 
         public clsRackPortProperty Properties = new clsRackPortProperty();
 
-        public clsRack ParentRack { get; }
+        [NonSerialized]
+        public clsRack ParentRack;
 
         public ConcurrentQueue<Dictionary<SENSOR_LOCATION, bool>> QueExistSensorStates = new ConcurrentQueue<Dictionary<SENSOR_LOCATION, bool>>();
 
@@ -138,7 +139,7 @@ namespace EquipmentManagment.WIP
                             { SENSOR_LOCATION.RACK_2 ,new int[]{0,0,0 } },
                         };
                     int count = 0;
-                    int flashcount =0;
+                    int flashcount = 0;
                     while (QueExistSensorStates.TryDequeue(out Dictionary<SENSOR_LOCATION, bool> temp_ExistSensorStates))
                     {
                         foreach (var item in temp_ExistSensorStates)
@@ -163,10 +164,10 @@ namespace EquipmentManagment.WIP
                     foreach (var item in finall_statuscounter)
                     {
                         if (statuscounter[item.Key][0] == statuscounter[item.Key][1])
-                            ExistSensorStates[item.Key]= SENSOR_STATUS.ON;
+                            ExistSensorStates[item.Key] = SENSOR_STATUS.ON;
                         else if (statuscounter[item.Key][0] == statuscounter[item.Key][2])
                             ExistSensorStates[item.Key] = SENSOR_STATUS.OFF;
-                        else if (flashcount >= count/2)
+                        else if (flashcount >= count / 2)
                             ExistSensorStates[item.Key] = SENSOR_STATUS.FLASH;
                     }
 
