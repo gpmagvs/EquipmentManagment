@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using EquipmentManagment.Device;
 using EquipmentManagment.Device.Options;
 
@@ -45,7 +47,7 @@ namespace EquipmentManagment.WIP
 
         public clsRackPortProperty Properties = new clsRackPortProperty();
 
-        public Queue<Dictionary<SENSOR_LOCATION, bool>> QueExistSensorStates = new Queue<Dictionary<SENSOR_LOCATION, bool>>();
+        public ConcurrentQueue<Dictionary<SENSOR_LOCATION, bool>> QueExistSensorStates = new ConcurrentQueue<Dictionary<SENSOR_LOCATION, bool>>();
 
         public Dictionary<SENSOR_LOCATION, SENSOR_STATUS> ExistSensorStates = new Dictionary<SENSOR_LOCATION, SENSOR_STATUS>()
         {
@@ -108,7 +110,7 @@ namespace EquipmentManagment.WIP
         }
         private void CheckSensorClick2()
         {
-            if (DateTime.Now.Second % 3 == 0)
+            if (DateTime.Now.Second % 5 == 0)
             {
                 try
                 {
@@ -118,43 +120,37 @@ namespace EquipmentManagment.WIP
                             { SENSOR_LOCATION.RACK_1 ,new int[]{0,0,0 } },
                             { SENSOR_LOCATION.RACK_2 ,new int[]{0,0,0 } },
                         };
-                    //Dictionary<SENSOR_LOCATION, bool> temp_ExistSensorStates = new Dictionary<SENSOR_LOCATION, bool>() {
-                    //    { SENSOR_LOCATION.TRAY_1 ,false},
-                    //        { SENSOR_LOCATION.TRAY_2 ,false },
-                    //        { SENSOR_LOCATION.RACK_1 ,false },
-                    //        { SENSOR_LOCATION.RACK_2 ,false },
-                    //};
-                    //  TODO 判別狀態
-                    //foreach (var item in statuscounter)
-                    //{
-                    //    int intQuCount = QueExistSensorStates.Count();
-                    //    if (intQuCount <= 0)
-                    //        continue;
-                    //    item.Value[0] = intQuCount;
 
-                    //    for (int i = 0; i < intQuCount; i++)
-                    //    {
-                    //        Dictionary<SENSOR_LOCATION, bool> temp_ExistSensorStates = QueExistSensorStates.Dequeue();
-                    //        if (temp_ExistSensorStates[item.Key] == true)
-                    //            item.Value[1]++;
-                    //        else
-                    //            item.Value[2]++;
-                    //    }
-                    //    if (item.Value[0] == item.Value[1])
-                    //        ExistSensorStates[item.Key] = SENSOR_STATUS.ON;
-                    //    else if (item.Value[0] == item.Value[2])
-                    //        ExistSensorStates[item.Key] = SENSOR_STATUS.OFF;
-                    //    else
-                    //        ExistSensorStates[item.Key] = SENSOR_STATUS.FLASH;
-                    //    //ExistSensorStates[item.Key] = SENSOR_STATUS.OFF;
-                    //}
 
-                    foreach (var item in ExistSensorStates)
+                    while (QueExistSensorStates.TryDequeue(out Dictionary<SENSOR_LOCATION, bool> temp_ExistSensorStates))
                     {
-                        ExistSensorStates[item.Key] = current_ExistSensorStates[item.Key] == true ? SENSOR_STATUS.ON : SENSOR_STATUS.OFF;
+                        foreach (var item in ExistSensorStates)
+                        {
+                            statuscounter[item.Key][0]++;
+                            bool lastExistSensorStates = temp_ExistSensorStates[item.Key];
+                            if (temp_ExistSensorStates[item.Key] == true)
+                                statuscounter[item.Key][1]++;
+                            else
+                                statuscounter[item.Key][2]++;
+                        }
                     }
+
+                    foreach (var item in statuscounter)
+                    {
+                        if (statuscounter[item.Key][0] == statuscounter[item.Key][1])
+                            ExistSensorStates[item.Key] = SENSOR_STATUS.ON;
+                        else if (statuscounter[item.Key][0] == statuscounter[item.Key][2])
+                            ExistSensorStates[item.Key] = SENSOR_STATUS.OFF;
+                        else
+                            ExistSensorStates[item.Key] = SENSOR_STATUS.FLASH;
+                    }
+
+                    //foreach (var item in ExistSensorStates)
+                    //{
+                    //    ExistSensorStates[item.Key] = current_ExistSensorStates[item.Key] == true ? SENSOR_STATUS.ON : SENSOR_STATUS.OFF;
+                    //}
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     throw;
                 }
