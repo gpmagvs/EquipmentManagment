@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using EquipmentManagment.Device;
 using EquipmentManagment.Device.Options;
 
@@ -25,7 +26,11 @@ namespace EquipmentManagment.WIP
             /// <summary>
             /// 騎框/Rack
             /// </summary>
-            PLACED_BUT_ASYMMETRIC
+            PLACED_BUT_ASYMMETRIC,
+            /// <summary>
+            /// 訊號閃爍/Rack
+            /// </summary>
+            NO_CARGO_BUT_CLICK
         }
         public enum SENSOR_LOCATION
         {
@@ -82,6 +87,8 @@ namespace EquipmentManagment.WIP
                 return CARGO_PLACEMENT_STATUS.PLACED_NORMAL;
             else if ((sensor1 && !sensor2) || (!sensor1 && sensor2))
                 return CARGO_PLACEMENT_STATUS.PLACED_BUT_ASYMMETRIC;
+            else if (NO_CARGO_BUT_CLICK)
+                return CARGO_PLACEMENT_STATUS.NO_CARGO_BUT_CLICK;
             else
                 return CARGO_PLACEMENT_STATUS.NO_CARGO;
         }
@@ -103,5 +110,7 @@ namespace EquipmentManagment.WIP
                 Console.WriteLine($"clsWIPPort -> UpdateIO From inputs buffer Fail: {ex.Message}");
             }
         }
+        bool NO_CARGO_BUT_CLICK = false;
+
     }
 }
