@@ -41,6 +41,7 @@ namespace EquipmentManagment.Device.Options
         public Dictionary<string, string> Notes { get; set; } = new Dictionary<string, string>()
         {
             { "Accept_AGV_Type","允許進行任務之車輛種類(0:所有車種,1:叉車AGV, 2:潛盾AGV)" },
+            { "EQAcceeptCargoType","設備可移載的貨物種類(0:不限, 200:子母框, 201:Tray)" },
             { "CheckRackContentStateIOSignal","空框/實框IO訊號檢查(目前僅 UMTC S1/5F專案須將此設為true, false:不檢查,true:檢查)" },
         };
         public ConnectOptions ConnOptions { get; set; } = new ConnectOptions();
