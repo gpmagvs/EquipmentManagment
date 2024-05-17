@@ -41,7 +41,7 @@ namespace EquipmentManagment.MainEquipment
     /// </summary>
     public enum EQ_ACCEPT_CARGO_TYPE
     {
-        None = 0 /*用在不限orCST_TYPE未指派*/, KUAN = 200, TRAY = 201
+        None = 0 /*用在不限orCST_TYPE未指派*/, KUAN = 201, TRAY = 200
     }
     public class clsEQ : EndPointDeviceAbstract
     {
