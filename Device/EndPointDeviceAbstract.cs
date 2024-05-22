@@ -422,10 +422,11 @@ namespace EquipmentManagment.Device
         {
             try
             {
+                bool IsPLCAddress = EndPointOptions.ConnOptions.IsPLCAddress_Base_1;
                 byte byteSlaveId = EndPointOptions.ConnOptions.byteSlaveId;
                 var IO_Module_Brand = EndPointOptions.ConnOptions.IO_Value_Type;
                 if (IO_Module_Brand == IO_VALUE_TYPE.INPUT)
-                    master?.WriteMultipleCoils(byteSlaveId, 0, outputs);
+                    master?.WriteMultipleCoils(byteSlaveId, (ushort)(IsPLCAddress ? 0 : 1), outputs);
 
                 if (IO_Module_Brand == IO_VALUE_TYPE.INPUT_REGISTER)
                 {
