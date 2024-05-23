@@ -50,6 +50,21 @@ namespace EquipmentManagment.WIP
         [NonSerialized]
         public clsRack ParentRack;
 
+        public int[] TagNumbers
+        {
+            get
+            {
+                var tagMap = ParentRack.RackOption.ColumnTagMap;
+
+                if (tagMap.TryGetValue(Properties.Column, out int[] _tags))
+                    return _tags;
+                else
+                    return new int[0];
+
+            }
+        }
+        public int Layer => Properties.Row;
+
         public ConcurrentQueue<Dictionary<SENSOR_LOCATION, bool>> QueExistSensorStates = new ConcurrentQueue<Dictionary<SENSOR_LOCATION, bool>>();
 
         public Dictionary<SENSOR_LOCATION, SENSOR_STATUS> ExistSensorStates = new Dictionary<SENSOR_LOCATION, SENSOR_STATUS>()
