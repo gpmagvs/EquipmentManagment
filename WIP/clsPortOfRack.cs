@@ -78,7 +78,7 @@ namespace EquipmentManagment.WIP
         {
             get
             {
-                return ExistSensorStates.Values.Any(state => state == SENSOR_STATUS.ON);
+                return ExistSensorStates.Values.Any(state => state == SENSOR_STATUS.OFF);
             }
         }
         public CARGO_PLACEMENT_STATUS TrayPlacementState
@@ -97,8 +97,7 @@ namespace EquipmentManagment.WIP
             }
         }
         public clsPortOfRack()
-        {
-        }
+        {}
         public clsPortOfRack(clsRackPortProperty option, clsRack parentRack)
         {
             this.Properties = option;
@@ -171,16 +170,16 @@ namespace EquipmentManagment.WIP
                             else
                                 statuscounter[item.Key][2]++;
 
-                            temp_statuscounter[item.Key] = item.Value;
+
                             count += 1;
                         }
 
-                    }  
+                    }
                     foreach (var item in finall_statuscounter)
                     {
-                        if ((statuscounter[SENSOR_LOCATION.TRAY_1][0] == statuscounter[SENSOR_LOCATION.TRAY_1][1]&& statuscounter[SENSOR_LOCATION.TRAY_2][0] == statuscounter[SENSOR_LOCATION.TRAY_2][1])|| (statuscounter[SENSOR_LOCATION.RACK_1][0] == statuscounter[SENSOR_LOCATION.RACK_1][1] && statuscounter[SENSOR_LOCATION.RACK_2][0] == statuscounter[SENSOR_LOCATION.RACK_2][1]))
+                        if ((statuscounter[SENSOR_LOCATION.TRAY_1][0] == statuscounter[SENSOR_LOCATION.TRAY_1][1] && statuscounter[SENSOR_LOCATION.TRAY_2][0] == statuscounter[SENSOR_LOCATION.TRAY_2][1]) || (statuscounter[SENSOR_LOCATION.RACK_1][0] == statuscounter[SENSOR_LOCATION.RACK_1][1] && statuscounter[SENSOR_LOCATION.RACK_2][0] == statuscounter[SENSOR_LOCATION.RACK_2][1]))
                             ExistSensorStates[item.Key] = SENSOR_STATUS.ON;
-                        if ((statuscounter[SENSOR_LOCATION.TRAY_1][0] == statuscounter[SENSOR_LOCATION.TRAY_1][2] && statuscounter[SENSOR_LOCATION.TRAY_2][0] == statuscounter[SENSOR_LOCATION.TRAY_2][2])|| (statuscounter[SENSOR_LOCATION.RACK_1][0] == statuscounter[SENSOR_LOCATION.RACK_1][2] && statuscounter[SENSOR_LOCATION.RACK_2][0] == statuscounter[SENSOR_LOCATION.RACK_2][2]))
+                        if ((statuscounter[SENSOR_LOCATION.TRAY_1][0] == statuscounter[SENSOR_LOCATION.TRAY_1][2] && statuscounter[SENSOR_LOCATION.TRAY_2][0] == statuscounter[SENSOR_LOCATION.TRAY_2][2]) || (statuscounter[SENSOR_LOCATION.RACK_1][0] == statuscounter[SENSOR_LOCATION.RACK_1][2] && statuscounter[SENSOR_LOCATION.RACK_2][0] == statuscounter[SENSOR_LOCATION.RACK_2][2]))
                             ExistSensorStates[item.Key] = SENSOR_STATUS.OFF;
                         else if (flashcount >= count / 2)
                             ExistSensorStates[item.Key] = SENSOR_STATUS.FLASH;
@@ -230,36 +229,5 @@ namespace EquipmentManagment.WIP
             }
             CheckSensorClick2();
         }
-        //bool NO_CARGO_BUT_CLICK = false;
-        //private void CheckSensorClick()
-        //{
-        //    bool Traysensor1 = ExistSensorStates[SENSOR_LOCATION.TRAY_1];
-        //    bool Traysensor2 = ExistSensorStates[SENSOR_LOCATION.TRAY_2];
-        //    bool Racksensor1 = ExistSensorStates[SENSOR_LOCATION.RACK_1];
-        //    bool Racksensor2 = ExistSensorStates[SENSOR_LOCATION.RACK_2];
-        //    int count = 0;
-        //    int noalarmcount = 0;
-        //    while (ExistSensorStates[SENSOR_LOCATION.TRAY_1] || ExistSensorStates[SENSOR_LOCATION.TRAY_2] || ExistSensorStates[SENSOR_LOCATION.RACK_1] || ExistSensorStates[SENSOR_LOCATION.RACK_2])
-        //    {
-        //        if (Traysensor1 != ExistSensorStates[SENSOR_LOCATION.TRAY_1] || Traysensor2 != ExistSensorStates[SENSOR_LOCATION.TRAY_2] || Racksensor1 != ExistSensorStates[SENSOR_LOCATION.RACK_1] || Racksensor2 != ExistSensorStates[SENSOR_LOCATION.RACK_2])
-        //        {
-        //            Traysensor1 = ExistSensorStates[SENSOR_LOCATION.TRAY_1];
-        //            Traysensor2 = ExistSensorStates[SENSOR_LOCATION.TRAY_2];
-        //            Racksensor1 = ExistSensorStates[SENSOR_LOCATION.RACK_1];
-        //            Racksensor2 = ExistSensorStates[SENSOR_LOCATION.RACK_2];
-        //            noalarmcount = count;
-        //            count += 1;
-        //        }
-        //        if (count == 5)
-        //        {
-        //            NO_CARGO_BUT_CLICK = true;
-        //            Console.WriteLine($"NO_CARGO_BUT_CLICK={NO_CARGO_BUT_CLICK}");
-        //            break;
-        //        }
-        //        if (noalarmcount == count)
-        //        { break; }
-        //        Thread.Sleep(400);
-        //    }
-        //}
     }
 }

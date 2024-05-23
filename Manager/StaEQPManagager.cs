@@ -126,6 +126,20 @@ namespace EquipmentManagment.Manager
         {
             return RacksList.FirstOrDefault(eq => eq.EndPointOptions.TagID == eQTag) as clsRack;
         }
+        public static List<clsPortOfRack> GetRackColumnByTag(int tag) {
+
+            List<clsPortOfRack> portsofrack=new List<clsPortOfRack>();
+            foreach (clsRack rack in RacksList)
+            {
+                var rackportscontaintag = rack.PortsStatus.Select(x => x).Where(x => x.TagNumbers.Contains(tag)).ToList();
+                if (rackportscontaintag.Count() > 0)
+                {
+                    portsofrack.AddRange(rackportscontaintag);
+                    break;
+                }
+            }
+            return portsofrack;
+        }
 
         public static RACK_CONTENT_STATE CargoStartTransferToDestineHandler(clsEQ sourceEQ, clsEQ destineEQ)
         {
