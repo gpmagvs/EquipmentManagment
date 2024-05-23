@@ -148,6 +148,7 @@ namespace EquipmentManagment.ChargeStation
         public clsChargeStation(clsEndPointOptions options) : base(options)
         {
             Datas.UsableAGVNames = (options as clsChargeStationOptions).usableAGVList;
+            Datas.TagNumber = options.TagID;
         }
         public override PortStatusAbstract PortStatus { get; set; } = new clsPortOfRack();
         public override bool IsMaintaining { get => throw new NotImplementedException(); }
@@ -350,7 +351,11 @@ namespace EquipmentManagment.ChargeStation
 
             return SendSettingsToCharger(out message);
         }
-
+        public override void SetTag(int newTag)
+        {
+            base.SetTag(newTag);
+            this.Datas.TagNumber = newTag;
+        }
         private bool SendSettingsToCharger(out string message)
         {
             message = "";
@@ -431,7 +436,8 @@ namespace EquipmentManagment.ChargeStation
         public void SetUsableAGVList(string[] agvNames)
         {
             Datas.UsableAGVNames = (EndPointOptions as clsChargeStationOptions).usableAGVList = agvNames;
-            
+
         }
+
     }
 }
