@@ -457,6 +457,10 @@ namespace EquipmentManagment.Device
             McInterface.WriteBit(ref EQPLCMemoryTb_Write, "B", "0", 16);
         }
 
+        public virtual void SetTag(int newTag)
+        {
+            this.EndPointOptions.TagID = newTag;
+        }
         protected abstract void WriteOutuptsData();
         protected abstract void InputsHandler();
 

@@ -72,7 +72,7 @@ namespace EquipmentManagment.ChargeStation
         public DateTime Time { get; set; }
         public List<clsChargeStation.ERROR_CODE> ErrorCodes { get; set; } = new List<clsChargeStation.ERROR_CODE>();
         public double Temperature { get; internal set; }
-
+        public int TagNumber { get; set; } = 0;
 
         private double _CC { get; set; } = 66;
         private double _CV { get; set; } = 28.8;
