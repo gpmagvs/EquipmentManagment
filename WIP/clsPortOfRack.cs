@@ -175,12 +175,12 @@ namespace EquipmentManagment.WIP
                             count += 1;
                         }
 
-                    }
+                    }  
                     foreach (var item in finall_statuscounter)
                     {
-                        if (statuscounter[item.Key][0] == statuscounter[item.Key][1])
+                        if ((statuscounter[SENSOR_LOCATION.TRAY_1][0] == statuscounter[SENSOR_LOCATION.TRAY_1][1]&& statuscounter[SENSOR_LOCATION.TRAY_2][0] == statuscounter[SENSOR_LOCATION.TRAY_2][1])|| (statuscounter[SENSOR_LOCATION.RACK_1][0] == statuscounter[SENSOR_LOCATION.RACK_1][1] && statuscounter[SENSOR_LOCATION.RACK_2][0] == statuscounter[SENSOR_LOCATION.RACK_2][1]))
                             ExistSensorStates[item.Key] = SENSOR_STATUS.ON;
-                        else if (statuscounter[item.Key][0] == statuscounter[item.Key][2])
+                        if ((statuscounter[SENSOR_LOCATION.TRAY_1][0] == statuscounter[SENSOR_LOCATION.TRAY_1][2] && statuscounter[SENSOR_LOCATION.TRAY_2][0] == statuscounter[SENSOR_LOCATION.TRAY_2][2])|| (statuscounter[SENSOR_LOCATION.RACK_1][0] == statuscounter[SENSOR_LOCATION.RACK_1][2] && statuscounter[SENSOR_LOCATION.RACK_2][0] == statuscounter[SENSOR_LOCATION.RACK_2][2]))
                             ExistSensorStates[item.Key] = SENSOR_STATUS.OFF;
                         else if (flashcount >= count / 2)
                             ExistSensorStates[item.Key] = SENSOR_STATUS.FLASH;
