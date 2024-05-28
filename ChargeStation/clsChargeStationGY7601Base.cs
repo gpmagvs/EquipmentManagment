@@ -269,6 +269,12 @@ namespace EquipmentManagment.ChargeStation
             var bytes = val.DoubleToLinear11(-2);
             return await SendWriteCommnadAsync((byte)COMMAND_CODES.CURVE_TC, bytes);
         }
+        /// <summary>
+        /// 讀取指定位址數據
+        /// </summary>
+        /// <param name="command_code">位址</param>
+        /// <param name="data_len">回傳的數據長度</param>
+        /// <returns>byte陣列，0->N 對應 Low Byte->High Byte</returns>
         private async Task<byte[]> SendReadCommnad(byte command_code, int data_len)
         {
             Connection.CONN_METHODS connection_method = EndPointOptions.ConnOptions.ConnMethod;
