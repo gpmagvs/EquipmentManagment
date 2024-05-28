@@ -22,7 +22,14 @@ namespace EquipmentManagment.ChargeStation
         private SemaphoreSlim ReadDataSemaphoreSlim = new SemaphoreSlim(1, 1);
         public enum COMMAND_CODES : byte
         {
+            /// <summary>
+            /// Data:2Byte
+            /// </summary>
+            FAULT_CODE = 0x40,
+            STATUS_BYTES = 0x78,
+            STATUS_WORD = 0x79,
             STATUS_TEMPERATURE = 0x7D,
+            STATUS_MFR_SPECIFIC = 0x80,
             READ_VIN = 0x88,
             READ_VOUT = 0x8B,
             READ_IOUT = 0x8C,
@@ -35,6 +42,8 @@ namespace EquipmentManagment.ChargeStation
             CURVE_TC,
             CURVE_CONFIG = 0xB4,
             CHG_STATUS = 0xB8,
+            MFR_MODEL = 0x9A,
+            MFR_SERIAL = 0x9E
         }
         public clsChargeStationGY7601Base(clsEndPointOptions options) : base(options)
         {
@@ -84,18 +93,24 @@ namespace EquipmentManagment.ChargeStation
                 //    }
 
                 await ReadDataSemaphoreSlim.WaitAsync();
-                Datas.Vin = ReadVin();
-                Datas.Vout = Math.Round(ReadVout(), 2);
-                Datas.Iout = ReadIout();
-                Datas.CC = ReadCC();
-                Datas.CV = ReadCV();
-                Datas.FV = ReadFV();
-                Datas.TC = ReadTC();
-                Datas.Fan_Speed_1 = ReadFAN_Speed_1();
-                Datas.Fan_Speed_2 = ReadFAN_Speed_2();
-                Datas.Temperature = ReadTemperature();
-                ReadCURVE_CONFIG();
-                ReadChargeStatus();
+                //ReadMFR_MODEL();
+                //ReadMFR_SERIALL();
+                await ReadSTATUS_WORD();
+                await ReadSTATUS_MFR_SPECIFIC();
+                //ReadFaultCodes();
+                //ReadSTATUS_BYTES();
+                Datas.Vin = await ReadVin();
+                Datas.Vout = Math.Round(await ReadVout(), 2);
+                Datas.Iout = await ReadIout();
+                Datas.CC = await ReadCC();
+                Datas.CV = await ReadCV();
+                Datas.FV = await ReadFV();
+                Datas.TC = await ReadTC();
+                Datas.Fan_Speed_1 = await ReadFAN_Speed_1();
+                Datas.Fan_Speed_2 = await ReadFAN_Speed_2();
+                Datas.Temperature = await ReadTemperature();
+                // ReadCURVE_CONFIG();
+                await ReadChargeStatus();
                 Datas.Time = DateTime.Now;
                 //Console.WriteLine($"{JsonConvert.SerializeObject(Datas, Formatting.Indented)}");
                 return true;
@@ -114,6 +129,43 @@ namespace EquipmentManagment.ChargeStation
 
 
         }
+
+        private async Task ReadFaultCodes()
+        {
+            var result = await SendReadCommnad((byte)COMMAND_CODES.FAULT_CODE, 2);
+            Console.WriteLine($"FAULT_CODE= {string.Join(",", result)}");
+        }
+
+        private async Task ReadSTATUS_MFR_SPECIFIC()
+        {
+            var result = await SendReadCommnad((byte)COMMAND_CODES.STATUS_MFR_SPECIFIC, 2);
+            Console.WriteLine($"STATUS_MFR_SPECIFIC= {string.Join(",", result)}");
+        }
+
+        private async Task ReadSTATUS_BYTES()
+        {
+            var result = await SendReadCommnad((byte)COMMAND_CODES.STATUS_BYTES, 2);
+            Console.WriteLine($"STATUS_BYTES = {string.Join(",", result)}");
+        }
+        private async Task ReadSTATUS_WORD()
+        {
+            var result = await SendReadCommnad((byte)COMMAND_CODES.STATUS_WORD, 2);
+            Console.WriteLine($"STATUS_WORD = {string.Join(",", result)}({Encoding.ASCII.GetString(result)})");
+        }
+
+        private async Task ReadMFR_MODEL()
+        {
+            var result = await SendReadCommnad((byte)COMMAND_CODES.MFR_MODEL, 12);
+            string mfrModel = Encoding.ASCII.GetString(result);
+            //Console.WriteLine($"MFR_MODEL = {mfrModel}");
+        }
+
+        private async Task ReadMFR_SERIALL()
+        {
+            var result = await SendReadCommnad((byte)COMMAND_CODES.MFR_SERIAL, 12);
+            string MFR_SERIALL = Encoding.ASCII.GetString(result);
+            //Console.WriteLine($"MFR_MODEL = {MFR_SERIALL}");
+        }
         private async Task<bool> SetChargeConfigAsync()
         {
             var result = await SendWriteCommnadAsync((byte)COMMAND_CODES.CURVE_CONFIG, new byte[2] { 44, 00 });
@@ -130,67 +182,71 @@ namespace EquipmentManagment.ChargeStation
             else
                 return true;
         }
-        private void ReadChargeStatus()
+        private async Task ReadChargeStatus()
         {
-            var raw_data = SendReadCommnad((byte)COMMAND_CODES.CHG_STATUS, 2);
+            var raw_data = await SendReadCommnad((byte)COMMAND_CODES.CHG_STATUS, 2);
+            Console.WriteLine($"CHG_STATUS = {string.Join(",", raw_data)}");
+            //row_data[0]=> Low byte
+            //row_data[1]=> High byte
         }
-        private void ReadCURVE_CONFIG()
+        private async Task ReadCURVE_CONFIG()
         {
-            var raw_data = SendReadCommnad((byte)COMMAND_CODES.CURVE_CONFIG, 2);
+            var raw_data = await SendReadCommnad((byte)COMMAND_CODES.CURVE_CONFIG, 2);
+            Console.WriteLine($"CURVE_CONFIG = {string.Join(",", raw_data)}");
         }
 
-        private double ReadVin()
+        private async Task<double> ReadVin()
         {
-            var raw_data = SendReadCommnad((byte)COMMAND_CODES.READ_VIN, 2);
+            var raw_data = await SendReadCommnad((byte)COMMAND_CODES.READ_VIN, 2);
             return raw_data.Linear11ToDouble(-1);
         }
-        private double ReadVout()
+        private async Task<double> ReadVout()
         {
-            var raw_data = SendReadCommnad((byte)COMMAND_CODES.READ_VOUT, 2);
+            var raw_data = await SendReadCommnad((byte)COMMAND_CODES.READ_VOUT, 2);
             return raw_data.Linear16ToDouble(-9);
         }
-        private double ReadIout()
+        private async Task<double> ReadIout()
         {
-            var raw_data = SendReadCommnad((byte)COMMAND_CODES.READ_IOUT, 2);
+            var raw_data = await SendReadCommnad((byte)COMMAND_CODES.READ_IOUT, 2);
             return raw_data.Linear11ToDouble(-2);
 
         }
-        private double ReadTemperature()
+        private async Task<double> ReadTemperature()
         {
-            var raw_data = SendReadCommnad((byte)COMMAND_CODES.READ_TEMPERATURE, 2);
+            var raw_data = await SendReadCommnad((byte)COMMAND_CODES.READ_TEMPERATURE, 2);
             double temperature = raw_data.Linear11ToDouble(-2);
             return temperature;
         }
-        private double ReadCC()
+        private async Task<double> ReadCC()
         {
-            var raw_data = SendReadCommnad((byte)COMMAND_CODES.CURVE_CC, 2);
+            var raw_data = await SendReadCommnad((byte)COMMAND_CODES.CURVE_CC, 2);
             return raw_data.Linear11ToDouble(-2);
         }
-        private double ReadCV()
+        private async Task<double> ReadCV()
         {
-            var raw_data = SendReadCommnad((byte)COMMAND_CODES.CURVE_CV, 2);
+            var raw_data = await SendReadCommnad((byte)COMMAND_CODES.CURVE_CV, 2);
             return raw_data.Linear16ToDouble(-9);
         }
-        private double ReadFV()
+        private async Task<double> ReadFV()
         {
-            var raw_data = SendReadCommnad((byte)COMMAND_CODES.CURVE_FV, 2);
+            var raw_data = await SendReadCommnad((byte)COMMAND_CODES.CURVE_FV, 2);
             return raw_data.Linear16ToDouble(-9);
 
         }
-        private double ReadTC()
+        private async Task<double> ReadTC()
         {
-            var raw_data = SendReadCommnad((byte)COMMAND_CODES.CURVE_TC, 2);
+            var raw_data = await SendReadCommnad((byte)COMMAND_CODES.CURVE_TC, 2);
             return raw_data.Linear11ToDouble(-2);
         }
-        private double ReadFAN_Speed_1()
+        private async Task<double> ReadFAN_Speed_1()
         {
-            var raw_data = SendReadCommnad((byte)COMMAND_CODES.READ_FAN_SPEED_1, 2);
+            var raw_data = await SendReadCommnad((byte)COMMAND_CODES.READ_FAN_SPEED_1, 2);
             return raw_data.Linear11ToDouble(5);
         }
 
-        private double ReadFAN_Speed_2()
+        private async Task<double> ReadFAN_Speed_2()
         {
-            var raw_data = SendReadCommnad((byte)COMMAND_CODES.READ_FAN_SPEED_2, 2);
+            var raw_data = await SendReadCommnad((byte)COMMAND_CODES.READ_FAN_SPEED_2, 2);
             return raw_data.Linear11ToDouble(5);
         }
         public new async Task<(bool, string message)> SetCCAsync(double val)
@@ -213,7 +269,7 @@ namespace EquipmentManagment.ChargeStation
             var bytes = val.DoubleToLinear11(-2);
             return await SendWriteCommnadAsync((byte)COMMAND_CODES.CURVE_TC, bytes);
         }
-        private byte[] SendReadCommnad(byte command_code, int data_len)
+        private async Task<byte[]> SendReadCommnad(byte command_code, int data_len)
         {
             Connection.CONN_METHODS connection_method = EndPointOptions.ConnOptions.ConnMethod;
             var command = new byte[] { 0x44, 0x8F, command_code, (byte)(data_len - 1) }; //TODO  8F為 Slave id(7bit) + 讀(1)bit ex, 10001111,其中 1000111 為充電器地址
@@ -225,7 +281,7 @@ namespace EquipmentManagment.ChargeStation
                 List<byte> bytes = new List<byte>();
                 while (dateLenRev != data_len)
                 {
-                    Thread.Sleep(1);
+                    await Task.Delay(10);
                     int _ava = tcp_client.Client.Available;
                     byte[] buffer = new byte[_ava];
                     int _num = this.tcp_client.Client.Receive(buffer, _ava, System.Net.Sockets.SocketFlags.None);
@@ -241,6 +297,7 @@ namespace EquipmentManagment.ChargeStation
                 Thread.Sleep(100);
                 serial.Read(return_val, 0, return_val.Length);
             }
+            await Task.Delay(100);
             return return_val;
         }
         private async Task<(bool, string error_message)> SendWriteCommnadAsync(byte command_code, IEnumerable<byte> dataBytes)

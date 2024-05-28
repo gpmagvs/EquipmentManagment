@@ -167,7 +167,7 @@ namespace EquipmentManagment.ChargeStation
                     {
                         if (!_IsConnected)
                         {
-                            await Connect();
+                            bool _connected = await Connect();
                             continue;
                         }
                         ReadInputsUseTCPIP();
