@@ -57,7 +57,8 @@ namespace EquipmentManagment.ChargeStation
             public const int TC_L = 33;
             public const int TC_H = 34;
         }
-
+        public override int TcpSocketRecieveTimeout { get; set; } = 3000;
+        public override int TcpSocketSendTimeout { get; set; } = 1000;
         public override bool IsConnected
         {
             get => _IsConnected;
@@ -94,6 +95,9 @@ namespace EquipmentManagment.ChargeStation
             Airflow_Warning,
             Airflow_Fault,
             Temp_Sensor_Short,
+            /// <summary>
+            /// 未偵測到電池
+            /// </summary>
             Battery_Disconnect,
             CC_Timeout,
             CV_Timeout,
@@ -102,14 +106,38 @@ namespace EquipmentManagment.ChargeStation
             CML,
             Vin_UV_Fault,
             Output_OFF,
-            Busy,
+            BUSY,
             Other,
             Fans,
             Power_Good,
             MFR,
             Input,
             Iout_Pout,
-            Vout
+            VOUT,
+            /// <summary>
+            /// 溫度補償線路發生短路
+            /// </summary>
+            NTCER,
+            /// <summary>
+            /// 保留-無定義
+            /// </summary>
+            RESERVE,
+            /// <summary>
+            /// 定電流階段充電超時
+            /// </summary>
+            CCTOF,
+            /// <summary>
+            /// 浮充階段充電超時
+            /// </summary>
+            FFTOF,
+            /// <summary>
+            /// 定電壓階段充電超時
+            /// </summary>
+            CVTOF,
+            NONE_OF_THE_ABOVE,
+            TEMP,
+            OFF,
+            IOUT,
         }
         private bool WriteSettingFlag = false;
         private byte[] settingCmd = null;
@@ -297,7 +325,7 @@ namespace EquipmentManagment.ChargeStation
             CheckStatus(DataBuffer[Indexes.Status_2], 4, ERROR_CODE.Iout_OC_Fault);
             CheckStatus(DataBuffer[Indexes.Status_2], 5, ERROR_CODE.Vout_OV_Fault);
             CheckStatus(DataBuffer[Indexes.Status_2], 6, ERROR_CODE.Output_OFF);
-            CheckStatus(DataBuffer[Indexes.Status_2], 7, ERROR_CODE.Busy);
+            CheckStatus(DataBuffer[Indexes.Status_2], 7, ERROR_CODE.BUSY);
 
             CheckStatus(DataBuffer[Indexes.Status_3], 1, ERROR_CODE.Other);
             CheckStatus(DataBuffer[Indexes.Status_3], 1, ERROR_CODE.Fans);
@@ -305,7 +333,7 @@ namespace EquipmentManagment.ChargeStation
             CheckStatus(DataBuffer[Indexes.Status_3], 1, ERROR_CODE.MFR);
             CheckStatus(DataBuffer[Indexes.Status_3], 1, ERROR_CODE.Input);
             CheckStatus(DataBuffer[Indexes.Status_3], 1, ERROR_CODE.Iout_Pout);
-            CheckStatus(DataBuffer[Indexes.Status_3], 1, ERROR_CODE.Vout);
+            CheckStatus(DataBuffer[Indexes.Status_3], 1, ERROR_CODE.VOUT);
 
         }
 

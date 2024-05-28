@@ -38,7 +38,8 @@ namespace EquipmentManagment.Device
         //public CIMComponent.clsMC_EthIF McInterface { get; private set; } = new CIMComponent.clsMC_EthIF();
         private EquipmentManagment.PLC.clsMCE71Interface McInterface { get; set; } = new PLC.clsMCE71Interface();
 
-
+        public virtual int TcpSocketRecieveTimeout { get; set; } = 15000;
+        public virtual int TcpSocketSendTimeout { get; set; } = 15000;
         public clsEndPointOptions EndPointOptions { get; set; } = new clsEndPointOptions();
 
         /// <summary>
@@ -194,7 +195,8 @@ namespace EquipmentManagment.Device
             try
             {
                 tcp_client = new TcpClient();
-                tcp_client.ReceiveTimeout = 15000;
+                tcp_client.ReceiveTimeout = TcpSocketRecieveTimeout;
+                tcp_client.SendTimeout = TcpSocketSendTimeout;
                 await tcp_client.ConnectAsync(IP, Port);
                 return tcp_client.Connected;
             }

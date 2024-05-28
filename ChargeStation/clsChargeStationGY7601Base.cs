@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Bson;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -79,26 +80,8 @@ namespace EquipmentManagment.ChargeStation
 
             try
             {
-                //    if (!_OperationONOFF_Donw_flag)
-                //    {
-                //        //if (!await OperationONOFFCtrlAsync())
-                //        //{
-                //        //    throw new Exception("Operation ON/OFF Fail");
-                //        //}
-                //        if (!await SetChargeConfigAsync())
-                //        {
-                //            throw new Exception("Operation ON/OFF Fail");
-                //        }
-                //        _OperationONOFF_Donw_flag = true;
-                //    }
-
                 await ReadDataSemaphoreSlim.WaitAsync();
-                //ReadMFR_MODEL();
-                //ReadMFR_SERIALL();
-                await ReadSTATUS_WORD();
-                await ReadSTATUS_MFR_SPECIFIC();
-                //ReadFaultCodes();
-                //ReadSTATUS_BYTES();
+
                 Datas.Vin = await ReadVin();
                 Datas.Vout = Math.Round(await ReadVout(), 2);
                 Datas.Iout = await ReadIout();
@@ -109,15 +92,33 @@ namespace EquipmentManagment.ChargeStation
                 Datas.Fan_Speed_1 = await ReadFAN_Speed_1();
                 Datas.Fan_Speed_2 = await ReadFAN_Speed_2();
                 Datas.Temperature = await ReadTemperature();
-                // ReadCURVE_CONFIG();
-                await ReadChargeStatus();
+                //ReadCURVE_CONFIG();
+
+                #region Get Error Codes
+                List<ERROR_CODE> errorCodesFromChargeStatus = await ReadChargeStatus();
+                List<ERROR_CODE> errorCodesFromStatusWord = await ReadSTATUS_WORD();
+                Datas.ErrorCodes.Clear();
+                Datas.ErrorCodes.AddRange(errorCodesFromChargeStatus);
+                Datas.ErrorCodes.AddRange(errorCodesFromStatusWord);
+                #endregion
+                //await ReadSTATUS_MFR_SPECIFIC();
+                if (Datas.ErrorCodes.Any())
+                {
+                    Console.WriteLine($"Error Codes={string.Join(",", Datas.ErrorCodes)}");
+                }
+                Datas.Connected = true;
+                Datas.IsUsing = true;
                 Datas.Time = DateTime.Now;
-                //Console.WriteLine($"{JsonConvert.SerializeObject(Datas, Formatting.Indented)}");
+
                 return true;
             }
             catch (SocketException ex)
             {
-                throw new ChargeStationNoResponseException();
+                //觸發此例外表示充電器已斷電=>沒有在充電
+                Datas.ErrorCodes.Clear();
+                Datas.Connected = false;
+                Datas.IsUsing = false;
+                return false;
             }
             catch (Exception ex)
             {
@@ -147,10 +148,55 @@ namespace EquipmentManagment.ChargeStation
             var result = await SendReadCommnad((byte)COMMAND_CODES.STATUS_BYTES, 2);
             Console.WriteLine($"STATUS_BYTES = {string.Join(",", result)}");
         }
-        private async Task ReadSTATUS_WORD()
+        private async Task<List<ERROR_CODE>> ReadSTATUS_WORD()
         {
             var result = await SendReadCommnad((byte)COMMAND_CODES.STATUS_WORD, 2);
-            Console.WriteLine($"STATUS_WORD = {string.Join(",", result)}({Encoding.ASCII.GetString(result)})");
+            byte statusLowByte = result[0];
+            byte statusHighByte = result[1];
+
+            int[] statusLowByteBits = statusLowByte.ToBitArray();
+            int[] statusHighByteBits = statusHighByte.ToBitArray();
+            Console.WriteLine($"STATUS_LOW Byte = {string.Join(",", statusLowByteBits)}({statusLowByte})");
+            Console.WriteLine($"STATUS_HIGHT Byte = {string.Join(",", statusHighByteBits)}({statusHighByte})");
+
+            Dictionary<int, ERROR_CODE> errorCodesMapOf78H = new Dictionary<int, ERROR_CODE>()
+            {
+                {0, ERROR_CODE.NONE_OF_THE_ABOVE },
+                {1, ERROR_CODE.CML },
+                {2, ERROR_CODE.TEMP},
+                {3, ERROR_CODE.Vin_UV_Fault},
+                {4, ERROR_CODE.Iout_OC_Fault},
+                {5, ERROR_CODE.Vout_OV_Fault},
+                {6, ERROR_CODE.OFF},
+                {7, ERROR_CODE.BUSY},
+            };
+            Dictionary<int, ERROR_CODE> errorCodesMapOf79H = new Dictionary<int, ERROR_CODE>()
+            {
+                {0, ERROR_CODE.RESERVE },
+                {1, ERROR_CODE.Other },
+                {2, ERROR_CODE.RESERVE},
+                {3, ERROR_CODE.Power_Good},
+                {4, ERROR_CODE.MFR},
+                {5, ERROR_CODE.Input},
+                {6, ERROR_CODE.IOUT},
+                {7, ERROR_CODE.VOUT},
+            };
+
+            IEnumerable<int> errorOnBitsOf78H = statusLowByteBits.Where(val => val == 1)
+                                                                 .Select(val => statusLowByteBits.ToList().IndexOf(val));
+            List<ERROR_CODE> errorCodesFrom78H = errorCodesMapOf78H.Where(pair => errorOnBitsOf78H.Contains(pair.Key))
+                                         .Select(pair => pair.Value).ToList().ToList();
+
+            IEnumerable<int> errorOnBitsOf79H = statusHighByteBits.Where(val => val == 1)
+                                                                  .Select(val => statusHighByteBits.ToList().IndexOf(val));
+            List<ERROR_CODE> errorCodesFrom79H = errorCodesMapOf79H.Where(pair => errorOnBitsOf79H.Contains(pair.Key))
+                                         .Select(pair => pair.Value).ToList().ToList();
+
+            List<ERROR_CODE> outputErrorCodes = new List<ERROR_CODE>();
+            outputErrorCodes.AddRange(errorCodesFrom78H);
+            outputErrorCodes.AddRange(errorCodesFrom79H);
+            //Console.WriteLine($"STATUS_WORD = {string.Join(",", result)}({Encoding.ASCII.GetString(result)})");
+            return outputErrorCodes;
         }
 
         private async Task ReadMFR_MODEL()
@@ -182,12 +228,28 @@ namespace EquipmentManagment.ChargeStation
             else
                 return true;
         }
-        private async Task ReadChargeStatus()
+        private async Task<List<ERROR_CODE>> ReadChargeStatus()
         {
             var raw_data = await SendReadCommnad((byte)COMMAND_CODES.CHG_STATUS, 2);
             Console.WriteLine($"CHG_STATUS = {string.Join(",", raw_data)}");
-            //row_data[0]=> Low byte
-            //row_data[1]=> High byte
+            byte faultStatusByte = raw_data[1];
+            int[] faultStatusBits = faultStatusByte.ToBitArray();
+
+            Dictionary<int, ERROR_CODE> errorCodeMap = new Dictionary<int, ERROR_CODE>()
+            {
+                { 0, ERROR_CODE.EEPRROM_DATA_ERROR},
+                { 1, ERROR_CODE.RESERVE},
+                { 2, ERROR_CODE.NTCER},
+                { 3, ERROR_CODE.Battery_Disconnect},
+                { 4, ERROR_CODE.RESERVE},
+                { 5, ERROR_CODE.CCTOF},
+                { 6, ERROR_CODE.CVTOF},
+                { 7, ERROR_CODE.FFTOF},
+            };
+            IEnumerable<int> errorOnBits = faultStatusBits.Where(val => val == 1).Select(val => faultStatusBits.ToList().IndexOf(val));
+            List<ERROR_CODE> errorCodes = errorCodeMap.Where(pair => errorOnBits.Contains(pair.Key))
+                                         .Select(pair => pair.Value).ToList().ToList();
+            return errorCodes;
         }
         private async Task ReadCURVE_CONFIG()
         {
