@@ -139,6 +139,43 @@ namespace EquipmentManagment.ChargeStation
             OFF,
             IOUT,
         }
+        public enum CHARGE_MODE
+        {
+            /// <summary>
+            /// 定電壓充電模式
+            /// </summary>
+            CVM,
+            /// <summary>
+            /// 浮充模式
+            /// </summary>
+            FVM,
+            /// <summary>
+            /// 定電流充電模式
+            /// </summary>
+            CCM
+        }
+
+
+        public bool _IsFull = false;
+        public bool IsFull
+        {
+            get => _IsFull;
+            set
+            {
+                if (_IsFull != value)
+                {
+                    _IsFull = value;
+                    if (_IsFull)
+                    {
+                        OnBatteryChargeFull?.Invoke(this, this);
+                    }
+                }
+            }
+        }
+
+        public string UseVehicleName { get; private set; } = "";
+
+        public CHARGE_MODE currentChargeMode = CHARGE_MODE.CCM;
         private bool WriteSettingFlag = false;
         private byte[] settingCmd = null;
         private byte[] ReadChargerStatesCmd
@@ -174,7 +211,7 @@ namespace EquipmentManagment.ChargeStation
         }
 
         public static event EventHandler<clsChargeStation> OnBatteryNotConnected;
-
+        public static event EventHandler<clsChargeStation> OnBatteryChargeFull;
         public clsChargerData Datas = new clsChargerData();
         public clsChargeStation(clsEndPointOptions options) : base(options)
         {
@@ -468,8 +505,11 @@ namespace EquipmentManagment.ChargeStation
         public void SetUsableAGVList(string[] agvNames)
         {
             Datas.UsableAGVNames = (EndPointOptions as clsChargeStationOptions).usableAGVList = agvNames;
-
         }
 
+        public void UpdateUserVehicleName(string vehicleName)
+        {
+            Datas.UseVehicleName = UseVehicleName = vehicleName;
+        }
     }
 }

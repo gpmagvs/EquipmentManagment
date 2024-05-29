@@ -10,6 +10,10 @@ namespace EquipmentManagment.ChargeStation
         public bool Connected { get; set; } = false;
         public bool IsUsing { get; private set; } = false;
         public DateTime UpdateTime { get; set; }
+
+        public clsChargeStation.CHARGE_MODE CurrentChargeMode { get; set; } = clsChargeStation.CHARGE_MODE.CCM;
+
+        public bool IsBatteryFull { get; set; } = false;
         public double Vin { get; set; }
         public double Vout { get; set; }
         public double Iout { get; set; }
@@ -90,11 +94,13 @@ namespace EquipmentManagment.ChargeStation
         internal int CV_Setting { get; set; } = 288;
         internal int FV_Setting { get; set; } = 276;
         internal int TC_Setting { get; set; } = 60;
+        public string UseVehicleName { get; set; } = "";
 
         internal void SetAsNotUsing()
         {
-            Connected = IsUsing = false;
+            IsBatteryFull = Connected = IsUsing = false;
             Iout = Vin = Vout = Temperature = 0;
+            UseVehicleName = "";
             ErrorCodes.Clear();
         }
         internal void SetAsUsing()

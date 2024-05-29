@@ -93,13 +93,14 @@ namespace EquipmentManagment.ChargeStation
                 Datas.Fan_Speed_2 = await ReadFAN_Speed_2();
                 Datas.Temperature = await ReadTemperature();
                 //ReadCURVE_CONFIG();
+                (CHARGE_MODE currentMode, bool isFull, List<ERROR_CODE> errorCodes) = await ReadChargeStatus();
 
+                Datas.IsBatteryFull = IsFull = isFull;
+                Datas.CurrentChargeMode = currentChargeMode = currentMode;
                 #region Get Error Codes
-                List<ERROR_CODE> errorCodesFromChargeStatus = await ReadChargeStatus();
                 List<ERROR_CODE> errorCodesFromStatusWord = await ReadSTATUS_WORD();
                 List<ERROR_CODE> allErrorCodes = new List<ERROR_CODE>();
-
-                allErrorCodes.AddRange(errorCodesFromChargeStatus);
+                allErrorCodes.AddRange(errorCodes);
                 allErrorCodes.AddRange(errorCodesFromStatusWord);
                 UpdateErrorCodes(allErrorCodes);
                 #endregion
@@ -240,12 +241,17 @@ namespace EquipmentManagment.ChargeStation
             else
                 return true;
         }
-        private async Task<List<ERROR_CODE>> ReadChargeStatus()
+        private async Task<(CHARGE_MODE currentMode, bool isFull, List<ERROR_CODE> errorCodes)> ReadChargeStatus()
         {
             var raw_data = await SendReadCommnad((byte)COMMAND_CODES.CHG_STATUS, 2);
             Console.WriteLine($"CHG_STATUS = {string.Join(",", raw_data)}");
+            byte chargeStatusByte = raw_data[0];
             byte faultStatusByte = raw_data[1];
+            int[] chargeStatusBits = chargeStatusByte.ToBitArray();
             int[] faultStatusBits = faultStatusByte.ToBitArray();
+
+            CHARGE_MODE _chargeMode = _GetCurrentChargeMode(chargeStatusBits);
+            bool _isFull = chargeStatusBits[0] == 1;
 
             Dictionary<int, ERROR_CODE> errorCodeMap = new Dictionary<int, ERROR_CODE>()
             {
@@ -261,8 +267,26 @@ namespace EquipmentManagment.ChargeStation
             IEnumerable<int> errorOnBits = faultStatusBits.Where(val => val == 1).Select(val => faultStatusBits.ToList().IndexOf(val));
             List<ERROR_CODE> errorCodes = errorCodeMap.Where(pair => errorOnBits.Contains(pair.Key))
                                          .Select(pair => pair.Value).ToList().ToList();
-            return errorCodes;
+            return (_chargeMode, _isFull, errorCodes);
         }
+
+        private CHARGE_MODE _GetCurrentChargeMode(int[] chargeStatusBits)
+        {
+            int[] bits = new int[3] { chargeStatusBits[1], chargeStatusBits[2], chargeStatusBits[3] };
+            string bitsString = string.Join("", bits);
+            switch (bitsString)
+            {
+                case "100":
+                    return CHARGE_MODE.CCM;
+                case "010":
+                    return CHARGE_MODE.CVM;
+                case "001":
+                    return CHARGE_MODE.FVM;
+                default:
+                    return CHARGE_MODE.CCM;
+            }
+        }
+
         private async Task ReadCURVE_CONFIG()
         {
             var raw_data = await SendReadCommnad((byte)COMMAND_CODES.CURVE_CONFIG, 2);
