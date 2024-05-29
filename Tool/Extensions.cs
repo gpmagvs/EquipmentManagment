@@ -39,7 +39,7 @@ namespace EquipmentManagment.Tool
             Array.Copy(raw_data.ToArray(), extendedArray, raw_data.Count());
             // 轉換為十進制
             long decimalValue = BitConverter.ToInt64(extendedArray, 0);
-            return (float) Math.Pow(2, N) * decimalValue;
+            return (float)Math.Pow(2, N) * decimalValue;
         }
 
         public static byte[] DoubleToLinear16(this double value, int N)
@@ -113,6 +113,19 @@ namespace EquipmentManagment.Tool
                 return 0;
             }
 
+        }
+
+        public static int[] ToBitArray(this byte byteData)
+        {
+            int[] bitArray = new int[8];
+
+            for (int i = 0; i < 8; i++)
+            {
+                // 使用位操作來提取每個位元的值
+                bitArray[7 - i] = (byteData >> i) & 1;
+            }
+            bitArray = bitArray.Reverse().ToArray();
+            return bitArray;
         }
     }
 }

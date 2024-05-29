@@ -1,13 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO.Ports;
-using System.Linq;
-using System.Net;
 using System.Net.Sockets;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using EquipmentManagment.Connection;
 using EquipmentManagment.Device.Options;
@@ -16,7 +10,6 @@ using EquipmentManagment.MainEquipment;
 using EquipmentManagment.Manager;
 using EquipmentManagment.Tool;
 using Modbus.Device;
-using Newtonsoft.Json.Converters;
 
 namespace EquipmentManagment.Device
 {
@@ -45,7 +38,8 @@ namespace EquipmentManagment.Device
         //public CIMComponent.clsMC_EthIF McInterface { get; private set; } = new CIMComponent.clsMC_EthIF();
         private EquipmentManagment.PLC.clsMCE71Interface McInterface { get; set; } = new PLC.clsMCE71Interface();
 
-
+        public virtual int TcpSocketRecieveTimeout { get; set; } = 15000;
+        public virtual int TcpSocketSendTimeout { get; set; } = 15000;
         public clsEndPointOptions EndPointOptions { get; set; } = new clsEndPointOptions();
 
         /// <summary>
@@ -201,7 +195,8 @@ namespace EquipmentManagment.Device
             try
             {
                 tcp_client = new TcpClient();
-                tcp_client.ReceiveTimeout = 15000;
+                tcp_client.ReceiveTimeout = TcpSocketRecieveTimeout;
+                tcp_client.SendTimeout = TcpSocketSendTimeout;
                 await tcp_client.ConnectAsync(IP, Port);
                 return tcp_client.Connected;
             }

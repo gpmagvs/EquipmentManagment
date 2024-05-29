@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 
 namespace EquipmentManagment.ChargeStation
 {
     public class clsChargerData
     {
         public bool Connected { get; set; } = false;
+        public bool IsUsing { get; private set; } = false;
         public DateTime UpdateTime { get; set; }
         public double Vin { get; set; }
         public double Vout { get; set; }
@@ -71,6 +73,13 @@ namespace EquipmentManagment.ChargeStation
         private double _TC { get; set; } = 6;
         public DateTime Time { get; set; }
         public List<clsChargeStation.ERROR_CODE> ErrorCodes { get; set; } = new List<clsChargeStation.ERROR_CODE>();
+        public List<string> ErrorCodesDescrptions
+        {
+            get
+            {
+                return ErrorCodes.Select(x => x.ToString()).ToList();
+            }
+        }
         public double Temperature { get; internal set; }
         public int TagNumber { get; set; } = 0;
 
@@ -81,5 +90,16 @@ namespace EquipmentManagment.ChargeStation
         internal int CV_Setting { get; set; } = 288;
         internal int FV_Setting { get; set; } = 276;
         internal int TC_Setting { get; set; } = 60;
+
+        internal void SetAsNotUsing()
+        {
+            Connected = IsUsing = false;
+            Iout = Vin = Vout = Temperature = 0;
+            ErrorCodes.Clear();
+        }
+        internal void SetAsUsing()
+        {
+            IsUsing = Connected = true;
+        }
     }
 }
