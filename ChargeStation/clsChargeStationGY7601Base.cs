@@ -97,9 +97,11 @@ namespace EquipmentManagment.ChargeStation
                 #region Get Error Codes
                 List<ERROR_CODE> errorCodesFromChargeStatus = await ReadChargeStatus();
                 List<ERROR_CODE> errorCodesFromStatusWord = await ReadSTATUS_WORD();
-                Datas.ErrorCodes.Clear();
-                Datas.ErrorCodes.AddRange(errorCodesFromChargeStatus);
-                Datas.ErrorCodes.AddRange(errorCodesFromStatusWord);
+                List<ERROR_CODE> allErrorCodes = new List<ERROR_CODE>();
+
+                allErrorCodes.AddRange(errorCodesFromChargeStatus);
+                allErrorCodes.AddRange(errorCodesFromStatusWord);
+                UpdateErrorCodes(allErrorCodes);
                 #endregion
                 //await ReadSTATUS_MFR_SPECIFIC();
                 if (Datas.ErrorCodes.Any())
@@ -127,6 +129,18 @@ namespace EquipmentManagment.ChargeStation
             }
 
 
+        }
+
+        private void UpdateErrorCodes(List<ERROR_CODE> allErrorCodes)
+        {
+            bool batteryNotConnectErrrorExist = allErrorCodes.Any(error => error == ERROR_CODE.Battery_Disconnect);
+            bool previousBatteryNotConnectErrorExist = Datas.ErrorCodes.Any(error => error == ERROR_CODE.Battery_Disconnect);
+            if (!previousBatteryNotConnectErrorExist && batteryNotConnectErrrorExist)
+            {
+                InvokeBatteryNotConnectEvent();
+            }
+            Datas.ErrorCodes.Clear();
+            Datas.ErrorCodes = allErrorCodes;
         }
 
         private async Task ReadFaultCodes()

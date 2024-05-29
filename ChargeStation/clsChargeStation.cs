@@ -172,6 +172,9 @@ namespace EquipmentManagment.ChargeStation
                 }
             }
         }
+
+        public static event EventHandler<clsChargeStation> OnBatteryNotConnected;
+
         public clsChargerData Datas = new clsChargerData();
         public clsChargeStation(clsEndPointOptions options) : base(options)
         {
@@ -180,7 +183,10 @@ namespace EquipmentManagment.ChargeStation
         }
         public override PortStatusAbstract PortStatus { get; set; } = new clsPortOfRack();
         public override bool IsMaintaining { get => throw new NotImplementedException(); }
-
+        protected void InvokeBatteryNotConnectEvent()
+        {
+            OnBatteryNotConnected?.Invoke(this, this);
+        }
         public override async Task StartSyncData()
         {
 
