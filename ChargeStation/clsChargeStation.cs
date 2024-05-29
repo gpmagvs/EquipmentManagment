@@ -181,8 +181,6 @@ namespace EquipmentManagment.ChargeStation
         public override PortStatusAbstract PortStatus { get; set; } = new clsPortOfRack();
         public override bool IsMaintaining { get => throw new NotImplementedException(); }
 
-        ManualResetEvent readStop = new ManualResetEvent(true);
-
         public override async Task StartSyncData()
         {
 
