@@ -106,8 +106,7 @@ namespace EquipmentManagment.ChargeStation
                 {
                     Console.WriteLine($"Error Codes={string.Join(",", Datas.ErrorCodes)}");
                 }
-                Datas.Connected = true;
-                Datas.IsUsing = true;
+                Datas.SetAsUsing();
                 Datas.Time = DateTime.Now;
 
                 return true;
@@ -115,9 +114,8 @@ namespace EquipmentManagment.ChargeStation
             catch (SocketException ex)
             {
                 //觸發此例外表示充電器已斷電=>沒有在充電
-                Datas.ErrorCodes.Clear();
-                Datas.Connected = false;
-                Datas.IsUsing = false;
+
+                Datas.SetAsNotUsing();
                 return false;
             }
             catch (Exception ex)

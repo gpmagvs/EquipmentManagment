@@ -8,7 +8,7 @@ namespace EquipmentManagment.ChargeStation
     public class clsChargerData
     {
         public bool Connected { get; set; } = false;
-        public bool IsUsing { get; set; } = false;
+        public bool IsUsing { get; private set; } = false;
         public DateTime UpdateTime { get; set; }
         public double Vin { get; set; }
         public double Vout { get; set; }
@@ -90,5 +90,16 @@ namespace EquipmentManagment.ChargeStation
         internal int CV_Setting { get; set; } = 288;
         internal int FV_Setting { get; set; } = 276;
         internal int TC_Setting { get; set; } = 60;
+
+        internal void SetAsNotUsing()
+        {
+            Connected = IsUsing = false;
+            Iout = Vin = Vout = Temperature = 0;
+            ErrorCodes.Clear();
+        }
+        internal void SetAsUsing()
+        {
+            IsUsing = Connected = true;
+        }
     }
 }
