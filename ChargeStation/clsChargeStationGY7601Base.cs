@@ -109,6 +109,7 @@ namespace EquipmentManagment.ChargeStation
                 {
                     Console.WriteLine($"Error Codes={string.Join(",", Datas.ErrorCodes)}");
                 }
+                Datas.UseVehicleName = UseVehicleName;
                 Datas.SetAsUsing();
                 Datas.Time = DateTime.Now;
 
