@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -65,6 +66,7 @@ namespace EquipmentManagment.WIP
         }
         public int Layer => Properties.Row;
 
+        [NonSerialized]
         public ConcurrentQueue<Dictionary<SENSOR_LOCATION, bool>> QueExistSensorStates = new ConcurrentQueue<Dictionary<SENSOR_LOCATION, bool>>();
 
         public Dictionary<SENSOR_LOCATION, SENSOR_STATUS> ExistSensorStates = new Dictionary<SENSOR_LOCATION, SENSOR_STATUS>()
@@ -97,7 +99,7 @@ namespace EquipmentManagment.WIP
             }
         }
         public clsPortOfRack()
-        {}
+        { }
         public clsPortOfRack(clsRackPortProperty option, clsRack parentRack)
         {
             this.Properties = option;
@@ -209,25 +211,60 @@ namespace EquipmentManagment.WIP
             clsRackPortProperty.clsPortIOLocation ioLocation = Properties.IOLocation;
             try
             {
-                current_ExistSensorStates[SENSOR_LOCATION.TRAY_1] = inputBuffer[ioLocation.Tray_Sensor1];
-                current_ExistSensorStates[SENSOR_LOCATION.TRAY_2] = inputBuffer[ioLocation.Tray_Sensor2];
-                current_ExistSensorStates[SENSOR_LOCATION.RACK_1] = inputBuffer[ioLocation.Box_Sensor1];
-                current_ExistSensorStates[SENSOR_LOCATION.RACK_2] = inputBuffer[ioLocation.Box_Sensor2];
+                HandleSensorStatus(inputBuffer, SENSOR_LOCATION.TRAY_1, ioLocation.Tray_Sensor1);
+                HandleSensorStatus(inputBuffer, SENSOR_LOCATION.TRAY_2, ioLocation.Tray_Sensor2);
+                HandleSensorStatus(inputBuffer, SENSOR_LOCATION.RACK_1, ioLocation.Box_Sensor1);
+                HandleSensorStatus(inputBuffer, SENSOR_LOCATION.RACK_2, ioLocation.Box_Sensor2);
 
-                if (_previousSensorStates.Values.Where(s => !s).Count() != current_ExistSensorStates.Values.Where(s => !s).Count())
-                { }
-                if (Properties.Row == 1 && Properties.Column == 2)
-                {
-
-                }
-                _previousSensorStates = current_ExistSensorStates;
-                QueExistSensorStates.Enqueue(current_ExistSensorStates);
+                //_previousSensorStates = current_ExistSensorStates;
+                //QueExistSensorStates.Enqueue(current_ExistSensorStates);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"clsWIPPort -> UpdateIO From inputs buffer Fail: {ex.Message}");
             }
-            CheckSensorClick2();
+
+            async void HandleSensorStatus(bool[] _inputBuffer, SENSOR_LOCATION _sensorLocation, ushort _ioLocation)
+            {
+                bool currentSensorStatus = _inputBuffer[_ioLocation];
+
+                if (current_ExistSensorStates[_sensorLocation] != currentSensorStatus)
+                {
+                    CancellationTokenSource _cts = _StatusDelayCancellationTks[_sensorLocation];
+                    _cts.Cancel();
+                    await Task.Delay(100);
+                    _cts = new CancellationTokenSource();
+                    SensorStatusChangedDelayAsync(_sensorLocation, currentSensorStatus);
+                    current_ExistSensorStates[_sensorLocation] = currentSensorStatus;
+                }
+            }
+            // CheckSensorClick2();
+        }
+        Dictionary<SENSOR_LOCATION, CancellationTokenSource> _StatusDelayCancellationTks = new Dictionary<SENSOR_LOCATION, CancellationTokenSource>()
+        {
+            { SENSOR_LOCATION.TRAY_1  ,  new CancellationTokenSource()},
+            { SENSOR_LOCATION.TRAY_2  ,  new CancellationTokenSource()},
+            { SENSOR_LOCATION.RACK_1  ,  new CancellationTokenSource()},
+            { SENSOR_LOCATION.RACK_2  ,  new CancellationTokenSource()},
+        };
+        private async Task SensorStatusChangedDelayAsync(SENSOR_LOCATION location, bool currentSatus)
+        {
+            await Task.Delay(100);
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            CancellationTokenSource _cts = _StatusDelayCancellationTks[location];
+
+            while (stopwatch.Elapsed.Milliseconds < 500)
+            {
+                if (_cts.IsCancellationRequested)
+                {
+                    stopwatch.Stop();
+                    ExistSensorStates[location] = SENSOR_STATUS.FLASH;
+                    break;
+                }
+                await Task.Delay(1);
+            }
+            ExistSensorStates[location] = currentSatus ? SENSOR_STATUS.OFF : SENSOR_STATUS.ON;
+            Console.WriteLine($"{location} chagne to {ExistSensorStates[location]}");
         }
     }
 }
