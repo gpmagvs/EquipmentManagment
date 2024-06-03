@@ -170,8 +170,8 @@ namespace EquipmentManagment.ChargeStation
 
             int[] statusLowByteBits = statusLowByte.ToBitArray();
             int[] statusHighByteBits = statusHighByte.ToBitArray();
-            Console.WriteLine($"STATUS_LOW Byte = {string.Join(",", statusLowByteBits)}({statusLowByte})");
-            Console.WriteLine($"STATUS_HIGHT Byte = {string.Join(",", statusHighByteBits)}({statusHighByte})");
+            //Console.WriteLine($"STATUS_LOW Byte = {string.Join(",", statusLowByteBits)}({statusLowByte})");
+           // Console.WriteLine($"STATUS_HIGHT Byte = {string.Join(",", statusHighByteBits)}({statusHighByte})");
 
             Dictionary<int, ERROR_CODE> errorCodesMapOf78H = new Dictionary<int, ERROR_CODE>()
             {
@@ -245,7 +245,7 @@ namespace EquipmentManagment.ChargeStation
         private async Task<(CHARGE_MODE currentMode, bool isFull, List<ERROR_CODE> errorCodes)> ReadChargeStatus()
         {
             var raw_data = await SendReadCommnad((byte)COMMAND_CODES.CHG_STATUS, 2);
-            Console.WriteLine($"CHG_STATUS = {string.Join(",", raw_data)}");
+            //Console.WriteLine($"CHG_STATUS = {string.Join(",", raw_data)}");
             byte chargeStatusByte = raw_data[0];
             byte faultStatusByte = raw_data[1];
             int[] chargeStatusBits = chargeStatusByte.ToBitArray();

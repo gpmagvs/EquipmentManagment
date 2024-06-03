@@ -69,6 +69,7 @@ namespace EquipmentManagment.WIP
         public int Layer => Properties.Row;
 
         public static event EventHandler<(clsRack rack, clsPortOfRack port)> OnRackPortSensorFlash;
+        public static event EventHandler<(clsRack rack, clsPortOfRack port)> OnRackPortSensorStatusChanged;
 
         [NonSerialized]
         public ConcurrentQueue<Dictionary<SENSOR_LOCATION, bool>> QueExistSensorStates = new ConcurrentQueue<Dictionary<SENSOR_LOCATION, bool>>();
@@ -115,7 +116,7 @@ namespace EquipmentManagment.WIP
 
             if (sensor1 == SENSOR_STATUS.ON && sensor2 == SENSOR_STATUS.ON)
                 return CARGO_PLACEMENT_STATUS.PLACED_NORMAL;
-            else if ((sensor1 == SENSOR_STATUS.ON && sensor2 == SENSOR_STATUS.OFF) || (sensor1 == SENSOR_STATUS.ON && sensor2 == SENSOR_STATUS.OFF))
+            else if ((sensor1 == SENSOR_STATUS.ON && sensor2 == SENSOR_STATUS.OFF) || (sensor2 == SENSOR_STATUS.ON && sensor1 == SENSOR_STATUS.OFF))
                 return CARGO_PLACEMENT_STATUS.PLACED_BUT_ASYMMETRIC;
             else if (sensor1 == SENSOR_STATUS.FLASH || sensor2 == SENSOR_STATUS.FLASH)
                 return CARGO_PLACEMENT_STATUS.NO_CARGO_BUT_CLICK;
@@ -262,7 +263,7 @@ namespace EquipmentManagment.WIP
             Stopwatch stopwatch = Stopwatch.StartNew();
             _StatusDelayCancellationTks[location] = new CancellationTokenSource();
 
-            while (stopwatch.ElapsedMilliseconds < 800)
+            while (stopwatch.ElapsedMilliseconds < 1000)
             {
                 if (_StatusDelayCancellationTks[location].IsCancellationRequested)
                 {
@@ -274,13 +275,13 @@ namespace EquipmentManagment.WIP
                         ExistSensorStates[location] = SENSOR_STATUS.FLASH;
                         OnRackPortSensorFlash?.Invoke(this, (ParentRack, this));
                     }
-
                     Console.WriteLine($"{this.ParentRack.EQName}-Port [{this.Properties.ID}]-{location} chagne to {ExistSensorStates[location]}");
                     return;
                 }
                 await Task.Delay(1);
             }
             ExistSensorStates[location] = currentSatus ? SENSOR_STATUS.OFF : SENSOR_STATUS.ON;
+            OnRackPortSensorStatusChanged?.Invoke(this, (ParentRack, this));
             Console.WriteLine($"{this.ParentRack.EQName}-Port [{this.Properties.ID}]-{location} chagne to {ExistSensorStates[location]}");
         }
     }
