@@ -43,9 +43,9 @@ namespace EquipmentManagment.WIP
 
         public enum SENSOR_STATUS
         {
-            OFF=0,
-            ON=1, 
-            FLASH=2
+            OFF = 0,
+            ON = 1,
+            FLASH = 2
         }
 
         public clsRackPortProperty Properties = new clsRackPortProperty();
@@ -68,6 +68,8 @@ namespace EquipmentManagment.WIP
         }
         public int Layer => Properties.Row;
 
+        public static event EventHandler<(clsRack rack, clsPortOfRack port)> OnRackPortSensorFlash;
+
         [NonSerialized]
         public ConcurrentQueue<Dictionary<SENSOR_LOCATION, bool>> QueExistSensorStates = new ConcurrentQueue<Dictionary<SENSOR_LOCATION, bool>>();
 
@@ -82,7 +84,7 @@ namespace EquipmentManagment.WIP
         {
             get
             {
-                return ExistSensorStates.Values.Any(state => state == SENSOR_STATUS.ON|| state == SENSOR_STATUS.FLASH);
+                return ExistSensorStates.Values.Any(state => state == SENSOR_STATUS.ON || state == SENSOR_STATUS.FLASH);
             }
         }
         public CARGO_PLACEMENT_STATUS TrayPlacementState
@@ -265,7 +267,14 @@ namespace EquipmentManagment.WIP
                 if (_StatusDelayCancellationTks[location].IsCancellationRequested)
                 {
                     stopwatch.Stop();
-                    ExistSensorStates[location] = SENSOR_STATUS.FLASH;
+                    var previosState = ExistSensorStates[location];
+
+                    if (previosState != SENSOR_STATUS.FLASH)
+                    {
+                        ExistSensorStates[location] = SENSOR_STATUS.FLASH;
+                        OnRackPortSensorFlash?.Invoke(this, (ParentRack, this));
+                    }
+
                     Console.WriteLine($"{this.ParentRack.EQName}-Port [{this.Properties.ID}]-{location} chagne to {ExistSensorStates[location]}");
                     return;
                 }
