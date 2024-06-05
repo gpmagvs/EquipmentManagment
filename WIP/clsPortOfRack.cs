@@ -48,7 +48,7 @@ namespace EquipmentManagment.WIP
             FLASH = 2
         }
 
-        public clsRackPortProperty Properties = new clsRackPortProperty();
+        public clsRackPortProperty Properties { get; set; } = new clsRackPortProperty();
 
         [NonSerialized]
         public clsRack ParentRack;
@@ -74,7 +74,7 @@ namespace EquipmentManagment.WIP
         [NonSerialized]
         public ConcurrentQueue<Dictionary<SENSOR_LOCATION, bool>> QueExistSensorStates = new ConcurrentQueue<Dictionary<SENSOR_LOCATION, bool>>();
 
-        public Dictionary<SENSOR_LOCATION, SENSOR_STATUS> ExistSensorStates = new Dictionary<SENSOR_LOCATION, SENSOR_STATUS>()
+        public Dictionary<SENSOR_LOCATION, SENSOR_STATUS> ExistSensorStates { get; set; } = new Dictionary<SENSOR_LOCATION, SENSOR_STATUS>()
         {
             { SENSOR_LOCATION.TRAY_1 ,SENSOR_STATUS.OFF },
             { SENSOR_LOCATION.TRAY_2 ,SENSOR_STATUS.OFF },
