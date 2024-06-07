@@ -25,7 +25,6 @@ namespace EquipmentManagment.Device
         public static event EventHandler<EndPointDeviceAbstract> OnPartsEndReplacing;
         public static event EventHandler<EndPointDeviceAbstract> OnDeviceMaintainStart;
         public static event EventHandler<EndPointDeviceAbstract> OnDeviceMaintainFinish;
-
         public EndPointDeviceAbstract(clsEndPointOptions options)
         {
             EndPointOptions = options;

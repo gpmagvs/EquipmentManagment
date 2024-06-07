@@ -22,6 +22,8 @@ namespace EquipmentManagment.WIP
         public clsPortOfRack[] PortsStatus { get; set; } = new clsPortOfRack[0];
 
         public override PortStatusAbstract PortStatus { get; set; }
+
+
         public clsRack(clsRackOptions options) : base(options)
         {
             RackOption = options;

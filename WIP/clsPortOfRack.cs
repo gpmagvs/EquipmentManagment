@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EquipmentManagment.Device;
 using EquipmentManagment.Device.Options;
+using Newtonsoft.Json;
 
 namespace EquipmentManagment.WIP
 {
@@ -50,8 +51,11 @@ namespace EquipmentManagment.WIP
 
         public clsRackPortProperty Properties { get; set; } = new clsRackPortProperty();
 
+        [JsonIgnore]
         [NonSerialized]
-        public clsRack ParentRack;
+        private clsRack ParentRack;
+
+        public clsRack GetParentRack() => ParentRack;
 
         public int[] TagNumbers
         {
@@ -258,12 +262,14 @@ namespace EquipmentManagment.WIP
             { SENSOR_LOCATION.RACK_1  ,  null},
             { SENSOR_LOCATION.RACK_2  ,  null},
         };
+
+        public DateTime timestamp { get; set; } = DateTime.MinValue;
+
         private async Task SensorStatusChangedDelayAsync(SENSOR_LOCATION location, bool currentSatus)
         {
             Stopwatch stopwatch = Stopwatch.StartNew();
             _StatusDelayCancellationTks[location] = new CancellationTokenSource();
-
-            while (stopwatch.ElapsedMilliseconds < 1000)
+            while (stopwatch.ElapsedMilliseconds < 700)
             {
                 if (_StatusDelayCancellationTks[location].IsCancellationRequested)
                 {
@@ -283,6 +289,7 @@ namespace EquipmentManagment.WIP
             ExistSensorStates[location] = currentSatus ? SENSOR_STATUS.OFF : SENSOR_STATUS.ON;
             OnRackPortSensorStatusChanged?.Invoke(this, (ParentRack, this));
             Console.WriteLine($"{this.ParentRack.EQName}-Port [{this.Properties.ID}]-{location} chagne to {ExistSensorStates[location]}");
+            timestamp = DateTime.Now;
         }
     }
 }
