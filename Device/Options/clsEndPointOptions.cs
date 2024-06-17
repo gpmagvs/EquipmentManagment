@@ -53,7 +53,7 @@ namespace EquipmentManagment.Device.Options
         public string DeviceID { get; set; } = "SYS2341G23";
         public int TagID { get; set; }
 
-        public EQ_TYPE EqType { get; set; }
+        public virtual EQ_TYPE EqType { get; set; } = EQ_TYPE.EQ;
 
         public EQLDULD_TYPE LdULdType { get; set; } = EQLDULD_TYPE.LDULD;
         public EQ_PICKUP_CARGO_MODE LoadUnloadCargoMode { get; set; } = EQ_PICKUP_CARGO_MODE.AGV_PICK_AND_PLACE;

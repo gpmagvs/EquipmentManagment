@@ -7,6 +7,7 @@ namespace EquipmentManagment.Device.Options
     {
         public int Columns { get; set; } = 3;
         public int Rows { get; set; } = 3;
+        public override EQ_TYPE EqType { get; set; } = EQ_TYPE.STK;
         public clsLayoutInfo LayoutInfo { get; set; } = new clsLayoutInfo();
 
         public List<clsRackPortProperty> PortsOptions { get; set; } = new List<clsRackPortProperty>();
