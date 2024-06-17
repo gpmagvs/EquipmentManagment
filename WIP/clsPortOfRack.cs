@@ -17,6 +17,19 @@ namespace EquipmentManagment.WIP
     /// </summary>
     public class clsPortOfRack : PortStatusAbstract
     {
+        public enum PRUDUCTION_QUALITY
+        {
+            OK,
+            NG,
+        }
+
+        public enum CARGO_TYPE
+        {
+            ONLY_TRAY,
+            ONLY_RACK,
+            MIXED
+        }
+
         public enum CARGO_PLACEMENT_STATUS
         {
             /// <summary>
