@@ -220,6 +220,7 @@ namespace EquipmentManagment.Manager
                     TagID = 1,
                     Columns = 3,
                     Rows = 3,
+                    ColumnTagMap = new Dictionary<int, int[]>() { { 0, new int[] { -1 } } }
                 };
                 for (int row = 0; row < _defaultRackOption.Rows; row++)
                 {
@@ -239,7 +240,7 @@ namespace EquipmentManagment.Manager
             else
             {
                 string json = _LoadConfigJson(wIPConfigPath);
-                RacksOptions = JsonConvert.DeserializeObject<Dictionary<string, clsRackOptions>>(json);
+                    RacksOptions = JsonConvert.DeserializeObject<Dictionary<string, clsRackOptions>>(json);
                 foreach (var rackOpt in RacksOptions.Values)
                 {
                     if (rackOpt.ColumnTagMap.Count == 0)
