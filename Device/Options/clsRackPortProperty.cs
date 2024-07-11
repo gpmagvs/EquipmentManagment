@@ -27,6 +27,8 @@ namespace EquipmentManagment.Device.Options
         public clsPortIOLocation IOLocation { get; set; } = new clsPortIOLocation();
         public clsPortUseToEQProperty EQInstall { get; set; } = new clsPortUseToEQProperty();
 
+        public int StoragePriority {  get; set; } = 0;
+
         public class clsPortUseToEQProperty
         {
             /// <summary>
