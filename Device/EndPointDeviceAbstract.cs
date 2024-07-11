@@ -114,7 +114,7 @@ namespace EquipmentManagment.Device
                 {
                     _IsPartsReplacing = value;
                     if (_IsPartsReplacing)
-                        OnPartsEndReplacing?.Invoke(this, this);
+                        OnPartsStartReplacing?.Invoke(this, this);
                     else
                         OnPartsEndReplacing?.Invoke(this, this);
                 }
