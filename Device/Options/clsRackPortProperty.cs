@@ -24,6 +24,8 @@ namespace EquipmentManagment.Device.Options
         /// 該PORT可以存放的貨物類型(Tray、Rack、 Mixed (Tray/Rack都可以))
         /// </summary>
         public CARGO_TYPE CargoTypeStore { get; set; } = CARGO_TYPE.MIXED;
+
+        public Port_Enable PortEnable = Port_Enable.Enable;
         public clsPortIOLocation IOLocation { get; set; } = new clsPortIOLocation();
         public clsPortUseToEQProperty EQInstall { get; set; } = new clsPortUseToEQProperty();
 

@@ -30,6 +30,12 @@ namespace EquipmentManagment.WIP
             MIXED
         }
 
+        public enum Port_Enable
+        {
+            Enable,
+            Disable,
+        }
+
         public enum CARGO_PLACEMENT_STATUS
         {
             /// <summary>
