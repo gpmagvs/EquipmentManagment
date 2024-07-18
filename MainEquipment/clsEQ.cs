@@ -424,6 +424,29 @@ namespace EquipmentManagment.MainEquipment
             }
         }
 
+        public override bool IsMaintaining
+        {
+            get => base.IsMaintaining;
+            set
+            {
+                if (base.IsMaintaining != value)
+                {
+                    OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "IsMaintaining", value));
+                }
+                base.IsMaintaining = value;
+            }
+        }
+
+        public override bool IsPartsReplacing
+        {
+            get => base.IsPartsReplacing;
+            set
+            {
+                if (base.IsPartsReplacing != value)
+                    OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "IsPartsReplacing", value));
+                base.IsPartsReplacing = value;
+            }
+        }
         #endregion
 
         #region AGVS->EQ
