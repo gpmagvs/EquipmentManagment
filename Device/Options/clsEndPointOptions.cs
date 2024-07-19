@@ -84,6 +84,10 @@ namespace EquipmentManagment.Device.Options
         internal bool IsProdution_EQ => EqType == EQ_TYPE.EQ || EqType == EQ_TYPE.EQ_OVEN;
 
         public List<int> AcceptTransferTag { get; set; } = new List<int>();
+
+        public bool IsNeedStorageMonitor { get; set; } = false; // True:會被納入水位監控, False:不會
+
+        public int StorageMonitorPriority { get; set; } = 0; // 水位監控順位等級，數字愈大愈先被檢查
     }
 
     public class clsEQIOLocation

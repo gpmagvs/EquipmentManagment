@@ -32,6 +32,14 @@ namespace EquipmentManagment.Manager
                     WIP.ModifyPortCargoID(portID,newCargoID);
                 }
             }
+
+            public static void RemoveCargoID(string wIPID, string portID)
+            {
+                if (TryGetWIPByWIPName(wIPID, out var WIP))
+                {
+                    WIP.ModifyPortCargoID(portID, "");
+                }
+            }
         }
     }
 }
