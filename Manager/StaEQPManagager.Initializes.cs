@@ -135,6 +135,19 @@ namespace EquipmentManagment.Manager
                 option.ConnOptions.IP = "127.0.0.1";
                 option.ConnOptions.Port = rack_emu_port;
                 rack_emu_port += 1;
+
+                ushort port_io = default(ushort);
+                foreach (clsRackPortProperty port in option.PortsOptions)
+                {
+                    port.IOLocation.Tray_Sensor1 = port_io;
+                    port_io++;
+                    port.IOLocation.Tray_Sensor2 = port_io;
+                    port_io++;
+                    port.IOLocation.Box_Sensor1 = port_io;
+                    port_io++;
+                    port.IOLocation.Box_Sensor2 = port_io;
+                    port_io++;
+                }
             }
 
             StaEQPEmulatorsManagager.InitEmu(
@@ -240,7 +253,7 @@ namespace EquipmentManagment.Manager
             else
             {
                 string json = _LoadConfigJson(wIPConfigPath);
-                    RacksOptions = JsonConvert.DeserializeObject<Dictionary<string, clsRackOptions>>(json);
+                RacksOptions = JsonConvert.DeserializeObject<Dictionary<string, clsRackOptions>>(json);
                 foreach (var rackOpt in RacksOptions.Values)
                 {
                     if (rackOpt.ColumnTagMap.Count == 0)
