@@ -412,7 +412,7 @@ namespace EquipmentManagment.Device
                 throw ex;
             }
         }
-        public void WriteInputsUseModbusTCP(bool[] outputs)
+        public void WriteInputsUseModbusTCP(ushort start, bool[] outputs)
         {
             try
             {
@@ -420,7 +420,7 @@ namespace EquipmentManagment.Device
                 byte byteSlaveId = EndPointOptions.ConnOptions.byteSlaveId;
                 var IO_Module_Brand = EndPointOptions.ConnOptions.IO_Value_Type;
                 if (IO_Module_Brand == IO_VALUE_TYPE.INPUT)
-                    master?.WriteMultipleCoils(byteSlaveId, (ushort)(IsPLCAddress ? 0 : 1), outputs);
+                    master?.WriteMultipleCoils(byteSlaveId, (ushort)((IsPLCAddress ? 0 : 1) + start), outputs);
 
                 if (IO_Module_Brand == IO_VALUE_TYPE.INPUT_REGISTER)
                 {

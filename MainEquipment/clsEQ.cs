@@ -622,6 +622,7 @@ namespace EquipmentManagment.MainEquipment
             try
             {
                 var io_location = EndPointOptions.IOLocation;
+                var outputStart = EndPointOptions.ConnOptions.Output_Start_Address;
                 bool[] outputs = new bool[64];
 
                 outputs[io_location.To_EQ_Up] = _To_EQ_UP;
@@ -635,7 +636,7 @@ namespace EquipmentManagment.MainEquipment
                 outputs[io_location.HS_AGV_READY] = _HS_AGV_READY;
                 outputs[io_location.To_EQ_Empty_CST] = _To_EQ_Empty_CST;
                 outputs[io_location.To_EQ_Full_CST] = _To_EQ_Full_CST;
-                WriteOutputs(0, outputs);
+                WriteOutputs(outputStart, outputs);
             }
             catch (Exception ex)
             {
@@ -651,7 +652,7 @@ namespace EquipmentManagment.MainEquipment
             switch (this.EndPointOptions.ConnOptions.ConnMethod)
             {
                 case Connection.CONN_METHODS.MODBUS_TCP:
-                    WriteInputsUseModbusTCP(value);
+                    WriteInputsUseModbusTCP(start, value);
                     break;
                 case Connection.CONN_METHODS.MODBUS_RTU:
                     break;
