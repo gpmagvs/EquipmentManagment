@@ -72,6 +72,7 @@ namespace EquipmentManagment.MainEquipment
         public clsStatusIOModbusGateway AGVModbusGateway { get; set; } = new clsStatusIOModbusGateway();
         public static event EventHandler<clsEQ> OnEqUnloadRequesting;
         public static event EventHandler<IOChangedEventArgs> OnIOStateChanged;
+        public static event EventHandler OnPortExistChangeed;
         public bool Load_Request
         {
             get => _Load_Reuest;
@@ -107,6 +108,7 @@ namespace EquipmentManagment.MainEquipment
                 {
                     _Port_Exist = value;
                     OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "Port_Exist", value));
+                    OnPortExistChangeed?.Invoke(this, null);
                 }
             }
         }
