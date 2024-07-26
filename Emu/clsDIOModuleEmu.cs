@@ -38,7 +38,7 @@ namespace EquipmentManagment.Emu
             slave.DataStore.InputDiscretes[5] = true;
             slave.DataStore.InputDiscretes[6] = true;
             slave.DataStore.InputDiscretes[7] = false;
-            slave.DataStore.InputDiscretes[8] = true;
+            slave.DataStore.InputDiscretes[8] = false;
             slave.DataStore.InputDiscretes[9] = false; //LREQ
             slave.DataStore.InputDiscretes[10] = false;//UREQ
             slave.DataStore.InputDiscretes[11] = false;//READY
@@ -167,5 +167,23 @@ namespace EquipmentManagment.Emu
             return true;
         }
 
+        public void SetUpPose()
+        {
+            ModifyInput(options.IOLocation.Up_Pose, true);
+            ModifyInput(options.IOLocation.Down_Pose, false);
+
+        }
+
+        public void SetDownPose()
+        {
+            ModifyInput(options.IOLocation.Up_Pose, false);
+            ModifyInput(options.IOLocation.Down_Pose, true);
+        }
+
+        public void SetUnknownPose()
+        {
+            ModifyInput(options.IOLocation.Up_Pose, false);
+            ModifyInput(options.IOLocation.Down_Pose, false);
+        }
     }
 }

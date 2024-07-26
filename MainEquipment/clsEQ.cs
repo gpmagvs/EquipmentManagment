@@ -718,5 +718,16 @@ namespace EquipmentManagment.MainEquipment
             dto.IsPartsReplacing = IsPartsReplacing;
             return dto;
         }
+
+        public string GetStatusDescription()
+        {
+            string desc = $"Unload_Request  ={Unload_Request}\r\n" +
+                          $"Load_Request    ={Load_Request}\r\n" +
+                          $"Port Exist      ={Port_Exist}\r\n" +
+                          $"Eqp_Status_Down ={Eqp_Status_Down}\r\n" +
+                          $"Up_Pose         ={Up_Pose}\r\n" +
+                          $"Down_Pose       ={Down_Pose}";
+            return desc;
+        }
     }
 }
