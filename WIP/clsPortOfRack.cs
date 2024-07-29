@@ -191,6 +191,18 @@ namespace EquipmentManagment.WIP
             { SENSOR_LOCATION.RACK_2  ,  new CancellationTokenSource()},
         };
 
+        /// <summary>
+        /// 修改Port狀態為OK/NG Port
+        /// </summary>
+        /// <param name="IsNormal">True = OK; False = NG</param>
+        internal void ChangePortStatus(bool IsNormal)
+        {
+            if (IsNormal)
+                Properties.ProductionQualityStore = PRUDUCTION_QUALITY.OK;
+            else
+                Properties.ProductionQualityStore = PRUDUCTION_QUALITY.NG;
+        }
+
         public DateTime timestamp { get; set; } = DateTime.MinValue;
 
         private async Task SensorStatusChangedDelayAsync(SENSOR_LOCATION location, bool currentSatus)
