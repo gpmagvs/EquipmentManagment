@@ -369,12 +369,12 @@ namespace EquipmentManagment.ChargeStation
             CheckStatus(DataBuffer[Indexes.Status_2], 7, ERROR_CODE.BUSY);
 
             CheckStatus(DataBuffer[Indexes.Status_3], 1, ERROR_CODE.Other);
-            CheckStatus(DataBuffer[Indexes.Status_3], 1, ERROR_CODE.Fans);
-            CheckStatus(DataBuffer[Indexes.Status_3], 1, ERROR_CODE.Power_Good);
-            CheckStatus(DataBuffer[Indexes.Status_3], 1, ERROR_CODE.MFR);
-            CheckStatus(DataBuffer[Indexes.Status_3], 1, ERROR_CODE.Input);
-            CheckStatus(DataBuffer[Indexes.Status_3], 1, ERROR_CODE.Iout_Pout);
-            CheckStatus(DataBuffer[Indexes.Status_3], 1, ERROR_CODE.VOUT);
+            CheckStatus(DataBuffer[Indexes.Status_3], 2, ERROR_CODE.Fans);
+            CheckStatus(DataBuffer[Indexes.Status_3], 3, ERROR_CODE.Power_Good);
+            CheckStatus(DataBuffer[Indexes.Status_3], 4, ERROR_CODE.MFR);
+            CheckStatus(DataBuffer[Indexes.Status_3], 5, ERROR_CODE.Input);
+            CheckStatus(DataBuffer[Indexes.Status_3], 6, ERROR_CODE.Iout_Pout);
+            CheckStatus(DataBuffer[Indexes.Status_3], 7, ERROR_CODE.VOUT);
 
         }
 

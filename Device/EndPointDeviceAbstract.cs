@@ -193,6 +193,14 @@ namespace EquipmentManagment.Device
         {
             try
             {
+                tcp_client?.Client?.Disconnect(false);
+                tcp_client?.Dispose();
+            }
+            catch (Exception)
+            {
+            }
+            try
+            {
                 tcp_client = new TcpClient();
                 tcp_client.ReceiveTimeout = TcpSocketRecieveTimeout;
                 tcp_client.SendTimeout = TcpSocketSendTimeout;
