@@ -171,13 +171,13 @@ namespace EquipmentManagment.ChargeStation
             int[] statusLowByteBits = statusLowByte.ToBitArray();
             int[] statusHighByteBits = statusHighByte.ToBitArray();
             //Console.WriteLine($"STATUS_LOW Byte = {string.Join(",", statusLowByteBits)}({statusLowByte})");
-           // Console.WriteLine($"STATUS_HIGHT Byte = {string.Join(",", statusHighByteBits)}({statusHighByte})");
+            // Console.WriteLine($"STATUS_HIGHT Byte = {string.Join(",", statusHighByteBits)}({statusHighByte})");
 
             Dictionary<int, ERROR_CODE> errorCodesMapOf78H = new Dictionary<int, ERROR_CODE>()
             {
                 {0, ERROR_CODE.NONE_OF_THE_ABOVE },
                 {1, ERROR_CODE.CML },
-                {2, ERROR_CODE.TEMP},
+                {2, ERROR_CODE.Temp_OT_Warning},
                 {3, ERROR_CODE.Vin_UV_Fault},
                 {4, ERROR_CODE.Iout_OC_Fault},
                 {5, ERROR_CODE.Vout_OV_Fault},

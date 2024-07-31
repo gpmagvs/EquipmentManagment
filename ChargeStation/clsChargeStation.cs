@@ -248,9 +248,9 @@ namespace EquipmentManagment.ChargeStation
                     catch (ChargeStationNoResponseException ex)
                     {
                         //若觸發這個例外，表示充電站沒AGV在充電.
+                        Datas.SetAsNotUsing();
                         await Task.Delay(5000);
                         Console.WriteLine($"Charge Station No Charging action...");
-                        Datas.SetAsNotUsing();
                         continue;
                     }
                     catch (Exception ex)
@@ -277,27 +277,38 @@ namespace EquipmentManagment.ChargeStation
                 ManualResetEvent manualResetEvent = new ManualResetEvent(false);
                 void RecieveCallBack(IAsyncResult ar)
                 {
-                    ChargerSocketState _state = (ChargerSocketState)ar.AsyncState;
-                    int received = _state.socket.EndReceive(ar);
-                    ArraySegment<byte> recvData = new ArraySegment<byte>(_state.buffer, 0, received);
-                    DataBuffer.AddRange(recvData);
-                    if (_IsDataRecievieDone(DataBuffer))
+                    try
                     {
-                        manualResetEvent.Set();
+                        ChargerSocketState _state = (ChargerSocketState)ar.AsyncState;
+                        int received = _state.socket.EndReceive(ar);
+                        ArraySegment<byte> recvData = new ArraySegment<byte>(_state.buffer, 0, received);
+                        DataBuffer.AddRange(recvData);
+                        if (_IsDataRecievieDone(DataBuffer))
+                        {
+                            manualResetEvent.Set();
+                        }
+                        else
+                        {
+                            _state.buffer = new byte[57];
+
+                            Task.Run(async () =>
+                            {
+                                await Task.Delay(10);
+                                _state.socket.BeginReceive(_state.buffer, 0, _state.buffer.Length, SocketFlags.None, new AsyncCallback(RecieveCallBack), _state);
+                            });
+                        }
                     }
-                    else
+                    catch (Exception)
                     {
-                        _state.buffer = new byte[57];
-                        _state.socket.BeginReceive(_state.buffer, 0, _state.buffer.Length, SocketFlags.None, new AsyncCallback(RecieveCallBack), _state);
+                        throw new Exception("Network Error");
                     }
-                    //條件 data len = 57 & [0]~[6] = 0xAA & [7] = 0xAB
 
                 }
                 DataBuffer.Clear();
                 ChargerSocketState sckState = new ChargerSocketState() { socket = tcp_client.Client };
                 tcp_client.Client.BeginReceive(sckState.buffer, 0, sckState.buffer.Length, SocketFlags.None, new AsyncCallback(RecieveCallBack), sckState);
 
-                bool done = manualResetEvent.WaitOne(Debugger.IsAttached ? 30000 : 8000, true);
+                bool done = manualResetEvent.WaitOne(Debugger.IsAttached ? 3000 : 5000, true);
                 if (!done)
                 {
                     //timeout
@@ -353,6 +364,7 @@ namespace EquipmentManagment.ChargeStation
 
         private bool _IsDataRecievieDone(List<byte> dataBuffer)
         {
+            //條件 data len = 57 & [0]~[6] = 0xAA & [7] = 0xAB
             if (dataBuffer.Count < 57)
                 return false;
             if (dataBuffer[7] != 0xAB)
