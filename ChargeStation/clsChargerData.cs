@@ -84,7 +84,7 @@ namespace EquipmentManagment.ChargeStation
                 return ErrorCodes.Select(x => x.ToString()).ToList();
             }
         }
-        public double Temperature { get; internal set; }
+        public double Temperature { get; set; }
         public int TagNumber { get; set; } = 0;
 
         private double _CC { get; set; } = 66;
