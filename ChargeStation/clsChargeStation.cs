@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using EquipmentManagment.Exceptions;
 using EquipmentManagment.Connection;
 using System.Net.Http.Headers;
+using System.Diagnostics;
 
 namespace EquipmentManagment.ChargeStation
 {
@@ -236,7 +237,7 @@ namespace EquipmentManagment.ChargeStation
                     {
                         if (!_IsConnected)
                         {
-                            bool _connected = await Connect();
+                            bool _connected = Connect().GetAwaiter().GetResult();
                             continue;
                         }
                         ReadInputsUseTCPIP();
@@ -249,6 +250,7 @@ namespace EquipmentManagment.ChargeStation
                         //若觸發這個例外，表示充電站沒AGV在充電.
                         await Task.Delay(5000);
                         Console.WriteLine($"Charge Station No Charging action...");
+                        Datas.SetAsNotUsing();
                         continue;
                     }
                     catch (Exception ex)
@@ -262,11 +264,47 @@ namespace EquipmentManagment.ChargeStation
 
             });
         }
-
+        internal class ChargerSocketState
+        {
+            public byte[] buffer = new byte[57];
+            public Socket socket = null;
+        }
         protected override void ReadInputsUseTCPIP()
         {
+
             try
             {
+                ManualResetEvent manualResetEvent = new ManualResetEvent(false);
+                void RecieveCallBack(IAsyncResult ar)
+                {
+                    ChargerSocketState _state = (ChargerSocketState)ar.AsyncState;
+                    int received = _state.socket.EndReceive(ar);
+                    ArraySegment<byte> recvData = new ArraySegment<byte>(_state.buffer, 0, received);
+                    DataBuffer.AddRange(recvData);
+                    if (_IsDataRecievieDone(DataBuffer))
+                    {
+                        manualResetEvent.Set();
+                    }
+                    else
+                    {
+                        _state.buffer = new byte[57];
+                        _state.socket.BeginReceive(_state.buffer, 0, _state.buffer.Length, SocketFlags.None, new AsyncCallback(RecieveCallBack), _state);
+                    }
+                    //條件 data len = 57 & [0]~[6] = 0xAA & [7] = 0xAB
+
+                }
+                DataBuffer.Clear();
+                ChargerSocketState sckState = new ChargerSocketState() { socket = tcp_client.Client };
+                tcp_client.Client.BeginReceive(sckState.buffer, 0, sckState.buffer.Length, SocketFlags.None, new AsyncCallback(RecieveCallBack), sckState);
+
+                bool done = manualResetEvent.WaitOne(Debugger.IsAttached ? 30000 : 8000, true);
+                if (!done)
+                {
+                    //timeout
+                    throw new ChargeStationNoResponseException();
+                }
+                Datas.SetAsUsing();
+                return;
                 // ClearBuffer();
                 //SendSettingsToCharger(out var msg);
                 //定義充電站的通訊交握
@@ -312,6 +350,16 @@ namespace EquipmentManagment.ChargeStation
             }
 
         }
+
+        private bool _IsDataRecievieDone(List<byte> dataBuffer)
+        {
+            if (dataBuffer.Count < 57)
+                return false;
+            if (dataBuffer[7] != 0xAB)
+                return false;
+            return true;
+        }
+
         private void ClearBuffer()
         {
             try
