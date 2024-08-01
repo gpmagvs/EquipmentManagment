@@ -318,7 +318,6 @@ namespace EquipmentManagment.ChargeStation
                         manualResetEvent.Set();
                     }
                 }
-                DataBuffer.Clear();
                 ChargerSocketState sckState = new ChargerSocketState() { socket = tcp_client.Client };
                 tcp_client.Client.BeginReceive(sckState.buffer, 0, sckState.buffer.Length, SocketFlags.None, new AsyncCallback(RecieveCallBack), sckState);
 
@@ -418,7 +417,7 @@ namespace EquipmentManagment.ChargeStation
             CheckStatus(DataBuffer[Indexes.Status_3], 5, ERROR_CODE.Input);
             CheckStatus(DataBuffer[Indexes.Status_3], 6, ERROR_CODE.Iout_Pout);
             CheckStatus(DataBuffer[Indexes.Status_3], 7, ERROR_CODE.VOUT);
-
+            DataBuffer.Clear();
         }
 
         private void CheckStatus(byte status, int status_bit, ERROR_CODE StatusErrorCode)
