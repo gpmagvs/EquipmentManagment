@@ -145,20 +145,10 @@ namespace EquipmentManagment.Device
             {
                 IsConnected = await MCProtocolConnect(EndPointOptions.ConnOptions.IP, EndPointOptions.ConnOptions.Port);
             }
-            if (IsConnected)
-            {
-                if (!use_for_conn_test)
-                    StartSyncData();
-            }
-            else
-            {
-                if (!use_for_conn_test)
-                    _StartRetry();
-            }
             return IsConnected;
         }
 
-        private async Task _StartRetry()
+        protected virtual async Task _StartRetry()
         {
             await Task.Delay(1000);
             await Connect(retry: true);
@@ -193,11 +183,13 @@ namespace EquipmentManagment.Device
         {
             try
             {
-                tcp_client?.Client?.Disconnect(false);
-                tcp_client?.Dispose();
+                NetworkStream stream = tcp_client?.GetStream();
+                stream?.Close();
+                await Task.Delay(1000);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
             }
             try
             {

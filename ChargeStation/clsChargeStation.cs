@@ -225,6 +225,7 @@ namespace EquipmentManagment.ChargeStation
         {
             OnBatteryNotConnected?.Invoke(this, this);
         }
+        
         public override async Task StartSyncData()
         {
 
@@ -249,8 +250,16 @@ namespace EquipmentManagment.ChargeStation
                     {
                         //若觸發這個例外，表示充電站沒AGV在充電.
                         Datas.SetAsNotUsing();
+                        IsConnected = false;
                         await Task.Delay(5000);
                         Console.WriteLine($"Charge Station No Charging action...");
+                        continue;
+                    }
+                    catch (SocketException ex)
+                    {
+                        IsConnected = false;
+                        await Task.Delay(1000);
+                        Console.WriteLine(ex.Message);
                         continue;
                     }
                     catch (Exception ex)
@@ -264,6 +273,11 @@ namespace EquipmentManagment.ChargeStation
 
             });
         }
+
+        protected override async Task _StartRetry()
+        {
+            //do noting;
+        }
         internal class ChargerSocketState
         {
             public byte[] buffer = new byte[57];
@@ -275,6 +289,7 @@ namespace EquipmentManagment.ChargeStation
             try
             {
                 ManualResetEvent manualResetEvent = new ManualResetEvent(false);
+                bool _socketError = false;
                 void RecieveCallBack(IAsyncResult ar)
                 {
                     try
@@ -290,7 +305,6 @@ namespace EquipmentManagment.ChargeStation
                         else
                         {
                             _state.buffer = new byte[57];
-
                             Task.Run(async () =>
                             {
                                 await Task.Delay(10);
@@ -298,61 +312,30 @@ namespace EquipmentManagment.ChargeStation
                             });
                         }
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
-                        throw new Exception("Network Error");
+                        _socketError=true;
+                        manualResetEvent.Set();
                     }
-
                 }
                 DataBuffer.Clear();
                 ChargerSocketState sckState = new ChargerSocketState() { socket = tcp_client.Client };
                 tcp_client.Client.BeginReceive(sckState.buffer, 0, sckState.buffer.Length, SocketFlags.None, new AsyncCallback(RecieveCallBack), sckState);
 
-                bool done = manualResetEvent.WaitOne(Debugger.IsAttached ? 3000 : 5000, true);
+                bool done = manualResetEvent.WaitOne(Debugger.IsAttached ? 8000 : 8000, true);
+                if (_socketError)
+                {
+                    throw new SocketException();
+                }
                 if (!done)
                 {
                     //timeout
                     throw new ChargeStationNoResponseException();
                 }
                 Datas.SetAsUsing();
-                return;
-                // ClearBuffer();
-                //SendSettingsToCharger(out var msg);
-                //定義充電站的通訊交握
-                if (WriteSettingFlag)
-                {
-                    tcp_client.Client.Send(ReadChargerStatesCmd, 0, 57, SocketFlags.None);
-                    WriteSettingFlag = false;
-                }
-                DataBuffer.Clear();
-                CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromSeconds(3));
-                //tcp_client.Client.Send(ReadChargerStatesCmd);
-
-                while (DataBuffer.Count != 57)
-                {
-                    Thread.Sleep(1);
-                    byte[] buffer = new byte[57];
-                    if (tcp_client.Available == 0)
-                    {
-                        //tcp_client.Client.Send(ReadChargerStatesCmd);
-                        if (cts.IsCancellationRequested)
-                        {
-                            throw new ChargeStationNoResponseException();
-                        }
-                        continue;
-                    }
-                    int recLength = tcp_client.Client.Receive(buffer);
-                    if (recLength == 0)
-                        continue;
-
-                    ArraySegment<byte> recvData = new ArraySegment<byte>(buffer, 0, recLength);
-                    DataBuffer.AddRange(recvData.ToArray());
-                }
-
             }
             catch (SocketException sckex)
             {
-                tcp_client.Dispose();
                 throw sckex;
             }
             catch (Exception ex)
