@@ -45,6 +45,7 @@ namespace EquipmentManagment.MainEquipment
     }
     public class clsEQ : EndPointDeviceAbstract
     {
+        protected override bool _IsConnected { get; set; } = true;
         public clsEQ(clsEndPointOptions options) : base(options)
         {
             AGVModbusGateway = new clsStatusIOModbusGateway();

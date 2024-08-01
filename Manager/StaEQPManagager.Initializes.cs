@@ -94,7 +94,7 @@ namespace EquipmentManagment.Manager
 
                 async Task ConnectTo(EndPointDeviceAbstract device)
                 {
-                    await device.Connect();
+                    await device.StartSyncData();
                 }
             }
             catch (Exception ex)
