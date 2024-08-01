@@ -54,7 +54,7 @@ namespace EquipmentManagment.Device
         private CONN_METHODS _ConnectionMethod => EndPointOptions.ConnOptions.ConnMethod;
         public abstract PortStatusAbstract PortStatus { get; set; }
 
-        protected bool _IsConnected = false;
+        protected virtual bool _IsConnected { get; set; } = false;
         public virtual bool IsConnected
         {
             get => _IsConnected;
