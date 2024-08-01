@@ -726,7 +726,9 @@ namespace EquipmentManagment.MainEquipment
                           $"Port Exist      ={Port_Exist}\r\n" +
                           $"Eqp_Status_Down ={Eqp_Status_Down}\r\n" +
                           $"Up_Pose         ={Up_Pose}\r\n" +
-                          $"Down_Pose       ={Down_Pose}";
+                          $"Down_Pose       ={Down_Pose}\r\n" +
+                          $"Maintaining     ={IsMaintaining}\r\n" +
+                          $"Parts_Replacing ={IsPartsReplacing}";
             return desc;
         }
     }
