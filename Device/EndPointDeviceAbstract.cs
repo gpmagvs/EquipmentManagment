@@ -120,7 +120,7 @@ namespace EquipmentManagment.Device
                 }
             }
         }
-        private bool disposedValue;
+        protected bool disposedValue;
 
         /// <summary>
         /// 
@@ -147,7 +147,37 @@ namespace EquipmentManagment.Device
             }
             return IsConnected;
         }
-
+        public void DisConnect()
+        {
+            try
+            {
+                if (tcp_client != null)
+                {
+                    var stream = tcp_client.GetStream();
+                    stream?.Close();
+                    tcp_client.Close();
+                }
+                if (serial != null)
+                {
+                    serial.Close();
+                }
+                if (McInterface != null)
+                {
+                    McInterface.Close();
+                }
+                IsConnected = false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            finally
+            {
+                tcp_client = null;
+                serial = null;
+                McInterface = null;
+            }
+        }
         protected virtual async Task _StartRetry()
         {
             await Task.Delay(1000);

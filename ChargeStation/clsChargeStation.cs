@@ -225,7 +225,7 @@ namespace EquipmentManagment.ChargeStation
         {
             OnBatteryNotConnected?.Invoke(this, this);
         }
-        
+
         public override async Task StartSyncData()
         {
 
@@ -233,6 +233,12 @@ namespace EquipmentManagment.ChargeStation
             {
                 while (true)
                 {
+                    if (disposedValue)
+                    {
+                        DisConnect();
+                        Console.WriteLine($"{this.EndPointOptions.Name} ChargerStation Instance Disposed");
+                        return;
+                    }
                     await Task.Delay(300);
                     try
                     {
@@ -314,7 +320,7 @@ namespace EquipmentManagment.ChargeStation
                     }
                     catch (Exception ex)
                     {
-                        _socketError=true;
+                        _socketError = true;
                         manualResetEvent.Set();
                     }
                 }
