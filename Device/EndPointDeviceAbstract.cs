@@ -293,18 +293,21 @@ namespace EquipmentManagment.Device
 
             await Task.Run(async () =>
             {
+                bool _initState = true;
                 while (true)
                 {
                     await Task.Delay(300);
                     try
                     {
-                        if (!IsConnected)
+                        if (!IsConnected || _initState)
                         {
                             await Task.Delay(1000);
                             await Connect();
+                            _initState = false;
                             continue;
                         }
 
+                        _initState = false;
                         if (_ConnectionMethod == CONN_METHODS.MODBUS_TCP)
                         {
                             ReadInputsUseModbusTCP();
