@@ -245,6 +245,7 @@ namespace EquipmentManagment.ChargeStation
                         if (!_IsConnected)
                         {
                             bool _connected = Connect().GetAwaiter().GetResult();
+                            Console.WriteLine($"Connect Result={_connected}");
                             continue;
                         }
                         ReadInputsUseTCPIP();
@@ -272,6 +273,7 @@ namespace EquipmentManagment.ChargeStation
                     {
                         IsConnected = false;
                         await Task.Delay(3000);
+                        Console.WriteLine(ex.Message);
                         continue;
                     }
                 }
