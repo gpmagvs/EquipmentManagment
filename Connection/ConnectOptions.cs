@@ -18,14 +18,14 @@ namespace EquipmentManagment.Connection
 
         public byte byteSlaveId = 1;
 
-        public bool IsPLCAddress_Base_1 = false;
+        public bool IsPLCAddress_Base_1 { get; set; } = true;
         public ushort Input_StartRegister { get; set; } = 0;
-        public ushort Input_RegisterNum { get; set; } = 1;
+        public ushort Input_RegisterNum { get; set; } = 32;
         /// <summary>
         /// Output起始位址
         /// </summary>
         public ushort Output_Start_Address { get; set; } = 0;
 
-        public IO_VALUE_TYPE IO_Value_Type { get; set; } = IO_VALUE_TYPE.INPUT_REGISTER;
+        public IO_VALUE_TYPE IO_Value_Type { get; set; } = IO_VALUE_TYPE.INPUT;
     }
 }
