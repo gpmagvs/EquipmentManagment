@@ -62,6 +62,7 @@ namespace EquipmentManagment.MainEquipment
         private bool _Eqp_Status_Down = false;
         private bool _Eqp_Status_Run = false;
         private bool _Eqp_Status_Idle = false;
+        private bool _TB_Down_Pose = false;
         private bool _HS_EQ_L_REQ = false;
         private bool _HS_EQ_U_REQ = false;
         private bool _HS_EQ_READY = false;
@@ -134,6 +135,18 @@ namespace EquipmentManagment.MainEquipment
                 {
                     _Down_Pose = value;
                     OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "Down_Pose", value));
+                }
+            }
+        }
+        public bool TB_Down_Pose
+        {
+            get => _TB_Down_Pose;
+            set
+            {
+                if (_TB_Down_Pose != value)
+                {
+                    _TB_Down_Pose = value;
+                    OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "TB_Down_Pose", value));
                 }
             }
         }
@@ -548,6 +561,7 @@ namespace EquipmentManagment.MainEquipment
                 Port_Exist = InputBuffer[io_location.Port_Exist];
                 Up_Pose = InputBuffer[io_location.Up_Pose];
                 Down_Pose = InputBuffer[io_location.Down_Pose];
+                TB_Down_Pose = InputBuffer[io_location.TB_Down_Pose];
                 Eqp_Status_Down = InputBuffer[io_location.Eqp_Status_Down];
                 Eqp_Status_Run = InputBuffer[io_location.Eqp_Status_Run];
                 Eqp_Status_Idle = InputBuffer[io_location.Eqp_Status_Idle];

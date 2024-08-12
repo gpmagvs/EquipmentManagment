@@ -106,6 +106,7 @@ namespace EquipmentManagment.Device.Options
         public ushort HS_EQ_LOW_READY { get; set; } = 10;
         public ushort Up_Pose { get; set; } = 11;
         public ushort Down_Pose { get; set; } = 12;
+        public ushort TB_Down_Pose { get; set; } = 12;
         public ushort HS_EQ_BUSY { get; set; } = 13;
 
         public ushort Empty_CST { get; set; } = 14;
