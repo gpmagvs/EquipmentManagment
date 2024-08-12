@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO.Ports;
+using System.Linq;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using EquipmentManagment.Connection;
@@ -326,6 +327,7 @@ namespace EquipmentManagment.Device
                         if (InputBuffer.Length > 0 || DataBuffer.Count > 0)
                             InputsHandler();
 
+
                     }
                     catch (ModbusReadInputException ex)
                     {
@@ -439,6 +441,22 @@ namespace EquipmentManagment.Device
                         throw new ModbusReadInputException(ex.Message);
                     }
                 }
+
+                try
+                {
+                    ushort[] holdingRegists = master.ReadHoldingRegisters(0, 0, 32);
+                    if (holdingRegists.Any(vl => vl == 1))
+                    {
+
+                    }
+                    DataBuffer = holdingRegists.Select(usval => (byte)usval).ToList();
+                }
+                catch (Exception)
+                {
+
+                    throw;
+                }
+
             }
             catch (Exception ex)
             {

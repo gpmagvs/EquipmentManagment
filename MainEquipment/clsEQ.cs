@@ -89,7 +89,7 @@ namespace EquipmentManagment.MainEquipment
         }
         public bool Unload_Request
         {
-            get => _Unload_Request;
+            get => EndPointOptions.IsOneOfDualPorts ? _Unload_Request && EndPointOptions.AllowUnloadPortTypeNumber == this.PortTypeNumber && _Unload_Request : _Unload_Request;
             set
             {
                 if (_Unload_Request != value)
@@ -466,6 +466,20 @@ namespace EquipmentManagment.MainEquipment
                 base.IsPartsReplacing = value;
             }
         }
+
+        private int _PortTypeNumber = -1;
+        public int PortTypeNumber
+        {
+            get => _PortTypeNumber;
+            set
+            {
+                if (_PortTypeNumber != value)
+                {
+                    _PortTypeNumber = value;
+                    Console.WriteLine($"{EndPointOptions.Name} PortTypeNumber Chaged to {_PortTypeNumber}");
+                }
+            }
+        }
         #endregion
 
         #region AGVS->EQ
@@ -587,6 +601,20 @@ namespace EquipmentManagment.MainEquipment
             {
             }
             AGVModbusGateway.StoreEQOutpus(new bool[] { HS_EQ_L_REQ, HS_EQ_U_REQ, HS_EQ_READY, HS_EQ_BUSY });
+
+
+            if (DataBuffer.Count > 0)
+            {
+                try
+                {
+                    PortTypeNumber = DataBuffer[EndPointOptions.IOLocation.HoldingRegists.PortTypeStatus];
+                }
+                catch (Exception ex)
+                {
+                    throw new IndexOutOfRangeException(ex.Message, ex);
+                }
+            }
+
         }
 
         public void ToEQUp()

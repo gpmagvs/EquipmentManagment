@@ -92,6 +92,12 @@ namespace EquipmentManagment.Device.Options
         /// 是否具有貨物轉向機構(例如平對平設備)
         /// </summary>
         public bool HasCstSteeringMechanism { get; set; } = false;
+        /// <summary>
+        /// 是否為雙Port設備的其中一個Port
+        /// </summary>
+        public bool IsOneOfDualPorts { get; set; } = false;
+
+        public int AllowUnloadPortTypeNumber { get; set; } = 0;
     }
 
     public class clsEQIOLocation
@@ -138,6 +144,14 @@ namespace EquipmentManagment.Device.Options
         public ushort To_EQ_Full_CST { get; set; } = 10;
 
         #endregion
+
+        public ClsHoldingRegist HoldingRegists { get; set; } = new ClsHoldingRegist();
+
+        public class ClsHoldingRegist
+        {
+            public ushort PortTypeStatus { get; set; } = 6;
+        }
+
     }
     public class clsRackIOLocation
     {

@@ -91,6 +91,12 @@ namespace EquipmentManagment.Emu
             var ushortVal = slave.DataStore.InputDiscretes.Skip(1).Take(16).ToArray().GetUshort();
             slave.DataStore.InputRegisters[1] = ushortVal;
         }
+
+        public void ModifyHoldingRegist(int address, ushort value)
+        {
+            slave.DataStore.HoldingRegisters[address + 1] = value;
+        }
+
         public void Dispose()
         {
             // 請勿變更此程式碼。請將清除程式碼放入 'Dispose(bool disposing)' 方法
@@ -184,6 +190,11 @@ namespace EquipmentManagment.Emu
         {
             ModifyInput(options.IOLocation.Up_Pose, false);
             ModifyInput(options.IOLocation.Down_Pose, false);
+        }
+
+        public void SetPortType(int portType)
+        {
+            ModifyHoldingRegist(options.IOLocation.HoldingRegists.PortTypeStatus, (ushort)portType);
         }
     }
 }
