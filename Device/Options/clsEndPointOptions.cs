@@ -88,6 +88,10 @@ namespace EquipmentManagment.Device.Options
         public bool IsNeedStorageMonitor { get; set; } = false; // True:會被納入水位監控, False:不會
 
         public int StorageMonitorPriority { get; set; } = 0; // 水位監控順位等級，數字愈大愈先被檢查
+        /// <summary>
+        /// 是否具有貨物轉向機構(例如平對平設備)
+        /// </summary>
+        public bool HasCstSteeringMechanism { get; set; } = false;
     }
 
     public class clsEQIOLocation

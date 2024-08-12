@@ -138,6 +138,9 @@ namespace EquipmentManagment.MainEquipment
                 }
             }
         }
+        /// <summary>
+        /// 貨物轉向機構位置(false=> 位於低位; true=>位於高位 當機構位置並非位於低位時,禁止AGV侵入)
+        /// </summary>
         public bool TB_Down_Pose
         {
             get => _TB_Down_Pose;
