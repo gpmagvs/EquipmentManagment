@@ -98,6 +98,8 @@ namespace EquipmentManagment.Device.Options
         public bool IsOneOfDualPorts { get; set; } = false;
 
         public int AllowUnloadPortTypeNumber { get; set; } = 0;
+
+        public int AnotherPortTagNumber { get; set; } = 0;
     }
 
     public class clsEQIOLocation
