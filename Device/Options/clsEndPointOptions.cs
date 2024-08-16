@@ -78,6 +78,11 @@ namespace EquipmentManagment.Device.Options
 
         public bool CheckRackContentStateIOSignal { get; set; } = false;
 
+        /// <summary>
+        /// 空/實框移出狀態使用虛擬Input(Like S1 5F OVEN.)
+        /// </summary>
+        public bool IsFullEmptyUnloadAsVirtualInput { get; set; } = false;
+
         public bool IsEmulation { get; set; } = true; // 是否使用GLAC內部模擬器, 要改用EmulationMode控制
         public int EmulationMode { get; set; } = 0; //[0]:不模擬連外部設備(外部模擬器), [1]:內建模擬器, [2]:GlacEQSimulator用
 
@@ -100,6 +105,8 @@ namespace EquipmentManagment.Device.Options
         public int AllowUnloadPortTypeNumber { get; set; } = 0;
 
         public int AnotherPortTagNumber { get; set; } = 0;
+
+        public bool HasLDULDMechanism { get; set; } = false;
     }
 
     public class clsEQIOLocation

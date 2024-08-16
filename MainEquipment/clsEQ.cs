@@ -71,6 +71,10 @@ namespace EquipmentManagment.MainEquipment
         private bool _HS_EQ_BUSY = false;
         private bool _Empty_CST;
         private bool _Full_CST;
+
+        public bool EmptyRackUnloadVirtualInput = false;
+        public bool FullRackUnloadVirtualInput = false;
+
         public clsStatusIOModbusGateway AGVModbusGateway { get; set; } = new clsStatusIOModbusGateway();
         public static event EventHandler<clsEQ> OnEqUnloadRequesting;
         public static event EventHandler<IOChangedEventArgs> OnIOStateChanged;
@@ -420,6 +424,7 @@ namespace EquipmentManagment.MainEquipment
                 if (_To_EQ_Empty_CST != value)
                 {
                     _To_EQ_Empty_CST = value;
+                    EmptyRackUnloadVirtualInput = value;
                     OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "To_EQ_Empty_CST", value));
                     Console.WriteLine($"To_EQ_Empty_CST Changed to :{value}");
                     _WriteOutputSiganls().GetAwaiter().GetResult();
@@ -436,6 +441,7 @@ namespace EquipmentManagment.MainEquipment
                 if (_To_EQ_Full_CST != value)
                 {
                     _To_EQ_Full_CST = value;
+                    FullRackUnloadVirtualInput = value;
                     OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "To_EQ_Full_CST", value));
                     Console.WriteLine($"To_EQ_Full_CST Changed to :{value}");
                     _WriteOutputSiganls().GetAwaiter().GetResult();
@@ -570,6 +576,7 @@ namespace EquipmentManagment.MainEquipment
 
         protected override async void InputsHandler()
         {
+            bool isFullEmptyRackAsVirtualInput = EndPointOptions.IsFullEmptyUnloadAsVirtualInput;
             var io_location = EndPointOptions.IOLocation;
             try
             {
@@ -582,8 +589,8 @@ namespace EquipmentManagment.MainEquipment
                 Eqp_Status_Down = InputBuffer[io_location.Eqp_Status_Down];
                 Eqp_Status_Run = InputBuffer[io_location.Eqp_Status_Run];
                 Eqp_Status_Idle = InputBuffer[io_location.Eqp_Status_Idle];
-                Full_RACK_To_LDULD = InputBuffer[io_location.Full_CST];
-                Empty_RACK_To_LDULD = InputBuffer[io_location.Empty_CST];
+                Full_RACK_To_LDULD = isFullEmptyRackAsVirtualInput ? FullRackUnloadVirtualInput : InputBuffer[io_location.Full_CST];
+                Empty_RACK_To_LDULD = isFullEmptyRackAsVirtualInput ? EmptyRackUnloadVirtualInput : InputBuffer[io_location.Empty_CST];
                 HS_EQ_L_REQ = InputBuffer[io_location.HS_EQ_L_REQ];
                 HS_EQ_U_REQ = InputBuffer[io_location.HS_EQ_U_REQ];
                 HS_EQ_READY = InputBuffer[io_location.HS_EQ_READY];

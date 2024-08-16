@@ -126,9 +126,10 @@ namespace EquipmentManagment.Manager
         {
             return RacksList.FirstOrDefault(eq => eq.EndPointOptions.TagID == eQTag) as clsRack;
         }
-        public static List<clsPortOfRack> GetRackColumnByTag(int tag) {
+        public static List<clsPortOfRack> GetRackColumnByTag(int tag)
+        {
 
-            List<clsPortOfRack> portsofrack=new List<clsPortOfRack>();
+            List<clsPortOfRack> portsofrack = new List<clsPortOfRack>();
             foreach (clsRack rack in RacksList)
             {
                 var rackportscontaintag = rack.PortsStatus.Select(x => x).Where(x => x.TagNumbers.Contains(tag)).ToList();
@@ -143,7 +144,7 @@ namespace EquipmentManagment.Manager
 
         public static RACK_CONTENT_STATE CargoStartTransferToDestineHandler(clsEQ sourceEQ, clsEQ destineEQ)
         {
-            RACK_CONTENT_STATE raack_content_state = sourceEQ.RackContentState;
+            RACK_CONTENT_STATE raack_content_state = destineEQ.RackContentState;
             if (raack_content_state == RACK_CONTENT_STATE.FULL)
             {
                 destineEQ.Full_RACK_To_EQ();
