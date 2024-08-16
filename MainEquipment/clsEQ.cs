@@ -743,6 +743,7 @@ namespace EquipmentManagment.MainEquipment
             dto.Port_Exist = Port_Exist;
             dto.Up_Pose = Up_Pose;
             dto.Down_Pose = Down_Pose;
+            dto.TB_Down_Pose = TB_Down_Pose;
             dto.Eqp_Status_Down = Eqp_Status_Down;
             dto.Eqp_Status_Run = Eqp_Status_Run;
             dto.Eqp_Status_Idle = Eqp_Status_Idle;

@@ -57,9 +57,9 @@ namespace EquipmentManagment.MainEquipment
             {
                 if (!IsConnected)
                     return EQ_TRANSFER_STATUS.DISCONNECT;
-                if (Load_Request )
+                if (Load_Request)
                     return EQ_TRANSFER_STATUS.LOADABLE;
-                if (Unload_Request )
+                if (Unload_Request)
                     return EQ_TRANSFER_STATUS.UNLOADABLE;
                 return EQ_TRANSFER_STATUS.Unknown;
             }
@@ -69,6 +69,9 @@ namespace EquipmentManagment.MainEquipment
         public bool Port_Exist { get; set; }
         public bool Up_Pose { get; set; }
         public bool Down_Pose { get; set; }
+
+        public bool TB_Down_Pose { get; set; }
+
         public bool Eqp_Status_Down { get; set; }
         public bool Eqp_Status_Run { get; set; }
         public bool Eqp_Status_Idle { get; set; }
