@@ -6,7 +6,6 @@ namespace EquipmentManagment.Device
 {
     public abstract class PortStatusAbstract
     {
-
         public static event EventHandler<string> CarrierIDChanged;
 
         private string _CarrierID = "";
