@@ -45,12 +45,21 @@ namespace EquipmentManagment.Manager
             emulator.ModifyInput(index, value);
             return true;
         }
+
+        public static void SetAsLoadable(string eqName)
+        {
+            if (!EqEmulators.TryGetValue(eqName, out clsDIOModuleEmu emulator))
+                return;
+
+            emulator.SetStatusLoadable();
+        }
+
         public static bool InputsChange(string eqName, int index, bool[] values)
         {
             if (!EqEmulators.TryGetValue(eqName, out clsDIOModuleEmu emulator))
                 return false;
 
-            emulator.ModifyInputs(index, values);
+            emulator.SetStatusUnloadable();
             return true;
         }
 

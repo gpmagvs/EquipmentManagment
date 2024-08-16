@@ -53,19 +53,32 @@ namespace EquipmentManagment.Emu
 
         public bool SetStatusBUSY()
         {
-            ModifyInputs(0, new bool[8] { false, false, true, false, true, true, true, false });
+            bool[] input = new bool[8];
+            input[options.IOLocation.Up_Pose] = true;
+            input[options.IOLocation.Port_Exist] = true;
+            input[options.IOLocation.Eqp_Status_Down] = true;
+            ModifyInputs(0, input);
             return true;
         }
         public bool SetStatusLoadable()
         {
-            ModifyInputs(0, new bool[8] { true, false, false, false, true, true, true, false });
+            bool[] input = new bool[8];
+            input[options.IOLocation.Load_Request] = true;
+            input[options.IOLocation.Down_Pose] = true;
+            input[options.IOLocation.Eqp_Status_Down] = true;
+            ModifyInputs(0, input);
             return true;
 
         }
 
         public bool SetStatusUnloadable()
         {
-            ModifyInputs(0, new bool[8] { false, true, true, true, false, true, true, false });
+            bool[] input = new bool[8];
+            input[options.IOLocation.Unload_Request] = true;
+            input[options.IOLocation.Up_Pose] = true;
+            input[options.IOLocation.Eqp_Status_Down] = true;
+            input[options.IOLocation.Port_Exist] = true;
+            ModifyInputs(0, input);
             return true;
         }
 
