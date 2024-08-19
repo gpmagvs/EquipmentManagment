@@ -144,7 +144,7 @@ namespace EquipmentManagment.Manager
 
         public static RACK_CONTENT_STATE CargoStartTransferToDestineHandler(clsEQ sourceEQ, clsEQ destineEQ)
         {
-            RACK_CONTENT_STATE raack_content_state = destineEQ.RackContentState;
+            RACK_CONTENT_STATE raack_content_state = sourceEQ.RackContentState;
             if (raack_content_state == RACK_CONTENT_STATE.FULL)
             {
                 destineEQ.Full_RACK_To_EQ();

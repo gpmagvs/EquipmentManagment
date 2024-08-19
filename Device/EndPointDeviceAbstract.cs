@@ -297,8 +297,13 @@ namespace EquipmentManagment.Device
                         if (!IsConnected || _initState)
                         {
                             await Task.Delay(1000);
-                            await Connect();
+                            bool connected = await Connect();
                             _initState = false;
+                            if (connected && _ConnectionMethod == CONN_METHODS.MODBUS_TCP)
+                            {
+                                RollBackModbusOutputs();
+                                WriteOutuptsData();
+                            }
                             continue;
                         }
 
@@ -353,6 +358,29 @@ namespace EquipmentManagment.Device
                 }
 
             });
+        }
+
+        protected virtual bool[] RollBackModbusOutputs()
+        {
+            try
+            {
+                if (EndPointOptions.ConnOptions.IO_Value_Type == IO_VALUE_TYPE.INPUT)
+                {
+                    return master.ReadCoils(0, 64);
+                }
+                if (EndPointOptions.ConnOptions.IO_Value_Type == IO_VALUE_TYPE.INPUT_REGISTER)
+                {
+                    //master.ReadInputRegisters(0,2);
+                    ushort[] read = master.ReadHoldingRegisters(0, 2);
+                    bool[] rollcakOutputs = read[0].GetBoolArray();
+                    return rollcakOutputs;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"RollBackModbusOutputs Fail... {ex.Message}");
+            }
+            return new bool[64];
         }
 
         protected virtual void ReadDataUseSerial() { }
@@ -422,7 +450,7 @@ namespace EquipmentManagment.Device
                     else
                         Array.Copy(inputs, 0, InputBuffer, 0, inputs.Length);
                 }
-                else
+                else //INPUT_REGISTER
                 {
                     try
                     {

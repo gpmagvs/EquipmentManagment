@@ -653,8 +653,6 @@ namespace EquipmentManagment.MainEquipment
         {
             To_EQ_Up = false;
             To_EQ_Low = false;
-            To_EQ_Full_CST = false;
-            To_EQ_Empty_CST = false;
         }
         public void ReserveUp()
         {
@@ -732,7 +730,24 @@ namespace EquipmentManagment.MainEquipment
         {
             _WriteOutputSiganls();
         }
+        protected override bool[] RollBackModbusOutputs()
+        {
+            var io_location = EndPointOptions.IOLocation;
 
+            bool[] outputsWritten = base.RollBackModbusOutputs();
+            To_EQ_Up = outputsWritten[io_location.To_EQ_Up];
+            To_EQ_Low = outputsWritten[io_location.To_EQ_Low];
+            CMD_Reserve_Up = outputsWritten[io_location.CMD_Reserve_Up];
+            CMD_Reserve_Low = outputsWritten[io_location.CMD_Reserve_Low];
+            HS_AGV_VALID = outputsWritten[io_location.HS_AGV_VALID];
+            HS_AGV_TR_REQ = outputsWritten[io_location.HS_AGV_TR_REQ];
+            HS_AGV_BUSY = outputsWritten[io_location.HS_AGV_BUSY];
+            HS_AGV_COMPT = outputsWritten[io_location.HS_AGV_COMPT];
+            HS_AGV_READY = outputsWritten[io_location.HS_AGV_READY];
+            To_EQ_Empty_CST = outputsWritten[io_location.To_EQ_Empty_CST];
+            To_EQ_Full_CST = outputsWritten[io_location.To_EQ_Full_CST];
+            return outputsWritten;
+        }
         internal EQStatusDIDto GetEQStatusDTO()
         {
             EQStatusDIDto dto = new EQStatusDIDto(this.EndPointOptions.EqType);
