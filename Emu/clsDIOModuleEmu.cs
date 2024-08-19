@@ -209,5 +209,10 @@ namespace EquipmentManagment.Emu
         {
             ModifyHoldingRegist(options.IOLocation.HoldingRegists.PortTypeStatus, (ushort)portType);
         }
+
+        internal void SetPartsReplacing(bool isReplacing)
+        {
+            ModifyInput(options.IOLocation.Eqp_PartsReplacing, isReplacing);
+        }
     }
 }

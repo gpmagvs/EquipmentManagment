@@ -82,6 +82,14 @@ namespace EquipmentManagment.Manager
 
         public static bool PartsReplacingSimulation(int tagNumber, bool isReplacing)
         {
+
+            var emuFound = EqEmulators.Values.FirstOrDefault(emu => emu.options.TagID == tagNumber);
+            if (emuFound != null)
+            {
+                emuFound.SetPartsReplacing(isReplacing);
+                return true;
+            }
+
             Device.EndPointDeviceAbstract eqFound = StaEQPManagager.EQPDevices.FirstOrDefault(eq => eq.EndPointOptions.TagID == tagNumber);
             if (eqFound != null)
             {

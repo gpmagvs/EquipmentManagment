@@ -102,13 +102,7 @@ namespace EquipmentManagment.Device
         private bool _IsPartsReplacing = false;
         public virtual bool IsPartsReplacing
         {
-            get
-            {
-                if (this.EndPointOptions.IsEmulation == true || this.EndPointOptions.EmulationMode == 1)
-                    return _PartsReplacingSimulation;
-                else
-                    return _IsPartsReplacing;
-            }
+            get => _IsPartsReplacing;
             set
             {
                 if (_IsPartsReplacing != value)
