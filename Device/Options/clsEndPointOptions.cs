@@ -74,6 +74,9 @@ namespace EquipmentManagment.Device.Options
 
         public string InstalledCargoID { get; set; } = "";
 
+        /// <summary>
+        /// Zero-Base. 0=>第一層, 1=>第二層 ...以此類推。
+        /// </summary>
         public int Height { get; set; } = 0;
 
         public bool CheckRackContentStateIOSignal { get; set; } = false;
@@ -107,6 +110,8 @@ namespace EquipmentManagment.Device.Options
         public int AnotherPortTagNumber { get; set; } = 0;
 
         public bool HasLDULDMechanism { get; set; } = false;
+
+
     }
 
     public class clsEQIOLocation
