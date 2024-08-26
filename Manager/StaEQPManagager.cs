@@ -51,7 +51,7 @@ namespace EquipmentManagment.Manager
         {
             foreach (KeyValuePair<string, clsEndPointOptions> item in EQOptions)
             {
-                var _eq = MainEQList.FirstOrDefault(eq => eq.EndPointOptions.TagID == item.Value.TagID);
+                var _eq = MainEQList.FirstOrDefault(eq => eq.EndPointOptions.TagID == item.Value.TagID && eq.EndPointOptions.Height == item.Value.Height);
                 if (_eq != null)
                 {
                     var oriName = _eq.EndPointOptions.Name;
