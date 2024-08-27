@@ -46,6 +46,9 @@ namespace EquipmentManagment.MainEquipment
     public class clsEQ : EndPointDeviceAbstract
     {
         protected override bool _IsConnected { get; set; } = true;
+
+        public static bool WirteOuputEnabled { get; set; } = true;
+
         public clsEQ(clsEndPointOptions options) : base(options)
         {
             AGVModbusGateway = new clsStatusIOModbusGateway();
@@ -703,6 +706,8 @@ namespace EquipmentManagment.MainEquipment
 
         public void WriteOutputs(ushort start, bool[] value)
         {
+            if (!clsEQ.WirteOuputEnabled)
+                return;
             switch (this.EndPointOptions.ConnOptions.ConnMethod)
             {
                 case Connection.CONN_METHODS.MODBUS_TCP:
