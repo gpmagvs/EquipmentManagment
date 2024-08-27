@@ -93,7 +93,8 @@ namespace EquipmentManagment.MainEquipment
         }
         public bool Unload_Request
         {
-            get => EndPointOptions.IsOneOfDualPorts ? _Unload_Request && EndPointOptions.AllowUnloadPortTypeNumber == this.PortTypeNumber && _Unload_Request : _Unload_Request;
+            //get => EndPointOptions.IsOneOfDualPorts ? _Unload_Request && EndPointOptions.AllowUnloadPortTypeNumber == this.PortTypeNumber && _Unload_Request : _Unload_Request;
+            get => _Unload_Request;
             set
             {
                 if (_Unload_Request != value)
