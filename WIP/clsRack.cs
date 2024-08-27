@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using EquipmentManagment.Device;
 using EquipmentManagment.Device.Options;
+using EquipmentManagment.Manager;
 using static EquipmentManagment.WIP.clsPortOfRack;
 
 namespace EquipmentManagment.WIP
@@ -32,8 +34,13 @@ namespace EquipmentManagment.WIP
         public int EmptyPortNum => PortsStatus.Where(port => port.ExistSensorStates.Values.Any(exist => exist == SENSOR_STATUS.ON)).Count();
         public int HasCargoPortNum => PortsStatus.Count() - PortsStatus.Where(port => port.ExistSensorStates.Values.Any(exist => exist == SENSOR_STATUS.ON)).Count();
 
-        public override bool IsMaintaining { get  {return false; } }
-
+        public override bool IsMaintaining { get { return false; } }
+        public override Task StartSyncData()
+        {
+            if (RackOption.MaterialInfoFromEquipment)
+                return Task.CompletedTask;
+            return base.StartSyncData();
+        }
         protected override void InputsHandler()
         {
 
@@ -73,6 +80,23 @@ namespace EquipmentManagment.WIP
             {
                 _PortFound.CarrierID = newCargoID;
             }
+        }
+
+        public clsPortOfRack[] GetPortStatusWithEqInfo()
+        {
+            if (RackOption.MaterialInfoFromEquipment)
+            {
+                return PortsStatus.Select(port =>
+                {
+                    int tagOfColumn = this.RackOption.ColumnTagMap[port.Properties.Column].First();
+                    MainEquipment.clsEQ eq = StaEQPManagager.GetEQByTag(tagOfColumn);
+                    port.NickName = eq.EndPointOptions.Name;
+                    port.RackContentState = eq.RackContentState;
+                    return port;
+                }).ToArray();
+            }
+            else
+                return PortsStatus;
         }
     }
 }

@@ -15,6 +15,10 @@ namespace EquipmentManagment.Device.Options
         public new clsRackIOLocation IOLocation { get; set; } = new clsRackIOLocation();
 
         /// <summary>
+        /// 將EQ當作WIP
+        /// </summary>
+        public bool MaterialInfoFromEquipment { get; set; } = false;
+        /// <summary>
         /// key: colunm index , value: tag陣列(因為有可能有貼雙Tag)
         /// </summary>
         public Dictionary<int, int[]> ColumnTagMap = new Dictionary<int, int[]>();
