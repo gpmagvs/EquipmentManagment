@@ -29,7 +29,7 @@ namespace EquipmentManagment.Manager
             {
                 if (TryGetWIPByWIPName(wIPID, out var WIP))
                 {
-                    WIP.ModifyPortCargoID(portID,newCargoID);
+                    WIP.ModifyPortCargoID(portID, newCargoID, false);
                 }
             }
 
@@ -37,7 +37,7 @@ namespace EquipmentManagment.Manager
             {
                 if (TryGetWIPByWIPName(wIPID, out var WIP))
                 {
-                    WIP.ModifyPortCargoID(portID, "");
+                    WIP.ModifyPortCargoID(portID, "", false);
                 }
             }
         }

@@ -107,5 +107,7 @@ namespace EquipmentManagment.MainEquipment
         public bool IsMaintaining { get; internal set; }
         public bool IsPartsReplacing { get; internal set; }
 
+        public string CarrierID { get; set; } = "";
+
     }
 }

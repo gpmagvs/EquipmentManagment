@@ -30,8 +30,8 @@ namespace EquipmentManagment.BatteryExchanger
                 clsPLCMemOption option = LoadPLCMemOption(EndPointOptions.PLCOptionJsonFile);
                 EQPLCMemoryTb = new CIMComponent.MemoryTable(option.EQP_Bit_Size, option.IsEQP_Bit_Hex, option.EQP_Word_Size, option.IsEQP_Word_Hex, 20);
                 AGVSMemoryTb = new CIMComponent.MemoryTable(option.AGVS_Bit_Size, option.IsAGVS_Bit_Hex, option.AGVS_Word_Size, option.IsAGVS_Word_Hex, 20);
-                EQPLCMemoryTb.SetMemoryStart(option.EQPBitAreaName,option.EQPBitStartAddressName,option.EQPWordAreaName,option.EQPWordStartAddressName);
-                AGVSMemoryTb.SetMemoryStart(option.AGVSBitAreaName,option.AGVSBitStartAddressName,option.AGVSWordAreaName,option.AGVSWordStartAddressName);
+                EQPLCMemoryTb.SetMemoryStart(option.EQPBitAreaName, option.EQPBitStartAddressName, option.EQPWordAreaName, option.EQPWordStartAddressName);
+                AGVSMemoryTb.SetMemoryStart(option.AGVSBitAreaName, option.AGVSBitStartAddressName, option.AGVSWordAreaName, option.AGVSWordStartAddressName);
                 this.PLCMemOption = option;
             }
             else
@@ -47,6 +47,10 @@ namespace EquipmentManagment.BatteryExchanger
         }
 
         protected override void WriteOutuptsData()
+        {
+        }
+
+        public override void UpdateCarrierInfo(int tagNumber, string carrierID, int height)
         {
         }
     }

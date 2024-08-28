@@ -45,6 +45,9 @@ namespace EquipmentManagment.MainEquipment
     }
     public class clsEQ : EndPointDeviceAbstract
     {
+
+        public static event EventHandler<string> OnPortCarrierIDChanged;
+
         protected override bool _IsConnected { get; set; } = true;
 
         public static bool WirteOuputEnabled { get; set; } = true;
@@ -184,6 +187,12 @@ namespace EquipmentManagment.MainEquipment
                 {
                     _Eqp_Status_Run = value;
                     OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "Eqp_Status_Run", value));
+                    if (value && EndPointOptions.IsFullEmptyUnloadAsVirtualInput) //若機台為運轉模式 表示有在烘烤=>實框
+                    {
+                        To_EQ_Empty_CST = false;
+                        To_EQ_Full_CST = true;
+                        //Full_RACK_To_LDULD = true;
+                    }
                 }
             }
         }
@@ -791,6 +800,7 @@ namespace EquipmentManagment.MainEquipment
             dto.To_EQ_Empty_CST = To_EQ_Empty_CST;
             dto.IsMaintaining = IsMaintaining;
             dto.IsPartsReplacing = IsPartsReplacing;
+            dto.CarrierID = PortStatus.CarrierID;
             return dto;
         }
 
@@ -805,6 +815,12 @@ namespace EquipmentManagment.MainEquipment
                           $"Maintaining     ={IsMaintaining}\r\n" +
                           $"Parts_Replacing ={IsPartsReplacing}";
             return desc;
+        }
+
+        public override void UpdateCarrierInfo(int tagNumber, string carrierID, int height)
+        {
+            PortStatus.CarrierID = carrierID;
+            OnPortCarrierIDChanged?.Invoke(this, PortStatus.CarrierID);
         }
     }
 }

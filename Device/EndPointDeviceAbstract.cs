@@ -530,7 +530,7 @@ namespace EquipmentManagment.Device
         }
         protected abstract void WriteOutuptsData();
         protected abstract void InputsHandler();
-
+        public abstract void UpdateCarrierInfo(int tagNumber, string carrierID, int height);
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)

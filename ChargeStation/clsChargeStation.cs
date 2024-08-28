@@ -561,5 +561,9 @@ namespace EquipmentManagment.ChargeStation
         {
             Datas.UseVehicleName = UseVehicleName = vehicleName;
         }
+
+        public override void UpdateCarrierInfo(int tagNumber, string carrierID, int height)
+        {
+        }
     }
 }

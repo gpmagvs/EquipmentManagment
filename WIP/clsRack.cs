@@ -25,6 +25,8 @@ namespace EquipmentManagment.WIP
 
         public override PortStatusAbstract PortStatus { get; set; }
 
+        public static event EventHandler<(string portID, string carrierID)> OnRackPortCarrierIDChanged;
+
 
         public clsRack(clsRackOptions options) : base(options)
         {
@@ -73,12 +75,14 @@ namespace EquipmentManagment.WIP
                ).ToArray();
         }
 
-        internal void ModifyPortCargoID(string portID, string newCargoID)
+        internal void ModifyPortCargoID(string portID, string newCargoID, bool triggerByEqCarrierIDChanged)
         {
             clsPortOfRack _PortFound = PortsStatus.FirstOrDefault(port => port.Properties.ID == portID);
             if (_PortFound != null)
             {
                 _PortFound.CarrierID = newCargoID;
+                if (!triggerByEqCarrierIDChanged)
+                    OnRackPortCarrierIDChanged?.Invoke(this, (portID, newCargoID));
             }
         }
 
@@ -97,6 +101,10 @@ namespace EquipmentManagment.WIP
             }
             else
                 return PortsStatus;
+        }
+
+        public override void UpdateCarrierInfo(int tagNumber, string carrierID, int height)
+        {
         }
     }
 }

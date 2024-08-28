@@ -96,6 +96,9 @@ namespace EquipmentManagment.Manager
                 {
                     await device.StartSyncData();
                 }
+
+                clsEQ.OnPortCarrierIDChanged += ClsEQ_OnPortCarrierIDChanged;
+                clsRack.OnRackPortCarrierIDChanged += ClsRack_OnRackPortCarrierIDChanged;
             }
             catch (Exception ex)
             {
@@ -103,6 +106,41 @@ namespace EquipmentManagment.Manager
             }
 
         }
+
+        private static void ClsRack_OnRackPortCarrierIDChanged(object sender, (string portID, string carrierID) e)
+        {
+            clsRack _rack = (clsRack)sender;
+            if (_rack.RackOption.MaterialInfoFromEquipment)
+            {
+                clsPortOfRack rackPort = _rack.PortsStatus.FirstOrDefault(port => port.Properties.ID == e.portID);
+                if (rackPort != null)
+                {
+                    int[] tags = _rack.RackOption.ColumnTagMap[rackPort.Properties.Column];
+
+                    var modified = MainEQList.Where(eq => tags.Contains(eq.EndPointOptions.TagID))
+                                              .Select(eq =>
+                                              {
+                                                  eq.PortStatus.CarrierID = e.carrierID;
+                                                  return eq;
+                                              });
+
+                    Console.WriteLine($"EQ Carrier ID Modified By WIP Cariier ID Changed = {modified.Count()}");
+                }
+            }
+        }
+
+        private static void ClsEQ_OnPortCarrierIDChanged(object sender, string carrierID)
+        {
+            clsEQ eq = (clsEQ)sender;
+            IEnumerable<clsRack> rackUseEqMatterals = RacksList.Where(rack => rack.RackOption.MaterialInfoFromEquipment);
+            clsRack rackAssign = rackUseEqMatterals.FirstOrDefault(rack => rack.RackOption.ColumnTagMap.Values.SelectMany(tags => tags).Contains(eq.EndPointOptions.TagID));
+            if (rackAssign != null)
+            {
+                int column = rackAssign.RackOption.ColumnTagMap.FirstOrDefault(tags => tags.Value.Contains(eq.EndPointOptions.TagID)).Key;
+                rackAssign.ModifyPortCargoID($"0-{column}", carrierID, triggerByEqCarrierIDChanged: true);
+            }
+        }
+
 
         private static void EmulatorsInitialize(clsEQManagementConfigs _Configs)
         {
