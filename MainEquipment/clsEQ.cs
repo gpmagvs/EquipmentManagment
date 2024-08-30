@@ -81,6 +81,8 @@ namespace EquipmentManagment.MainEquipment
         public bool EmptyRackUnloadVirtualInput = false;
         public bool FullRackUnloadVirtualInput = false;
 
+        public DateTime LoadRequestRaiseTime { get; private set; } = DateTime.MinValue;
+        public DateTime UnloadRequestRaiseTime { get; private set; } = DateTime.MinValue;
         public clsStatusIOModbusGateway AGVModbusGateway { get; set; } = new clsStatusIOModbusGateway();
         public static event EventHandler<clsEQ> OnEqUnloadRequesting;
         public static event EventHandler<IOChangedEventArgs> OnIOStateChanged;
@@ -93,6 +95,7 @@ namespace EquipmentManagment.MainEquipment
                 if (_Load_Reuest != value)
                 {
                     _Load_Reuest = value;
+                    LoadRequestRaiseTime = _Load_Reuest ? DateTime.Now : DateTime.MinValue;
                     OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "Load_Request", value));
                 }
             }
@@ -106,6 +109,7 @@ namespace EquipmentManagment.MainEquipment
                 if (_Unload_Request != value)
                 {
                     _Unload_Request = value;
+                    UnloadRequestRaiseTime = _Unload_Request ? DateTime.Now : DateTime.MinValue;
                     OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "Unload_Request", value));
                     if (value)
                         OnEqUnloadRequesting?.Invoke(this, this);
@@ -821,6 +825,21 @@ namespace EquipmentManagment.MainEquipment
         {
             PortStatus.CarrierID = carrierID;
             OnPortCarrierIDChanged?.Invoke(this, PortStatus.CarrierID);
+        }
+
+        public bool IsCreateUnloadTaskAble()
+        {
+            bool IsRackContextTypePointOut = !EndPointOptions.CheckRackContentStateIOSignal ? true : this.RackContentState != RACK_CONTENT_STATE.UNKNOWN;
+            bool IsLDULDMechanismPoseCorrect = !EndPointOptions.HasLDULDMechanism ? true : Up_Pose;
+            bool IsCstSteeringMechanismPoseCorrect = !EndPointOptions.HasCstSteeringMechanism ? true : TB_Down_Pose;
+            return Unload_Request && Eqp_Status_Down && Port_Exist && !CMD_Reserve_Up && IsLDULDMechanismPoseCorrect && IsCstSteeringMechanismPoseCorrect && IsRackContextTypePointOut;
+        }
+
+        public bool IsCreateLoadTaskAble()
+        {
+            bool IsLDULDMechanismPoseCorrect = !EndPointOptions.HasLDULDMechanism ? true : Down_Pose;
+            bool IsCstSteeringMechanismPoseCorrect = !EndPointOptions.HasCstSteeringMechanism ? true : TB_Down_Pose;
+            return Load_Request && Eqp_Status_Down && !Port_Exist && !CMD_Reserve_Up && IsLDULDMechanismPoseCorrect && IsCstSteeringMechanismPoseCorrect;
         }
     }
 }
