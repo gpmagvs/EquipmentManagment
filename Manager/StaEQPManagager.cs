@@ -183,5 +183,11 @@ namespace EquipmentManagment.Manager
             return ChargeStations.Where(station => station.IsAGVUsable(agv_name)).Select(station => station.EndPointOptions.TagID);
 
         }
+
+        public static void ConfigurateEqGroupStore(List<EqGroupConfiguration> groupsConfigs)
+        {
+            EQGroupsStore = groupsConfigs.Select(config => new EqGroup(config)).ToList();
+            File.WriteAllText(Configs.EQGroupConfigPath, JsonConvert.SerializeObject(groupsConfigs, Formatting.Indented));
+        }
     }
 }

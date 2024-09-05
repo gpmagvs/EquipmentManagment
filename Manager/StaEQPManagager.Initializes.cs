@@ -122,7 +122,7 @@ namespace EquipmentManagment.Manager
             {
                 string json = _LoadConfigJson(eQGroupConfigPath);
                 List<EqGroupConfiguration> EQGroupConfig = JsonConvert.DeserializeObject<List<EqGroupConfiguration>>(json);
-                EQGroupsStore = EQGroupConfig.Select(config => new EqGroup(config)).ToList();
+                ConfigurateEqGroupStore(EQGroupConfig);
             }
         }
 
