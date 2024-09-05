@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Threading;
+using EquipmentManagment.MainEquipment.EQGroup;
 
 namespace EquipmentManagment.Manager
 {
@@ -23,7 +24,8 @@ namespace EquipmentManagment.Manager
             {
                 EQConfigPath = "EQConfigs.json",
                 ChargeStationConfigPath = "ChargStationConfigs.json",
-                WIPConfigPath = "WIPConfigs.json"
+                WIPConfigPath = "WIPConfigs.json",
+                EQGroupConfigPath = "EQGroupConfigs.json"
             } : Configs);
         }
 
@@ -97,6 +99,8 @@ namespace EquipmentManagment.Manager
                     await device.StartSyncData();
                 }
 
+                InitEQGroup(_Configs.EQGroupConfigPath);
+
                 clsEQ.OnPortCarrierIDChanged += ClsEQ_OnPortCarrierIDChanged;
                 clsRack.OnRackPortCarrierIDChanged += ClsRack_OnRackPortCarrierIDChanged;
             }
@@ -105,6 +109,21 @@ namespace EquipmentManagment.Manager
                 throw ex;
             }
 
+        }
+
+        private static void InitEQGroup(string eQGroupConfigPath)
+        {
+            if (!File.Exists(eQGroupConfigPath))
+            {
+                string _json = JsonConvert.SerializeObject(EQGroupsStore, Formatting.Indented);
+                File.WriteAllText(eQGroupConfigPath, _json);
+            }
+            else
+            {
+                string json = _LoadConfigJson(eQGroupConfigPath);
+                List<EqGroupConfiguration> EQGroupConfig = JsonConvert.DeserializeObject<List<EqGroupConfiguration>>(json);
+                EQGroupsStore = EQGroupConfig.Select(config => new EqGroup(config)).ToList();
+            }
         }
 
         private static void ClsRack_OnRackPortCarrierIDChanged(object sender, (string portID, string carrierID) e)

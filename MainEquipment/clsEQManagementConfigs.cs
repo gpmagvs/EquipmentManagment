@@ -9,5 +9,7 @@ namespace EquipmentManagment.MainEquipment
         public string EQConfigPath { get; set; } = "";
         public string ChargeStationConfigPath { get; set; } = "";
         public string WIPConfigPath { get; set; } = "";
+
+        public string EQGroupConfigPath { get; set; } = "EQGroupConfigs.json";
     }
 }

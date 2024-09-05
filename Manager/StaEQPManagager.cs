@@ -4,6 +4,7 @@ using EquipmentManagment.Device;
 using EquipmentManagment.Device.Options;
 using EquipmentManagment.Emu;
 using EquipmentManagment.MainEquipment;
+using EquipmentManagment.MainEquipment.EQGroup;
 using EquipmentManagment.WIP;
 using Newtonsoft.Json;
 using System;
@@ -34,6 +35,8 @@ namespace EquipmentManagment.Manager
         }
         public static List<clsChargeStation> ChargeStations = new List<clsChargeStation>();
         public static List<clsRack> RacksList = new List<clsRack>();
+
+        public static List<EqGroup> EQGroupsStore = new List<EqGroup>();
 
         public static Dictionary<string, clsEndPointOptions> EQOptions = new Dictionary<string, clsEndPointOptions>();
         public static Dictionary<string, clsChargeStationOptions> ChargeStationsOptions = new Dictionary<string, clsChargeStationOptions>();
