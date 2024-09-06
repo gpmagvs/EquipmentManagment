@@ -23,14 +23,20 @@ namespace EquipmentManagment.Emu
 
         public virtual async void StartEmu(clsEndPointOptions value)
         {
-
-            this.options = value;
-            slave = ModbusTcpSlave.CreateTcp(0, new TcpListener(value.ConnOptions.Port));
-            slave.ModbusSlaveRequestReceived += Master_ModbusSlaveRequestReceived;
-            slave.DataStore = DataStoreFactory.CreateDefaultDataStore();
-            DefaultInputsSetting();
-            Console.WriteLine($"DIO Moudle Emulator Start({options.ConnOptions.IP}:{options.ConnOptions.Port})");
-            await slave.ListenAsync();
+            try
+            {
+                this.options = value;
+                slave = ModbusTcpSlave.CreateTcp(0, new TcpListener(value.ConnOptions.Port));
+                slave.ModbusSlaveRequestReceived += Master_ModbusSlaveRequestReceived;
+                slave.DataStore = DataStoreFactory.CreateDefaultDataStore();
+                DefaultInputsSetting();
+                Console.WriteLine($"DIO Moudle Emulator Start({options.ConnOptions.IP}:{options.ConnOptions.Port})");
+                await slave.ListenAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
 
         protected virtual void DefaultInputsSetting()

@@ -291,6 +291,12 @@ namespace EquipmentManagment.Device
                 bool _initState = true;
                 while (true)
                 {
+                    if (disposedValue)
+                    {
+                        DisConnect();
+                        Console.WriteLine($"{this.EndPointOptions.Name} Instance Disposed");
+                        return;
+                    }
                     await Task.Delay(300);
                     try
                     {

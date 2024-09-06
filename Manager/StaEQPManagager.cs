@@ -50,8 +50,50 @@ namespace EquipmentManagment.Manager
                 return "";
             }
         }
+        public static void TryRemoveAndCreateNewEQ()
+        {
+            //找出被移除的設備
+            var newOptionKeys = EQOptions.Values.Select(opt => _createKeyOfOption(opt)).ToList();
+            IEnumerable<clsEQ> removedEQ = MainEQList.Where(eq => !newOptionKeys.Contains(_createKeyOfOption(eq.EndPointOptions)));
+
+            string _createKeyOfOption(clsEndPointOptions opt)
+            {
+                return opt.TagID + "H" + opt.Height;
+            }
+
+            if (removedEQ.Any())
+            {
+                foreach (var item in removedEQ)
+                {
+                    item.DisConnect();
+                    item.Dispose();
+                    EQPDevices.Remove(item);
+                    StaEQPEmulatorsManagager.EqEmulators.Remove(item.EQName);
+                }
+            }
+
+            foreach (KeyValuePair<string, clsEndPointOptions> item in EQOptions)
+            {
+                var _eq = MainEQList.FirstOrDefault(eq => eq.EndPointOptions.TagID == item.Value.TagID && eq.EndPointOptions.Height == item.Value.Height);
+                if (_eq == null)
+                {
+                    if (item.Value.IsEmulation && !StaEQPEmulatorsManagager.EqEmulators.ContainsKey(item.Key))
+                    {
+                        clsDIOModuleEmu emu = new clsDIOModuleEmu();
+                        int modbusPort = StaEQPEmulatorsManagager.EqEmulators.Values.Select(_emu => _emu.options.ConnOptions.Port).OrderBy(port => port).LastOrDefault() + 2;
+                        item.Value.ConnOptions.Port = modbusPort;
+                        emu.StartEmu(item.Value);
+                        StaEQPEmulatorsManagager.EqEmulators.Add(item.Key, emu);
+                    }
+                    clsEQ NewEQ = new clsEQ(item.Value);
+                    NewEQ.StartSyncData();
+                    EQPDevices.Add(NewEQ);
+                }
+            }
+        }
         public static void SaveEqConfigs()
         {
+
             foreach (KeyValuePair<string, clsEndPointOptions> item in EQOptions)
             {
                 var _eq = MainEQList.FirstOrDefault(eq => eq.EndPointOptions.TagID == item.Value.TagID && eq.EndPointOptions.Height == item.Value.Height);
@@ -189,5 +231,7 @@ namespace EquipmentManagment.Manager
             EQGroupsStore = groupsConfigs.Select(config => new EqGroup(config)).ToList();
             File.WriteAllText(Configs.EQGroupConfigPath, JsonConvert.SerializeObject(groupsConfigs, Formatting.Indented));
         }
+
+
     }
 }
