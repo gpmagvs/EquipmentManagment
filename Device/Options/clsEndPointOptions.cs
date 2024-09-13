@@ -134,7 +134,7 @@ namespace EquipmentManagment.Device.Options
             V2
         }
         [JsonConverter(typeof(StringEnumConverter))]
-        public STATUS_IO_DEFINED_VERSION STATUS_IO_SPEC_VERSION { get; set; } = STATUS_IO_DEFINED_VERSION.V1;
+        public STATUS_IO_DEFINED_VERSION STATUS_IO_SPEC_VERSION { get; set; } = STATUS_IO_DEFINED_VERSION.V2;
         #region X-Input
         public ushort Load_Request { get; set; } = 0;
         public ushort Unload_Request { get; set; } = 1;
