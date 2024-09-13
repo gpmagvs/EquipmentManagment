@@ -1,8 +1,11 @@
 ﻿using EquipmentManagment.Connection;
 using EquipmentManagment.MainEquipment;
 using Modbus.Data;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -116,6 +119,22 @@ namespace EquipmentManagment.Device.Options
 
     public class clsEQIOLocation
     {
+        /// <summary>
+        /// 設備狀態IO定義SPEC列舉項目
+        /// </summary>
+        public enum STATUS_IO_DEFINED_VERSION
+        {
+            /// <summary>
+            /// 舊版狀態IO定義(有EQP_STATUS_RUN/DOWN/IDLE的那一份SPEC)
+            /// </summary>
+            V1 = 1,
+            /// <summary>
+            /// 新版狀態IO定義(有EQP_STATUS_DOWN的那一份SPEC)
+            /// </summary>
+            V2
+        }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public STATUS_IO_DEFINED_VERSION STATUS_IO_SPEC_VERSION { get; set; } = STATUS_IO_DEFINED_VERSION.V1;
         #region X-Input
         public ushort Load_Request { get; set; } = 0;
         public ushort Unload_Request { get; set; } = 1;

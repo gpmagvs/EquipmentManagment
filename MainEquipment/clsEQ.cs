@@ -87,6 +87,17 @@ namespace EquipmentManagment.MainEquipment
         public static event EventHandler<clsEQ> OnEqUnloadRequesting;
         public static event EventHandler<IOChangedEventArgs> OnIOStateChanged;
         public static event EventHandler OnPortExistChangeed;
+
+
+        public bool IS_EQ_STATUS_NORMAL_IDLE
+        {
+            get
+            {
+                return EndPointOptions.IOLocation.STATUS_IO_SPEC_VERSION == clsEQIOLocation.STATUS_IO_DEFINED_VERSION.V1 ?
+                                                                            Eqp_Status_Down : Eqp_Status_Idle && !Eqp_Status_Run && !Eqp_Status_Down;
+            }
+        }
+
         public bool Load_Request
         {
             get => _Load_Reuest;
@@ -832,14 +843,14 @@ namespace EquipmentManagment.MainEquipment
             bool IsRackContextTypePointOut = !EndPointOptions.CheckRackContentStateIOSignal ? true : this.RackContentState != RACK_CONTENT_STATE.UNKNOWN;
             bool IsLDULDMechanismPoseCorrect = !EndPointOptions.HasLDULDMechanism ? true : Up_Pose;
             bool IsCstSteeringMechanismPoseCorrect = !EndPointOptions.HasCstSteeringMechanism ? true : TB_Down_Pose;
-            return Unload_Request && Eqp_Status_Down && Port_Exist && !CMD_Reserve_Up && IsLDULDMechanismPoseCorrect && IsCstSteeringMechanismPoseCorrect && IsRackContextTypePointOut;
+            return Unload_Request && IS_EQ_STATUS_NORMAL_IDLE && Port_Exist && !CMD_Reserve_Up && IsLDULDMechanismPoseCorrect && IsCstSteeringMechanismPoseCorrect && IsRackContextTypePointOut;
         }
 
         public bool IsCreateLoadTaskAble()
         {
             bool IsLDULDMechanismPoseCorrect = !EndPointOptions.HasLDULDMechanism ? true : Down_Pose;
             bool IsCstSteeringMechanismPoseCorrect = !EndPointOptions.HasCstSteeringMechanism ? true : TB_Down_Pose;
-            return Load_Request && Eqp_Status_Down && !Port_Exist && !CMD_Reserve_Up && IsLDULDMechanismPoseCorrect && IsCstSteeringMechanismPoseCorrect;
+            return Load_Request && IS_EQ_STATUS_NORMAL_IDLE && !Port_Exist && !CMD_Reserve_Up && IsLDULDMechanismPoseCorrect && IsCstSteeringMechanismPoseCorrect;
         }
     }
 }
