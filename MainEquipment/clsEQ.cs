@@ -93,7 +93,7 @@ namespace EquipmentManagment.MainEquipment
         {
             get
             {
-                return EndPointOptions.IOLocation.STATUS_IO_SPEC_VERSION == clsEQIOLocation.STATUS_IO_DEFINED_VERSION.V1 ?
+                return EndPointOptions.IOLocation.STATUS_IO_SPEC_VERSION == clsEQIOLocation.STATUS_IO_DEFINED_VERSION.V2 ?
                                                                             Eqp_Status_Down : Eqp_Status_Idle && !Eqp_Status_Run && !Eqp_Status_Down;
             }
         }
@@ -783,6 +783,7 @@ namespace EquipmentManagment.MainEquipment
             EQStatusDIDto dto = new EQStatusDIDto(this.EndPointOptions.EqType);
             dto.IsConnected = IsConnected;
             dto.EQName = EQName;
+            dto.MainStatus = _GetMainStatus();
             dto.Load_Request = Load_Request;
             dto.Unload_Request = Unload_Request;
             dto.Port_Exist = Port_Exist;
@@ -817,6 +818,29 @@ namespace EquipmentManagment.MainEquipment
             dto.IsPartsReplacing = IsPartsReplacing;
             dto.CarrierID = PortStatus.CarrierID;
             return dto;
+        }
+
+        private EQStatusDIDto.EQ_MAIN_STATUS _GetMainStatus()
+        {
+            if (EndPointOptions.IOLocation.STATUS_IO_SPEC_VERSION == clsEQIOLocation.STATUS_IO_DEFINED_VERSION.V1)
+            {
+                if (Eqp_Status_Down)
+                    return EQStatusDIDto.EQ_MAIN_STATUS.Down;
+                else if (Eqp_Status_Run)
+                    return EQStatusDIDto.EQ_MAIN_STATUS.BUSY;
+                else if (Eqp_Status_Idle)
+                    return EQStatusDIDto.EQ_MAIN_STATUS.Idle;
+                else
+                    return EQStatusDIDto.EQ_MAIN_STATUS.Unknown;
+            }
+            else
+            {
+                if (Eqp_Status_Down)
+                    return EQStatusDIDto.EQ_MAIN_STATUS.Idle;
+                else
+                    return EQStatusDIDto.EQ_MAIN_STATUS.Down;
+            }
+
         }
 
         public string GetStatusDescription()

@@ -28,29 +28,8 @@ namespace EquipmentManagment.MainEquipment
 
         public string EQName { get; set; }
 
-        public EQ_MAIN_STATUS MainStatus
-        {
-            get
-            {
-                if (EqType == EQ_TYPE.EQ)
-                {
-                    if (Eqp_Status_Down)
-                        return EQ_MAIN_STATUS.Idle;
-                    else
-                        return EQ_MAIN_STATUS.Down;
-                }
-                else
-                {
-                    if (Eqp_Status_Down && !Eqp_Status_Idle && !Eqp_Status_Run)
-                        return EQ_MAIN_STATUS.Down;
-                    else if (!Eqp_Status_Down && Eqp_Status_Idle && !Eqp_Status_Run)
-                        return EQ_MAIN_STATUS.Idle;
-                    else if (!Eqp_Status_Down && !Eqp_Status_Idle && Eqp_Status_Run)
-                        return EQ_MAIN_STATUS.BUSY;
-                }
-                return EQ_MAIN_STATUS.Unknown;
-            }
-        }
+        public EQ_MAIN_STATUS MainStatus { get; internal set; } = EQ_MAIN_STATUS.Unknown;
+
         public EQ_TRANSFER_STATUS TransferStatus
         {
             get
