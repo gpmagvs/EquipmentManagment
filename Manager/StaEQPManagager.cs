@@ -108,6 +108,10 @@ namespace EquipmentManagment.Manager
                             StaEQPEmulatorsManagager.EqEmulators.Add(item.Value.Name, emulators);
                             StaEQPEmulatorsManagager.EqEmulators.Remove(oriName);
                         }
+                        else
+                        {
+                            StaEQPEmulatorsManagager.EqEmulators[item.Value.Name].options = item.Value;
+                        }
                     }
                     _eq.EndPointOptions = item.Value;
 
