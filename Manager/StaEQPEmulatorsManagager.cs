@@ -64,6 +64,28 @@ namespace EquipmentManagment.Manager
         }
 
 
+        public static bool EQDownStatusSimulation(int tagNumber, bool isDown)
+        {
+            Device.EndPointDeviceAbstract eqFound = StaEQPManagager.EQPDevices.FirstOrDefault(eq => eq.EndPointOptions.TagID == tagNumber);
+            if (eqFound != null)
+            {
+                if (EqEmulators.TryGetValue(eqFound.EndPointOptions.Name, out var emu))
+                {
+                    if (emu.options.IOLocation.STATUS_IO_SPEC_VERSION == clsEQIOLocation.STATUS_IO_DEFINED_VERSION.V1)
+                    {
+                        emu.ModifyInput(eqFound.EndPointOptions.IOLocation.Eqp_Status_Down, isDown);
+                        emu.ModifyInput(eqFound.EndPointOptions.IOLocation.Eqp_Status_Idle, false);
+                        emu.ModifyInput(eqFound.EndPointOptions.IOLocation.Eqp_Status_Run, false);
+                    }
+                    else
+                        emu.ModifyInput(eqFound.EndPointOptions.IOLocation.Eqp_Status_Down, !isDown);
+                }
+                //(eqFound as clsEQ).SetMaintaining(isMaintain);
+                return true;
+            }
+            else
+                return false;
+        }
         public static bool MaintainStatusSimulation(int tagNumber, bool isMaintain)
         {
             Device.EndPointDeviceAbstract eqFound = StaEQPManagager.EQPDevices.FirstOrDefault(eq => eq.EndPointOptions.TagID == tagNumber);
