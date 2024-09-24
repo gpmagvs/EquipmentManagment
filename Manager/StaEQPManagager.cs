@@ -166,7 +166,11 @@ namespace EquipmentManagment.Manager
         {
             return EQPDevices.FirstOrDefault(eq => eq.EQName == eqName) as clsEQ;
         }
-
+        public static bool TryGetEQByTag(int eqTag, out clsEQ eq)
+        {
+            eq = GetEQByTag(eqTag);
+            return eq != null;
+        }
         public static clsEQ GetEQByTag(int eQTag)
         {
             return EQPDevices.FirstOrDefault(eq => eq.EndPointOptions.TagID == eQTag) as clsEQ;
@@ -191,8 +195,11 @@ namespace EquipmentManagment.Manager
             return portsofrack;
         }
 
-        public static RACK_CONTENT_STATE CargoStartTransferToDestineHandler(clsEQ sourceEQ, clsEQ destineEQ)
+        public static RACK_CONTENT_STATE CargoContentTypeCheckWhenStartTransferToDestineHandler(clsEQ sourceEQ, clsEQ destineEQ)
         {
+            if (!sourceEQ.EndPointOptions.CheckRackContentStateIOSignal && !destineEQ.EndPointOptions.CheckRackContentStateIOSignal)
+                return RACK_CONTENT_STATE.UNKNOWN;
+
             RACK_CONTENT_STATE raack_content_state = sourceEQ.RackContentState;
             if (raack_content_state == RACK_CONTENT_STATE.FULL)
             {

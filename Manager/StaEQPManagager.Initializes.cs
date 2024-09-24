@@ -102,6 +102,7 @@ namespace EquipmentManagment.Manager
                 InitEQGroup(_Configs.EQGroupConfigPath);
 
                 clsEQ.OnPortCarrierIDChanged += ClsEQ_OnPortCarrierIDChanged;
+                clsEQ.OnCheckEQPortBelongTwoLayersEQOrNot += ClsEQ_OnCheckEQPortBelongTwoLayersEQOrNot;
                 clsRack.OnRackPortCarrierIDChanged += ClsRack_OnRackPortCarrierIDChanged;
             }
             catch (Exception ex)
@@ -109,6 +110,12 @@ namespace EquipmentManagment.Manager
                 throw ex;
             }
 
+        }
+
+        private static bool ClsEQ_OnCheckEQPortBelongTwoLayersEQOrNot(clsEQ eq, EventArgs e)
+        {
+            int portTag = eq.EndPointOptions.TagID;
+            return MainEQList.Count(_eq => _eq.EndPointOptions.TagID == portTag) > 1;
         }
 
         private static void InitEQGroup(string eQGroupConfigPath)

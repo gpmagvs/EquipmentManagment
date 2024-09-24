@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EquipmentManagment.Device;
 using EquipmentManagment.Device.Options;
+using EquipmentManagment.Manager;
 
 namespace EquipmentManagment.MainEquipment
 {
@@ -87,7 +88,8 @@ namespace EquipmentManagment.MainEquipment
         public static event EventHandler<clsEQ> OnEqUnloadRequesting;
         public static event EventHandler<IOChangedEventArgs> OnIOStateChanged;
         public static event EventHandler OnPortExistChangeed;
-
+        public delegate bool MyEventHandler(clsEQ eq, EventArgs e);
+        public static event MyEventHandler OnCheckEQPortBelongTwoLayersEQOrNot;
 
         public bool IS_EQ_STATUS_NORMAL_IDLE
         {
@@ -651,14 +653,26 @@ namespace EquipmentManagment.MainEquipment
             }
 
         }
-
-        public void ToEQUp()
+        public void ToEQ()
+        {
+            bool isTwoLayerEQ = OnCheckEQPortBelongTwoLayersEQOrNot(this, EventArgs.Empty);
+            if (!isTwoLayerEQ)
+            {
+                ToEQUp();
+                return;
+            }
+            if (EndPointOptions.Height > 0)
+                ToEQUp();
+            else
+                ToEQLow();
+        }
+        private void ToEQUp()
         {
             To_EQ_Up = true;
             To_EQ_Low = false;
         }
 
-        public void ToEQLow()
+        private void ToEQLow()
         {
             To_EQ_Up = false;
             To_EQ_Low = true;
@@ -682,12 +696,27 @@ namespace EquipmentManagment.MainEquipment
             To_EQ_Up = false;
             To_EQ_Low = false;
         }
-        public void ReserveUp()
+
+        public void Reserve()
+        {
+            bool isTwoLayerEQ = OnCheckEQPortBelongTwoLayersEQOrNot(this, EventArgs.Empty);
+            if (!isTwoLayerEQ)
+            {
+                ReserveUp();
+                return;
+            }
+            if (EndPointOptions.Height > 0)
+                ReserveUp();
+            else
+                ReserveLow();
+        }
+
+        private void ReserveUp()
         {
             CMD_Reserve_Up = true;
             CMD_Reserve_Low = false;
         }
-        public void ReserveLow()
+        private void ReserveLow()
         {
             CMD_Reserve_Up = false;
             CMD_Reserve_Low = true;
