@@ -27,5 +27,7 @@ namespace EquipmentManagment.Connection
         public ushort Output_Start_Address { get; set; } = 0;
 
         public IO_VALUE_TYPE IO_Value_Type { get; set; } = IO_VALUE_TYPE.INPUT;
+
+        public bool AliveCheckInterfaceClockUpdate { get; set; } = false;
     }
 }
