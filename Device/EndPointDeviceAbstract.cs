@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.IO.Ports;
 using System.Linq;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 using EquipmentManagment.Connection;
 using EquipmentManagment.Device.Options;
 using EquipmentManagment.Exceptions;
 using EquipmentManagment.MainEquipment;
 using EquipmentManagment.Manager;
+using EquipmentManagment.PLC;
 using EquipmentManagment.Tool;
 using Modbus.Device;
 
@@ -29,7 +31,15 @@ namespace EquipmentManagment.Device
         public EndPointDeviceAbstract(clsEndPointOptions options)
         {
             EndPointOptions = options;
+            if (options.ConnOptions.ConnMethod == CONN_METHODS.MC)
+            {
+                TryLoadMCProtocolParamFromFile(out clsPLCMemOption _mcPLCConfig, out _);
+                this.PLCMemOption = _mcPLCConfig;
+                MCObjectsInit();
+            }
         }
+
+
         public string EQName => EndPointOptions.Name;
 
         public TcpClient tcp_client { get; private set; }
@@ -139,9 +149,47 @@ namespace EquipmentManagment.Device
             else if (_ConnectionMethod == CONN_METHODS.MC)
             {
                 IsConnected = await MCProtocolConnect(EndPointOptions.ConnOptions.IP, EndPointOptions.ConnOptions.Port);
+                if (IsConnected && EndPointOptions.ConnOptions.AliveCheckInterfaceClockUpdate)
+                {
+                    PLCInterfaceClock();
+                }
             }
             return IsConnected;
         }
+
+        private async Task PLCInterfaceClock()
+        {
+            int clockCnt = 69;
+            string clockHexStr = clockCnt.ToString("X2");
+            await Task.Delay(1).ContinueWith(async task =>
+            {
+                while (IsConnected)
+                {
+                    try
+                    {
+                        await AGVSPLCMemWriteSemaphoreSlim.WaitAsync();
+                        clockHexStr = clockCnt.ToString("X2");
+                        EQPLCMemoryTb_Write.WriteBinary("W0", clockCnt);
+                        int retCode = McInterface.WriteWord(ref EQPLCMemoryTb_Write, "W", "0", 16);
+                        Console.WriteLine($"[{EndPointOptions.Name}] PLC Interface Clock Update to {clockCnt}(H{clockHexStr})=> {(retCode == 0 ? "SUCCESS" : "FAIL")}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[{EndPointOptions.Name}] PLC Interface Clock Update to {clockCnt}(H{clockHexStr}) has exception : {ex.Message}");
+
+                    }
+                    finally
+                    {
+                        AGVSPLCMemWriteSemaphoreSlim.Release();
+                    }
+                    await Task.Delay(4000);
+                    clockCnt += 1;
+                    if (clockCnt > 255)
+                        clockCnt = 69;
+                };
+            });
+        }
+
         public void DisConnect()
         {
             try
@@ -514,20 +562,37 @@ namespace EquipmentManagment.Device
             }
 
         }
+        private SemaphoreSlim AGVSPLCMemWriteSemaphoreSlim = new SemaphoreSlim(1, 1);
+        private void MCObjectsInit()
+        {
+            EQPLCMemoryTb = new CIMComponent.MemoryTable(PLCMemOption.EQP_Bit_Size, PLCMemOption.IsEQP_Bit_Hex, PLCMemOption.EQP_Word_Size, PLCMemOption.IsEQP_Word_Hex, 20);
+            EQPLCMemoryTb.SetMemoryStart(PLCMemOption.EQPBitAreaName, PLCMemOption.EQPBitStartAddressName, PLCMemOption.EQPWordAreaName, PLCMemOption.EQPWordStartAddressName);
+            EQPLCMemoryTb_Write = new CIMComponent.MemoryTable(PLCMemOption.AGVS_Bit_Size, PLCMemOption.IsAGVS_Bit_Hex, PLCMemOption.AGVS_Word_Size, PLCMemOption.IsAGVS_Word_Hex, 20);
+            EQPLCMemoryTb_Write.SetMemoryStart(PLCMemOption.AGVSBitAreaName, PLCMemOption.AGVSBitStartAddressName, PLCMemOption.AGVSWordAreaName, PLCMemOption.AGVSWordStartAddressName);
+        }
 
         public void WriteOutputsUseMCProtocol(bool[] _value)
         {
-            if (EQPLCMemoryTb_Write == null)
+            try
             {
-                EQPLCMemoryTb_Write = new CIMComponent.MemoryTable(1024, true, 1024, true, 32);
-                EQPLCMemoryTb_Write.SetMemoryStart("B", "0000", "W", "0000");
+                AGVSPLCMemWriteSemaphoreSlim.Wait();
+                if (EQPLCMemoryTb_Write == null)
+                {
+                    EQPLCMemoryTb_Write = new CIMComponent.MemoryTable(1024, true, 1024, true, 32);
+                    EQPLCMemoryTb_Write.SetMemoryStart("B", "0000", "W", "0000");
+                }
+                if (PLCMemOption == null)
+                    PLCMemOption = new PLC.clsPLCMemOption();
+                EQPLCMemoryTb_Write.WriteBit(PLCMemOption.AGVS_Bit_Start_Address, ref _value);
+                McInterface.WriteBit(ref EQPLCMemoryTb_Write, "B", "0", 16);
             }
-            if (PLCMemOption == null)
+            catch (Exception)
             {
-                PLCMemOption = new PLC.clsPLCMemOption();
             }
-            EQPLCMemoryTb_Write.WriteBit(PLCMemOption.AGVS_Bit_Start_Address, ref _value);
-            McInterface.WriteBit(ref EQPLCMemoryTb_Write, "B", "0", 16);
+            finally
+            {
+                AGVSPLCMemWriteSemaphoreSlim.Release();
+            }
         }
 
         public virtual void SetTag(int newTag)

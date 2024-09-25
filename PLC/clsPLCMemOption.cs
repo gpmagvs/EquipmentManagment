@@ -11,7 +11,7 @@ namespace EquipmentManagment.PLC
 
 
         public string AGVS_Bit_Start_Address { get; set; } = "B0000";
-        public int AGVS_Bit_Size { get; set; } = 128;
+        public int AGVS_Bit_Size { get; set; } = 64;
         public bool IsAGVS_Bit_Hex { get; set; } = true;
         public string AGVS_Word_Start_Address { get; set; } = "W0000";
         public int AGVS_Word_Size { get; set; } = 128;
@@ -21,11 +21,11 @@ namespace EquipmentManagment.PLC
         #endregion
         #region EQP
 
-        public string EQP_Bit_Start_Address { get; set; } = "B0080";
-        public int EQP_Bit_Size { get; set; } = 128;
+        public string EQP_Bit_Start_Address { get; set; } = "B0100";
+        public int EQP_Bit_Size { get; set; } = 64;
         public bool IsEQP_Bit_Hex { get; set; } = true;
-        public string EQP_Word_Start_Address { get; set; } = "W0080";
-        public int EQP_Word_Size { get; set; } = 384;
+        public string EQP_Word_Start_Address { get; set; } = "W0400";
+        public int EQP_Word_Size { get; set; } = 64;
         public bool IsEQP_Word_Hex { get; set; } = true;
         #endregion
 
