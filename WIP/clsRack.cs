@@ -96,6 +96,7 @@ namespace EquipmentManagment.WIP
                     MainEquipment.clsEQ eq = StaEQPManagager.GetEQByTag(tagOfColumn);
                     port.NickName = eq.EndPointOptions.Name;
                     port.RackContentState = eq.RackContentState;
+                    port.CarrierExist = eq.Port_Exist;
                     return port;
                 }).ToArray();
             }
