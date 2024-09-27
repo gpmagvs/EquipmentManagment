@@ -256,8 +256,8 @@ namespace EquipmentManagment.ChargeStation
                     catch (ChargeStationNoResponseException ex)
                     {
                         //若觸發這個例外，表示充電站沒AGV在充電.
-                        Datas.SetAsNotUsing();
-                        IsConnected = false;
+                        //Datas.SetAsNotUsing();
+                        //IsConnected = false;
                         await Task.Delay(5000);
                         Console.WriteLine($"Charge Station No Charging action...");
                         continue;
@@ -312,6 +312,7 @@ namespace EquipmentManagment.ChargeStation
                         }
                         else
                         {
+                            DataBuffer.Clear();
                             _state.buffer = new byte[57];
                             Task.Run(async () =>
                             {
@@ -336,6 +337,7 @@ namespace EquipmentManagment.ChargeStation
                 }
                 if (!done)
                 {
+                    DataBuffer.Clear();
                     //timeout
                     throw new ChargeStationNoResponseException();
                 }
@@ -357,6 +359,7 @@ namespace EquipmentManagment.ChargeStation
             //條件 data len = 57 & [0]~[6] = 0xAA & [7] = 0xAB
             if (dataBuffer.Count < 57)
                 return false;
+
             if (dataBuffer[7] != 0xAB)
                 return false;
             return true;
@@ -380,51 +383,55 @@ namespace EquipmentManagment.ChargeStation
         protected override void InputsHandler()
         {
 
-            if (DataBuffer.Count != 57)
+            if (DataBuffer.Count % 57 !=0)
                 return;
-            if (DataBuffer[13] == 0x61 || DataBuffer[13] == 0x60)
+
+            List<byte> lastData = DataBuffer.GetRange(DataBuffer.Count-57, 57);
+
+            if (lastData[13] == 0x61 || lastData[13] == 0x60)
             {
-                Datas.CC = GetValue(Indexes_Write.CC_H, Indexes_Write.CC_L) / 10.0;
-                Datas.CV = GetValue(Indexes_Write.CV_H, Indexes_Write.CV_L) / 10.0;
-                Datas.FV = GetValue(Indexes_Write.FV_H, Indexes_Write.FV_L) / 10.0;
-                Datas.TC = GetValue(Indexes_Write.TC_H, Indexes_Write.TC_L) / 10.0;
+                Datas.CC = GetValue(ref lastData, Indexes_Write.CC_H, Indexes_Write.CC_L) / 10.0;
+                Datas.CV = GetValue(ref lastData, Indexes_Write.CV_H, Indexes_Write.CV_L) / 10.0;
+                Datas.FV = GetValue(ref lastData, Indexes_Write.FV_H, Indexes_Write.FV_L) / 10.0;
+                Datas.TC = GetValue(ref lastData, Indexes_Write.TC_H, Indexes_Write.TC_L) / 10.0;
+                DataBuffer.Clear();
                 return;
             }
             //解析封包取得充電器狀態
-            Datas.Vin = GetValue(Indexes.VIN_H, Indexes.VIN_L) / 10.0;
-            Datas.Vout = GetValue(Indexes.VOUT_H, Indexes.VOUT_L) / 10.0;
-            Datas.Iout = GetValue(Indexes.IOUT_H, Indexes.IOUT_L) / 10.0;
-            Datas.CC = GetValue(Indexes.CC_H, Indexes.CC_L) / 10.0;
-            Datas.TC = GetValue(Indexes.TC_H, Indexes.TC_L) / 10.0;
-            Datas.FV = GetValue(Indexes.FV_H, Indexes.FV_L) / 10.0;
-            Datas.CV = GetValue(Indexes.CV_H, Indexes.CV_L) / 10.0;
-            Datas.Temperature = DataBuffer[Indexes.TEMPERATURE];
-            Datas.Time = DateTime.FromBinary(GetValue(Indexes.TIME_L1, Indexes.TIME_L2, Indexes.TIME_H1, Indexes.TIME_H2));
+            Datas.Vin = GetValue(ref lastData, Indexes.VIN_H, Indexes.VIN_L) / 10.0;
+            Datas.Vout = GetValue(ref lastData, Indexes.VOUT_H, Indexes.VOUT_L) / 10.0;
+            Datas.Iout = GetValue(ref lastData, Indexes.IOUT_H, Indexes.IOUT_L) / 10.0;
+            Datas.CC = GetValue(ref lastData, Indexes.CC_H, Indexes.CC_L) / 10.0;
+            Datas.TC = GetValue(ref lastData, Indexes.TC_H, Indexes.TC_L) / 10.0;
+            Datas.FV = GetValue(ref lastData, Indexes.FV_H, Indexes.FV_L) / 10.0;
+            Datas.CV = GetValue(ref lastData, Indexes.CV_H, Indexes.CV_L) / 10.0;
+            Datas.Temperature = lastData[Indexes.TEMPERATURE];
+            Datas.Time = DateTime.FromBinary(GetValue(ref lastData,Indexes.TIME_L1, Indexes.TIME_L2, Indexes.TIME_H1, Indexes.TIME_H2));
             Datas.UpdateTime = DateTime.Now;
             //Errors
-            CheckStatus(DataBuffer[Indexes.Status_1], 0, ERROR_CODE.EEPRROM_DATA_ERROR);
-            CheckStatus(DataBuffer[Indexes.Status_1], 1, ERROR_CODE.Temp_Sensor_Short);
-            CheckStatus(DataBuffer[Indexes.Status_1], 2, ERROR_CODE.Battery_Disconnect);
-            CheckStatus(DataBuffer[Indexes.Status_1], 3, ERROR_CODE.CC_Timeout);
-            CheckStatus(DataBuffer[Indexes.Status_1], 4, ERROR_CODE.CV_Timeout);
-            CheckStatus(DataBuffer[Indexes.Status_1], 5, ERROR_CODE.FV_Timeout);
-            CheckStatus(DataBuffer[Indexes.Status_1], 6, ERROR_CODE.Touch_Pad_OT);
+            CheckStatus(lastData[Indexes.Status_1], 0, ERROR_CODE.EEPRROM_DATA_ERROR);
+            CheckStatus(lastData[Indexes.Status_1], 1, ERROR_CODE.Temp_Sensor_Short);
+            CheckStatus(lastData[Indexes.Status_1], 2, ERROR_CODE.Battery_Disconnect);
+            CheckStatus(lastData[Indexes.Status_1], 3, ERROR_CODE.CC_Timeout);
+            CheckStatus(lastData[Indexes.Status_1], 4, ERROR_CODE.CV_Timeout);
+            CheckStatus(lastData[Indexes.Status_1], 5, ERROR_CODE.FV_Timeout);
+            CheckStatus(lastData[Indexes.Status_1], 6, ERROR_CODE.Touch_Pad_OT);
             //TODO確認ErrorStatus
-            CheckStatus(DataBuffer[Indexes.Status_2], 1, ERROR_CODE.CML);
-            CheckStatus(DataBuffer[Indexes.Status_2], 2, ERROR_CODE.Temp_OT_Warning);
-            CheckStatus(DataBuffer[Indexes.Status_2], 3, ERROR_CODE.Vin_UV_Fault);
-            CheckStatus(DataBuffer[Indexes.Status_2], 4, ERROR_CODE.Iout_OC_Fault);
-            CheckStatus(DataBuffer[Indexes.Status_2], 5, ERROR_CODE.Vout_OV_Fault);
-            CheckStatus(DataBuffer[Indexes.Status_2], 6, ERROR_CODE.Output_OFF);
-            CheckStatus(DataBuffer[Indexes.Status_2], 7, ERROR_CODE.BUSY);
+            CheckStatus(lastData[Indexes.Status_2], 1, ERROR_CODE.CML);
+            CheckStatus(lastData[Indexes.Status_2], 2, ERROR_CODE.Temp_OT_Warning);
+            CheckStatus(lastData[Indexes.Status_2], 3, ERROR_CODE.Vin_UV_Fault);
+            CheckStatus(lastData[Indexes.Status_2], 4, ERROR_CODE.Iout_OC_Fault);
+            CheckStatus(lastData[Indexes.Status_2], 5, ERROR_CODE.Vout_OV_Fault);
+            CheckStatus(lastData[Indexes.Status_2], 6, ERROR_CODE.Output_OFF);
+            CheckStatus(lastData[Indexes.Status_2], 7, ERROR_CODE.BUSY);
 
-            CheckStatus(DataBuffer[Indexes.Status_3], 1, ERROR_CODE.Other);
-            CheckStatus(DataBuffer[Indexes.Status_3], 2, ERROR_CODE.Fans);
-            CheckStatus(DataBuffer[Indexes.Status_3], 3, ERROR_CODE.Power_Good);
-            CheckStatus(DataBuffer[Indexes.Status_3], 4, ERROR_CODE.MFR);
-            CheckStatus(DataBuffer[Indexes.Status_3], 5, ERROR_CODE.Input);
-            CheckStatus(DataBuffer[Indexes.Status_3], 6, ERROR_CODE.Iout_Pout);
-            CheckStatus(DataBuffer[Indexes.Status_3], 7, ERROR_CODE.VOUT);
+            CheckStatus(lastData[Indexes.Status_3], 1, ERROR_CODE.Other);
+            CheckStatus(lastData[Indexes.Status_3], 2, ERROR_CODE.Fans);
+            CheckStatus(lastData[Indexes.Status_3], 3, ERROR_CODE.Power_Good);
+            CheckStatus(lastData[Indexes.Status_3], 4, ERROR_CODE.MFR);
+            CheckStatus(lastData[Indexes.Status_3], 5, ERROR_CODE.Input);
+            CheckStatus(lastData[Indexes.Status_3], 6, ERROR_CODE.Iout_Pout);
+            CheckStatus(lastData[Indexes.Status_3], 7, ERROR_CODE.VOUT);
             DataBuffer.Clear();
         }
 
@@ -442,104 +449,98 @@ namespace EquipmentManagment.ChargeStation
             else
                 Datas.ErrorCodes.Remove(StatusErrorCode);
         }
-        public virtual bool SetCCAsync(double val, out string message)
+        public virtual async Task<(bool success, string message)> SetCCAsync(double val)
         {
             int valToWrite = int.Parse(Math.Round(val * 10) + "");
             Datas.CC_Setting = valToWrite;
-            return SendSettingsToCharger(out message);
+            return await SendSettingsToCharger();
         }
-        public virtual bool SetCVAsync(double val, out string message)
+        public virtual async Task<(bool success, string message)> SetCVAsync(double val)
         {
             int valToWrite = int.Parse(Math.Round(val * 10) + "");
             Datas.CV_Setting = valToWrite;
-            return SendSettingsToCharger(out message);
+            return await SendSettingsToCharger();
+
 
         }
 
-        public virtual bool SetFV(double val, out string message)
+        public virtual async Task<(bool success, string message)> SetFV(double val)
         {
             int valToWrite = int.Parse(Math.Round(val * 10) + "");
             Datas.FV_Setting = valToWrite;
-            return SendSettingsToCharger(out message);
+            return await SendSettingsToCharger();
 
         }
-        public virtual bool SetTCAsync(double val, out string message)
+        public virtual async Task<(bool success, string message)> SetTCAsync(double val)
         {
             int valToWrite = int.Parse(Math.Round(val * 10) + "");
             Datas.TC_Setting = valToWrite;
 
-            return SendSettingsToCharger(out message);
+            return await SendSettingsToCharger();
         }
         public override void SetTag(int newTag)
         {
             base.SetTag(newTag);
             this.Datas.TagNumber = newTag;
         }
-        private bool SendSettingsToCharger(out string message)
+        private async Task<(bool success, string message)> SendSettingsToCharger()
         {
-            message = "";
-            Task.Factory.StartNew(() =>
-            {
-                byte[] cc_LH = Datas.CC_Setting.GetHighLowBytes();
-                var cmd_ = ReadChargerStatesCmd.ToArray();
-                cmd_[13] = 0x60;
-                cmd_[Indexes_Write.CC_L] = cc_LH[0];
-                cmd_[Indexes_Write.CC_H] = cc_LH[1];
+            byte[] cc_LH = Datas.CC_Setting.GetHighLowBytes();
+            var cmd_ = ReadChargerStatesCmd.ToArray();
+            cmd_[13] = 0x60;
+            cmd_[Indexes_Write.CC_L] = cc_LH[0];
+            cmd_[Indexes_Write.CC_H] = cc_LH[1];
 
-                byte[] cv_LH = Datas.CV_Setting.GetHighLowBytes();
-                cmd_[Indexes_Write.CV_L] = cv_LH[0];
-                cmd_[Indexes_Write.CV_H] = cv_LH[1];
+            byte[] cv_LH = Datas.CV_Setting.GetHighLowBytes();
+            cmd_[Indexes_Write.CV_L] = cv_LH[0];
+            cmd_[Indexes_Write.CV_H] = cv_LH[1];
 
-                byte[] FV_LH = Datas.FV_Setting.GetHighLowBytes();
-                cmd_[Indexes_Write.FV_L] = FV_LH[0];
-                cmd_[Indexes_Write.FV_H] = FV_LH[1];
+            byte[] FV_LH = Datas.FV_Setting.GetHighLowBytes();
+            cmd_[Indexes_Write.FV_L] = FV_LH[0];
+            cmd_[Indexes_Write.FV_H] = FV_LH[1];
 
-                byte[] TC_LH = Datas.TC_Setting.GetHighLowBytes();
-                cmd_[Indexes_Write.TC_L] = TC_LH[0];
-                cmd_[Indexes_Write.TC_H] = TC_LH[1];
+            byte[] TC_LH = Datas.TC_Setting.GetHighLowBytes();
+            cmd_[Indexes_Write.TC_L] = TC_LH[0];
+            cmd_[Indexes_Write.TC_H] = TC_LH[1];
 
-                ArraySegment<byte> toCalCRC = new ArraySegment<byte>(cmd_, 8, 47);
-                ushort crc = CRCCalculator.GetCRC16(toCalCRC.ToArray());
-                byte[] crcbytes = BitConverter.GetBytes(crc);
-                cmd_[55] = crcbytes[0];
-                cmd_[56] = crcbytes[1];
-                settingCmd = cmd_.ToArray();
-                WriteSettingFlag = true;
-            });
+            ArraySegment<byte> toCalCRC = new ArraySegment<byte>(cmd_, 8, 47);
+            ushort crc = CRCCalculator.GetCRC16(toCalCRC.ToArray());
+            byte[] crcbytes = BitConverter.GetBytes(crc);
+            cmd_[55] = crcbytes[0];
+            cmd_[56] = crcbytes[1];
+            var settingCmd = cmd_.ToArray();
 
             CancellationTokenSource timeout = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-
+            tcp_client?.Client.Send(settingCmd);
             while (Datas.CC_Setting / 10.0 != Datas.CC || Datas.CV_Setting / 10.0 != Datas.CV || Datas.FV_Setting / 10.0 != Datas.FV || Datas.TC_Setting / 10.0 != Datas.TC)
             {
-                Thread.Sleep(1);
+                await Task.Delay(1000);
                 if (timeout.IsCancellationRequested)
                 {
-                    message = "Timeout!";
-                    return false;
+                    return (false, "Timeout!");
                 }
                 if (tcp_client == null)
                 {
-                    message = "Connection Error";
-                    return false;
+                    return (false, "Connection Error");
                 }
             }
 
-            return true;
+            return (true, "");
 
         }
-        private short GetValue(int LowByteIndex, int HighByteIndex)
+        private short GetValue(ref List<byte> dataRef, int LowByteIndex, int HighByteIndex)
         {
-            byte l = DataBuffer[LowByteIndex];
-            byte h = DataBuffer[HighByteIndex];
+            byte l = dataRef[LowByteIndex];
+            byte h = dataRef[HighByteIndex];
             return (new byte[2] { h, l }).GetInt();
         }
 
-        private int GetValue(int LowByteIndex, int LowByteIndex2, int HighByteIndex, int HighByteIndex2)
+        private int GetValue(ref List<byte> dataRef, int LowByteIndex, int LowByteIndex2, int HighByteIndex, int HighByteIndex2)
         {
-            byte l = DataBuffer[LowByteIndex];
-            byte l2 = DataBuffer[LowByteIndex2];
-            byte h = DataBuffer[HighByteIndex];
-            byte h2 = DataBuffer[HighByteIndex2];
+            byte l = dataRef[LowByteIndex];
+            byte l2 = dataRef[LowByteIndex2];
+            byte h = dataRef[HighByteIndex];
+            byte h2 = dataRef[HighByteIndex2];
             return BitConverter.ToInt32(new byte[4] { h, h2, l, l2 }, 0);
         }
 
