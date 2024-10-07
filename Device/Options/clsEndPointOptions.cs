@@ -41,7 +41,7 @@ namespace EquipmentManagment.Device.Options
 
     public class clsEndPointOptions
     {
-        public Dictionary<string, string> Notes { get; set; } = new Dictionary<string, string>()
+        public virtual Dictionary<string, string> Notes { get; set; } = new Dictionary<string, string>()
         {
             { "Accept_AGV_Type","允許進行任務之車輛種類(0:所有車種,1:叉車AGV, 2:潛盾AGV)" },
             { "EQAcceeptCargoType","設備可移載的貨物種類(0:不限, 200:子母框, 201:Tray)" },
@@ -71,7 +71,7 @@ namespace EquipmentManagment.Device.Options
 
         public List<string> ValidDownStreamEndPointNames { get; set; }
 
-        public clsEQIOLocation IOLocation { get; set; } = new clsEQIOLocation();
+        public virtual clsEQIOLocation IOLocation { get; set; } = new clsEQIOLocation();
 
         public string PLCOptionJsonFile { get; set; }
 

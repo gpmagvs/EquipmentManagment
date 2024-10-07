@@ -214,6 +214,8 @@ namespace EquipmentManagment.ChargeStation
         public static event EventHandler<clsChargeStation> OnBatteryNotConnected;
         public static event EventHandler<clsChargeStation> OnBatteryChargeFull;
         public clsChargerData Datas = new clsChargerData();
+        public ChargerIOSynchronizer chargerIOSynchronizer = new ChargerIOSynchronizer();
+        public clsChargeStationOptions chargerOptions => EndPointOptions as clsChargeStationOptions;
         public clsChargeStation(clsEndPointOptions options) : base(options)
         {
             Datas.UsableAGVNames = (options as clsChargeStationOptions).usableAGVList;
@@ -228,6 +230,8 @@ namespace EquipmentManagment.ChargeStation
 
         public override async Task StartSyncData()
         {
+            if ((EndPointOptions as clsChargeStationOptions).hasIOModule)
+                SyncIOState();
 
             await Task.Run(async () =>
             {
@@ -278,6 +282,17 @@ namespace EquipmentManagment.ChargeStation
                     }
                 }
 
+
+            });
+        }
+
+        private async Task SyncIOState()
+        {
+            await Task.Delay(1).ContinueWith(async task =>
+            {
+                clsChargeStationOptions chargerOption = this.EndPointOptions as clsChargeStationOptions;
+                chargerIOSynchronizer = new ChargerIOSynchronizer(chargerOption);
+                chargerIOSynchronizer.StartAsync();
 
             });
         }
@@ -383,10 +398,10 @@ namespace EquipmentManagment.ChargeStation
         protected override void InputsHandler()
         {
 
-            if (DataBuffer.Count % 57 !=0)
+            if (DataBuffer.Count % 57 != 0)
                 return;
 
-            List<byte> lastData = DataBuffer.GetRange(DataBuffer.Count-57, 57);
+            List<byte> lastData = DataBuffer.GetRange(DataBuffer.Count - 57, 57);
 
             if (lastData[13] == 0x61 || lastData[13] == 0x60)
             {
@@ -406,7 +421,7 @@ namespace EquipmentManagment.ChargeStation
             Datas.FV = GetValue(ref lastData, Indexes.FV_H, Indexes.FV_L) / 10.0;
             Datas.CV = GetValue(ref lastData, Indexes.CV_H, Indexes.CV_L) / 10.0;
             Datas.Temperature = lastData[Indexes.TEMPERATURE];
-            Datas.Time = DateTime.FromBinary(GetValue(ref lastData,Indexes.TIME_L1, Indexes.TIME_L2, Indexes.TIME_H1, Indexes.TIME_H2));
+            Datas.Time = DateTime.FromBinary(GetValue(ref lastData, Indexes.TIME_L1, Indexes.TIME_L2, Indexes.TIME_H1, Indexes.TIME_H2));
             Datas.UpdateTime = DateTime.Now;
             //Errors
             CheckStatus(lastData[Indexes.Status_1], 0, ERROR_CODE.EEPRROM_DATA_ERROR);
