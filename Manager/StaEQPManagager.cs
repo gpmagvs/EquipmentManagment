@@ -175,6 +175,10 @@ namespace EquipmentManagment.Manager
         {
             return EQPDevices.FirstOrDefault(eq => eq.EndPointOptions.TagID == eQTag) as clsEQ;
         }
+        public static clsEQ GetEQByTag(int eQTag, int height)
+        {
+            return EQPDevices.FirstOrDefault(eq => eq.EndPointOptions.TagID == eQTag && eq.EndPointOptions.Height == height) as clsEQ;
+        }
         public static clsRack GetRackByTag(int eQTag)
         {
             return RacksList.FirstOrDefault(eq => eq.EndPointOptions.TagID == eQTag) as clsRack;
