@@ -11,9 +11,9 @@ namespace EquipmentManagment.MainEquipment
 
         public enum EQ_MAIN_STATUS
         {
-            Down,
             BUSY,
             Idle,
+            Down,
             Unknown,
         }
         public enum EQ_TRANSFER_STATUS
