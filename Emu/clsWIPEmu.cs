@@ -1,4 +1,5 @@
-﻿using EquipmentManagment.Device.Options;
+﻿//#define InitRackSensorStateEmu
+using EquipmentManagment.Device.Options;
 using EquipmentManagment.Tool;
 using System;
 using System.Collections.Generic;
@@ -18,6 +19,14 @@ namespace EquipmentManagment.Emu
         }
         protected override void DefaultInputsSetting()
         {
+            foreach (clsRackPortProperty item in this.rackoption.PortsOptions)
+            {
+                slave.DataStore.InputDiscretes[item.IOLocation.Tray_Sensor1 + 1] = false;
+                slave.DataStore.InputDiscretes[item.IOLocation.Tray_Sensor2 + 1] = false;
+                slave.DataStore.InputDiscretes[item.IOLocation.Box_Sensor1 + 1] = false;
+                slave.DataStore.InputDiscretes[item.IOLocation.Box_Sensor2 + 1] = false;
+            }
+#if InitRackSensorStateEmu
             try
             {
                 Random rd = new Random();
@@ -43,8 +52,11 @@ namespace EquipmentManagment.Emu
             //slave.DataStore.InputDiscretes[2] = true;
             //slave.DataStore.InputDiscretes[3] = false;
             //slave.DataStore.InputDiscretes[4] = true;
+           
+#endif 
             var ushortVal = slave.DataStore.InputDiscretes.Skip(1).Take(16).ToArray().GetUshort();
             slave.DataStore.InputRegisters[1] = ushortVal;
+
         }
     }
 }
