@@ -29,7 +29,14 @@ namespace EquipmentManagment.Device.Options
         public clsPortIOLocation IOLocation { get; set; } = new clsPortIOLocation();
         public clsPortUseToEQProperty EQInstall { get; set; } = new clsPortUseToEQProperty();
 
-        public int StoragePriority {  get; set; } = 0;
+        /// <summary>
+        /// 是否有Tray方向檢知sensor
+        /// </summary>
+        public bool HasTrayDirectionSensor { get; set; } = false;
+        public bool HasTraySensor { get; set; } = true;
+        public bool HasRackSensor { get; set; } = true;
+
+        public int StoragePriority { get; set; } = 0;
 
         public class clsPortUseToEQProperty
         {
@@ -45,9 +52,12 @@ namespace EquipmentManagment.Device.Options
 
             #region X-Input
             public ushort Tray_Sensor1 { get; set; } = 0;
-            public ushort Tray_Sensor2 { get; set; } = 1;
-            public ushort Box_Sensor1 { get; set; } = 2;
-            public ushort Box_Sensor2 { get; set; } = 3;
+            public ushort Tray_Sensor2 { get; set; } = 0;
+            public ushort Box_Sensor1 { get; set; } = 0;
+            public ushort Box_Sensor2 { get; set; } = 0;
+            public ushort Tray_Direction_Sensor { get; set; } = 0;
+            public ushort Rack_Area_Sensor { get; set; } = 0;
+
             #endregion
         }
     }

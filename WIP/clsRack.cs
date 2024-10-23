@@ -33,8 +33,8 @@ namespace EquipmentManagment.WIP
             RackOption = options;
             Initialize();
         }
-        public int EmptyPortNum => PortsStatus.Where(port => port.ExistSensorStates.Values.Any(exist => exist == SENSOR_STATUS.ON)).Count();
-        public int HasCargoPortNum => PortsStatus.Count() - PortsStatus.Where(port => port.ExistSensorStates.Values.Any(exist => exist == SENSOR_STATUS.ON)).Count();
+        public int EmptyPortNum => PortsStatus.Where(port => port.MaterialExistSensorStates.Values.Any(exist => exist == SENSOR_STATUS.ON)).Count();
+        public int HasCargoPortNum => PortsStatus.Count() - PortsStatus.Where(port => port.MaterialExistSensorStates.Values.Any(exist => exist == SENSOR_STATUS.ON)).Count();
 
         public override bool IsMaintaining { get { return false; } }
         public override Task StartSyncData()
@@ -45,20 +45,6 @@ namespace EquipmentManagment.WIP
         }
         protected override void InputsHandler()
         {
-
-            bool TryGetInputFromBuffer(ushort location)
-            {
-                try
-                {
-                    return InputBuffer[location];
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message + ex.StackTrace);
-                    return false;
-                }
-            }
-
             foreach (clsPortOfRack port in PortsStatus)
             {
                 port.UpdateIO(ref InputBuffer);

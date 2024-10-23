@@ -58,7 +58,9 @@ namespace EquipmentManagment.WIP
         public enum SENSOR_LOCATION
         {
             TRAY_1, TRAY_2,
-            RACK_1, RACK_2
+            RACK_1, RACK_2,
+            TRAY_DIRECTION,
+            RACK_AREA
         }
 
         public enum SENSOR_STATUS
@@ -94,25 +96,43 @@ namespace EquipmentManagment.WIP
         public static event EventHandler<(clsRack rack, clsPortOfRack port)> OnRackPortSensorFlash;
         public static event EventHandler<(clsRack rack, clsPortOfRack port)> OnRackPortSensorStatusChanged;
 
-        public Dictionary<SENSOR_LOCATION, SENSOR_STATUS> ExistSensorStates { get; set; } = new Dictionary<SENSOR_LOCATION, SENSOR_STATUS>()
+        /// <summary>
+        /// 這是所有sensor的狀態
+        /// </summary>
+        public Dictionary<SENSOR_LOCATION, SENSOR_STATUS> SensorStates { get; set; } = new Dictionary<SENSOR_LOCATION, SENSOR_STATUS>()
         {
             { SENSOR_LOCATION.TRAY_1 ,SENSOR_STATUS.OFF },
             { SENSOR_LOCATION.TRAY_2 ,SENSOR_STATUS.OFF },
             { SENSOR_LOCATION.RACK_1 ,SENSOR_STATUS.OFF },
             { SENSOR_LOCATION.RACK_2 ,SENSOR_STATUS.OFF },
+            { SENSOR_LOCATION.TRAY_DIRECTION ,SENSOR_STATUS.OFF },
+            { SENSOR_LOCATION.RACK_AREA ,SENSOR_STATUS.OFF },
         };
+
+        /// <summary>
+        /// 這是產品在席狀態檢知Sensor的狀態
+        /// </summary>
+        public Dictionary<SENSOR_LOCATION, SENSOR_STATUS> MaterialExistSensorStates
+        {
+            get
+            {
+                return SensorStates.Where(k => k.Key != SENSOR_LOCATION.RACK_AREA && k.Key != SENSOR_LOCATION.TRAY_DIRECTION)
+                                   .ToDictionary(k => k.Key, k => k.Value);
+            }
+        }
+
         public bool CargoExist
         {
             get
             {
-                return ExistSensorStates.Values.Any(state => state == SENSOR_STATUS.ON || state == SENSOR_STATUS.FLASH);
+                return MaterialExistSensorStates.Values.Any(state => state == SENSOR_STATUS.ON || state == SENSOR_STATUS.FLASH);
             }
         }
         public CARGO_PLACEMENT_STATUS TrayPlacementState
         {
             get
             {
-                return GetPlacementState(ExistSensorStates[SENSOR_LOCATION.TRAY_1], ExistSensorStates[SENSOR_LOCATION.TRAY_2]);
+                return GetPlacementState(SensorStates[SENSOR_LOCATION.TRAY_1], SensorStates[SENSOR_LOCATION.TRAY_2]);
             }
         }
 
@@ -120,7 +140,7 @@ namespace EquipmentManagment.WIP
         {
             get
             {
-                return GetPlacementState(ExistSensorStates[SENSOR_LOCATION.RACK_1], ExistSensorStates[SENSOR_LOCATION.RACK_2]);
+                return GetPlacementState(SensorStates[SENSOR_LOCATION.RACK_1], SensorStates[SENSOR_LOCATION.RACK_2]);
             }
         }
         public clsPortOfRack()
@@ -150,6 +170,8 @@ namespace EquipmentManagment.WIP
                     { SENSOR_LOCATION.TRAY_2 ,true },
                     { SENSOR_LOCATION.RACK_1 ,true },
                     { SENSOR_LOCATION.RACK_2 ,true },
+                    { SENSOR_LOCATION.TRAY_DIRECTION,true },
+                    { SENSOR_LOCATION.RACK_AREA,true },
                 };
         internal void UpdateIO(ref bool[] inputBuffer)
         {
@@ -160,6 +182,8 @@ namespace EquipmentManagment.WIP
                 HandleSensorStatus(inputBuffer, SENSOR_LOCATION.TRAY_2, ioLocation.Tray_Sensor2);
                 HandleSensorStatus(inputBuffer, SENSOR_LOCATION.RACK_1, ioLocation.Box_Sensor1);
                 HandleSensorStatus(inputBuffer, SENSOR_LOCATION.RACK_2, ioLocation.Box_Sensor2);
+                HandleSensorStatus(inputBuffer, SENSOR_LOCATION.TRAY_DIRECTION, ioLocation.Tray_Direction_Sensor);
+                HandleSensorStatus(inputBuffer, SENSOR_LOCATION.RACK_AREA, ioLocation.Rack_Area_Sensor);
 
                 //_previousSensorStates = current_ExistSensorStates;
                 //QueExistSensorStates.Enqueue(current_ExistSensorStates);
@@ -185,10 +209,12 @@ namespace EquipmentManagment.WIP
         }
         Dictionary<SENSOR_LOCATION, CancellationTokenSource> _StatusDelayCancellationTks = new Dictionary<SENSOR_LOCATION, CancellationTokenSource>()
         {
-            { SENSOR_LOCATION.TRAY_1  ,  new CancellationTokenSource()},
-            { SENSOR_LOCATION.TRAY_2  ,  new CancellationTokenSource()},
-            { SENSOR_LOCATION.RACK_1  ,  new CancellationTokenSource()},
-            { SENSOR_LOCATION.RACK_2  ,  new CancellationTokenSource()},
+            { SENSOR_LOCATION.TRAY_1 , new CancellationTokenSource()},
+            { SENSOR_LOCATION.TRAY_2 , new CancellationTokenSource()},
+            { SENSOR_LOCATION.RACK_1 , new CancellationTokenSource()},
+            { SENSOR_LOCATION.RACK_2 , new CancellationTokenSource()},
+            { SENSOR_LOCATION.TRAY_DIRECTION , new CancellationTokenSource()},
+            { SENSOR_LOCATION.RACK_AREA , new CancellationTokenSource()},
         };
 
         /// <summary>
@@ -215,19 +241,19 @@ namespace EquipmentManagment.WIP
             }
             catch (TaskCanceledException)
             {
-                var previosState = ExistSensorStates[location];
+                var previosState = SensorStates[location];
                 if (previosState != SENSOR_STATUS.FLASH)
                 {
-                    ExistSensorStates[location] = SENSOR_STATUS.FLASH;
+                    SensorStates[location] = SENSOR_STATUS.FLASH;
                     OnRackPortSensorFlash?.Invoke(this, (ParentRack, this));
                 }
-                Console.WriteLine($"{this.ParentRack.EQName}-Port [{this.Properties.ID}]-{location} chagne to {ExistSensorStates[location]}");
+                Console.WriteLine($"{this.ParentRack.EQName}-Port [{this.Properties.ID}]-{location} chagne to {SensorStates[location]}");
                 return;
             }
 
-            ExistSensorStates[location] = currentSatus ? SENSOR_STATUS.OFF : SENSOR_STATUS.ON;
+            SensorStates[location] = currentSatus ? SENSOR_STATUS.OFF : SENSOR_STATUS.ON;
             OnRackPortSensorStatusChanged?.Invoke(this, (ParentRack, this));
-            Console.WriteLine($"{this.ParentRack.EQName}-Port [{this.Properties.ID}]-{location} chagne to {ExistSensorStates[location]}");
+            Console.WriteLine($"{this.ParentRack.EQName}-Port [{this.Properties.ID}]-{location} chagne to {SensorStates[location]}");
             timestamp = DateTime.Now;
         }
     }
