@@ -96,6 +96,8 @@ namespace EquipmentManagment.ChargeStation
         internal int TC_Setting { get; set; } = 60;
         public string UseVehicleName { get; set; } = "";
 
+        public double StationTemperature { get; set; } = 0;
+
         internal void SetAsNotUsing()
         {
             IsBatteryFull = Connected = IsUsing = false;

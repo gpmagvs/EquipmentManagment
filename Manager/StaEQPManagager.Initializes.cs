@@ -20,13 +20,7 @@ namespace EquipmentManagment.Manager
     {
         public static async void InitializeAsync()
         {
-            InitializeAsync(Configs == null ? new clsEQManagementConfigs
-            {
-                EQConfigPath = "EQConfigs.json",
-                ChargeStationConfigPath = "ChargStationConfigs.json",
-                WIPConfigPath = "WIPConfigs.json",
-                EQGroupConfigPath = "EQGroupConfigs.json"
-            } : Configs);
+            InitializeAsync(Configs == null ? new clsEQManagementConfigs() : Configs);
         }
 
         public static void InitializeAsync(clsEQManagementConfigs _Configs)
@@ -131,6 +125,11 @@ namespace EquipmentManagment.Manager
                 List<EqGroupConfiguration> EQGroupConfig = JsonConvert.DeserializeObject<List<EqGroupConfiguration>>(json);
                 ConfigurateEqGroupStore(EQGroupConfig);
             }
+        }
+
+        private static void InitRackGroup(string rackGroupConfigPath)
+        {
+
         }
 
         private static void ClsRack_OnRackPortCarrierIDChanged(object sender, (string portID, string carrierID) e)

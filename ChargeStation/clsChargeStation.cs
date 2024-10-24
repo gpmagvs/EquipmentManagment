@@ -13,6 +13,7 @@ using EquipmentManagment.Exceptions;
 using EquipmentManagment.Connection;
 using System.Net.Http.Headers;
 using System.Diagnostics;
+using EquipmentManagment.Device.TemperatureModuleDevice;
 
 namespace EquipmentManagment.ChargeStation
 {
@@ -216,6 +217,12 @@ namespace EquipmentManagment.ChargeStation
         public clsChargerData Datas = new clsChargerData();
         public ChargerIOSynchronizer chargerIOSynchronizer = new ChargerIOSynchronizer();
         public clsChargeStationOptions chargerOptions => EndPointOptions as clsChargeStationOptions;
+
+        /// <summary>
+        /// 溫控模組
+        /// </summary>
+        public TemperatureModuleAbstract TemperatureModule;
+
         public clsChargeStation(clsEndPointOptions options) : base(options)
         {
             Datas.UsableAGVNames = (options as clsChargeStationOptions).usableAGVList;
@@ -232,6 +239,9 @@ namespace EquipmentManagment.ChargeStation
         {
             if ((EndPointOptions as clsChargeStationOptions).hasIOModule)
                 SyncIOState();
+            TemperatureModule = new E5DC800(chargerOptions.TemperatureModuleSettings);
+            TemperatureModule.OnTemperatureChanged += TemperatureModule_OnTemperatureChanged;
+            TemperatureModule.BeginAsync();
 
             await Task.Run(async () =>
             {
@@ -244,6 +254,7 @@ namespace EquipmentManagment.ChargeStation
                         return;
                     }
                     await Task.Delay(300);
+
                     try
                     {
                         if (!_IsConnected)
@@ -284,6 +295,13 @@ namespace EquipmentManagment.ChargeStation
 
 
             });
+        }
+
+        private void TemperatureModule_OnTemperatureChanged(object sender, double temperature)
+        {
+            Datas.StationTemperature = temperature;
+            // log temperature changed 
+            Console.WriteLine($"Station Temperature changed to {temperature}..");
         }
 
         private async Task SyncIOState()

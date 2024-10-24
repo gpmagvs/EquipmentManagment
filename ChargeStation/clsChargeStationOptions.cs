@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http.Headers;
 using System.Text;
+using static EquipmentManagment.Device.TemperatureModuleDevice.TemperatureModuleAbstract;
 
 namespace EquipmentManagment.ChargeStation
 {
@@ -24,6 +25,9 @@ namespace EquipmentManagment.ChargeStation
         public ConnectOptions IOModubleConnOptions { get; set; } = new ConnectOptions();
 
         public bool hasIOModule { get; set; } = false;
+
+        public TemperatureModuleSetupOptions TemperatureModuleSettings { get; set; } = new TemperatureModuleSetupOptions();
+
     }
     public class IOLocation
     {
