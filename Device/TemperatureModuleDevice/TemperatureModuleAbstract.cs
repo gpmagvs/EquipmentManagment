@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO.Ports;
+using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
@@ -108,8 +109,13 @@ namespace EquipmentManagment.Device.TemperatureModuleDevice
                 serialPort?.Write(command, 0, command.Length);
                 if (!waitReply)
                     return new byte[0];
-                await Task.Delay(100);
-                serialPort.Read(buffer, 0, buffer.Length);
+                await Task.Delay(500);
+                int avaDataLen = serialPort.BytesToRead;
+                if (avaDataLen > 0)
+                {
+                    serialPort.Read(buffer, 0, buffer.Length);
+                    return buffer.Take(avaDataLen).ToArray();
+                }
             }
             else
             {
@@ -164,6 +170,8 @@ namespace EquipmentManagment.Device.TemperatureModuleDevice
             public int Port { get; set; } = 10001;
             public int BaudRate { get; set; } = 9600;
             public bool Enable { get; set; } = false;
+
+            public double TemperatureAlarmThreshold { get; set; } = 40;
 
         }
 

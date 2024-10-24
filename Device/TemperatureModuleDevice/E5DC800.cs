@@ -29,8 +29,6 @@ namespace EquipmentManagment.Device.TemperatureModuleDevice
         {
             try
             {
-
-                byte[] response = await SendDataToDevice(MODBUS_RTU_CMD_READ_STATUS);
                 byte[] data = await GetStatusDataByte();
                 return ParseTemperature(data);
             }

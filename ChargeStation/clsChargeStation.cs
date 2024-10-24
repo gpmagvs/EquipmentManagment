@@ -214,6 +214,9 @@ namespace EquipmentManagment.ChargeStation
 
         public static event EventHandler<clsChargeStation> OnBatteryNotConnected;
         public static event EventHandler<clsChargeStation> OnBatteryChargeFull;
+        public static event EventHandler<clsChargeStation> OnChargeStationTemperatureOverThreshoad;
+        public static event EventHandler<clsChargeStation> OnChargeStationTemperatureRestoreUnderThreshoad;
+
         public clsChargerData Datas = new clsChargerData();
         public ChargerIOSynchronizer chargerIOSynchronizer = new ChargerIOSynchronizer();
         public clsChargeStationOptions chargerOptions => EndPointOptions as clsChargeStationOptions;
@@ -299,8 +302,20 @@ namespace EquipmentManagment.ChargeStation
 
         private void TemperatureModule_OnTemperatureChanged(object sender, double temperature)
         {
+            bool isTemperatureOverThreadNow = temperature > this.TemperatureModule.SetupOptions.TemperatureAlarmThreshold;
+            bool isTemperatureOverThresBefore = Datas.IsStationTemperatureOverThresHold;
+
+            if (isTemperatureOverThresBefore && !isTemperatureOverThreadNow)    //恢復低於閥值了
+                OnChargeStationTemperatureRestoreUnderThreshoad?.Invoke(this, this);
+
             Datas.StationTemperature = temperature;
+            Datas.IsStationTemperatureOverThresHold = isTemperatureOverThreadNow;
             // log temperature changed 
+            if (Datas.IsStationTemperatureOverThresHold)
+            {
+                OnChargeStationTemperatureOverThreshoad?.Invoke(this, this);
+            }
+
             Console.WriteLine($"Station Temperature changed to {temperature}..");
         }
 
