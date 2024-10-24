@@ -121,11 +121,16 @@ namespace EquipmentManagment.WIP
             }
         }
 
+        /// <summary>
+        /// 儲格是否有貨物存在
+        /// </summary>
         public bool CargoExist
         {
             get
             {
-                return MaterialExistSensorStates.Values.Any(state => state == SENSOR_STATUS.ON || state == SENSOR_STATUS.FLASH);
+                bool hasTray = Properties.HasTraySensor && MaterialExistSensorStates.Any(r => (r.Key == SENSOR_LOCATION.TRAY_1 || r.Key == SENSOR_LOCATION.TRAY_2) && r.Value != SENSOR_STATUS.OFF);
+                bool hasRack = Properties.HasRackSensor && MaterialExistSensorStates.Any(r => (r.Key == SENSOR_LOCATION.RACK_2 || r.Key == SENSOR_LOCATION.RACK_2) && r.Value != SENSOR_STATUS.OFF);
+                return hasTray || hasRack;
             }
         }
         public CARGO_PLACEMENT_STATUS TrayPlacementState

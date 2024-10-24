@@ -34,7 +34,7 @@ namespace EquipmentManagment.WIP
             Initialize();
         }
         public int EmptyPortNum => PortsStatus.Where(port => port.MaterialExistSensorStates.Values.Any(exist => exist == SENSOR_STATUS.ON)).Count();
-        public int HasCargoPortNum => PortsStatus.Count() - PortsStatus.Where(port => port.MaterialExistSensorStates.Values.Any(exist => exist == SENSOR_STATUS.ON)).Count();
+        public int HasCargoPortNum => PortsStatus.Count() - PortsStatus.Where(port => port.CargoExist).Count();
 
         public override bool IsMaintaining { get { return false; } }
         public override Task StartSyncData()
