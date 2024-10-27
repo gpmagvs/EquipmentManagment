@@ -88,6 +88,7 @@ namespace EquipmentManagment.MainEquipment
         public static event EventHandler<clsEQ> OnEqUnloadRequesting;
         public static event EventHandler<IOChangedEventArgs> OnIOStateChanged;
         public static event EventHandler OnPortExistChangeed;
+        public static event EventHandler<(clsEQ, bool)> OnUnloadRequestChanged;
         public delegate bool MyEventHandler(clsEQ eq, EventArgs e);
         public static event MyEventHandler OnCheckEQPortBelongTwoLayersEQOrNot;
 
@@ -121,6 +122,7 @@ namespace EquipmentManagment.MainEquipment
             {
                 if (_Unload_Request != value)
                 {
+                    OnUnloadRequestChanged?.Invoke(this, (this, value));
                     _Unload_Request = value;
                     UnloadRequestRaiseTime = _Unload_Request ? DateTime.Now : DateTime.MinValue;
                     OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "Unload_Request", value));
