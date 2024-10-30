@@ -85,7 +85,8 @@ namespace EquipmentManagment.Device.TemperatureModuleDevice
 
                     try
                     {
-                        CurrentTemperature = await GetTemperature();
+                        double _Temperature = await GetTemperature();
+                        CurrentTemperature = _Temperature == 0 ? CurrentTemperature : _Temperature;
                         Console.WriteLine($"Temperature read from {GetType().Name}: {CurrentTemperature}");
                     }
                     catch (Exception ex)
@@ -123,7 +124,12 @@ namespace EquipmentManagment.Device.TemperatureModuleDevice
                 if (!waitReply)
                     return new byte[0];
                 await Task.Delay(100);
-                socket.Receive(buffer);
+                int avaDataLen = socket.Available;
+                if (avaDataLen > 0)
+                {
+                    socket.Receive(buffer, 0, avaDataLen, SocketFlags.None);
+                    return buffer.Take(avaDataLen).ToArray();
+                }
             }
             return buffer;
         }
