@@ -65,6 +65,9 @@ namespace EquipmentManagment.WIP
 
         public enum SENSOR_STATUS
         {
+            /// <summary>
+            /// OFF 表示沒有貨物
+            /// </summary>
             OFF = 0,
             ON = 1,
             FLASH = 2
@@ -129,7 +132,7 @@ namespace EquipmentManagment.WIP
             get
             {
                 bool hasTray = Properties.HasTraySensor && MaterialExistSensorStates.Any(r => (r.Key == SENSOR_LOCATION.TRAY_1 || r.Key == SENSOR_LOCATION.TRAY_2) && r.Value != SENSOR_STATUS.OFF);
-                bool hasRack = Properties.HasRackSensor && MaterialExistSensorStates.Any(r => (r.Key == SENSOR_LOCATION.RACK_2 || r.Key == SENSOR_LOCATION.RACK_2) && r.Value != SENSOR_STATUS.OFF);
+                bool hasRack = Properties.HasRackSensor && MaterialExistSensorStates.Any(r => (r.Key == SENSOR_LOCATION.RACK_1 || r.Key == SENSOR_LOCATION.RACK_2) && r.Value != SENSOR_STATUS.OFF);
                 return hasTray || hasRack;
             }
         }
@@ -172,10 +175,10 @@ namespace EquipmentManagment.WIP
         Dictionary<SENSOR_LOCATION, bool> current_ExistSensorStates = new Dictionary<SENSOR_LOCATION, bool>()
                 {
                     { SENSOR_LOCATION.TRAY_1 ,true },
-                    { SENSOR_LOCATION.TRAY_2 ,true },
+                    { SENSOR_LOCATION.TRAY_2 ,true},
                     { SENSOR_LOCATION.RACK_1 ,true },
                     { SENSOR_LOCATION.RACK_2 ,true },
-                    { SENSOR_LOCATION.TRAY_DIRECTION,true },
+                    { SENSOR_LOCATION.TRAY_DIRECTION,true},
                     { SENSOR_LOCATION.RACK_AREA,true },
                 };
         internal void UpdateIO(ref bool[] inputBuffer)

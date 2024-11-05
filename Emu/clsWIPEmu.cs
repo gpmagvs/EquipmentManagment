@@ -21,10 +21,10 @@ namespace EquipmentManagment.Emu
         {
             foreach (clsRackPortProperty item in this.rackoption.PortsOptions)
             {
-                slave.DataStore.InputDiscretes[item.IOLocation.Tray_Sensor1 + 1] = false;
-                slave.DataStore.InputDiscretes[item.IOLocation.Tray_Sensor2 + 1] = false;
-                slave.DataStore.InputDiscretes[item.IOLocation.Box_Sensor1 + 1] = false;
-                slave.DataStore.InputDiscretes[item.IOLocation.Box_Sensor2 + 1] = false;
+                slave.DataStore.InputDiscretes[item.IOLocation.Tray_Sensor1 + 1] = true; //B接,預設無料
+                slave.DataStore.InputDiscretes[item.IOLocation.Tray_Sensor2 + 1] = true;
+                slave.DataStore.InputDiscretes[item.IOLocation.Box_Sensor1 + 1] = true;
+                slave.DataStore.InputDiscretes[item.IOLocation.Box_Sensor2 + 1] = true;
             }
 #if InitRackSensorStateEmu
             try
