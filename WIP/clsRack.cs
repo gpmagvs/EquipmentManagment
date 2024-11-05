@@ -90,6 +90,12 @@ namespace EquipmentManagment.WIP
                 return PortsStatus;
         }
 
+        public clsPortOfRack GetPortByKeyWithRackName(string key)
+        {
+            var result = PortsStatus.FirstOrDefault(port => $"{RackOption.Name}_{port.Properties.ID}" == key);
+            return result;
+        }
+
         public override void UpdateCarrierInfo(int tagNumber, string carrierID, int height)
         {
         }
