@@ -95,6 +95,7 @@ namespace EquipmentManagment.WIP
             }
         }
         public int Layer => Properties.Row;
+        public string PortNo => Properties.PortNo;
 
         public static event EventHandler<(clsRack rack, clsPortOfRack port)> OnRackPortSensorFlash;
         public static event EventHandler<(clsRack rack, clsPortOfRack port)> OnRackPortSensorStatusChanged;

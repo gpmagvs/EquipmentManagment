@@ -21,7 +21,7 @@ namespace EquipmentManagment.Device.Options
         /// <summary>
         /// key: colunm index , value: tag陣列(因為有可能有貼雙Tag)
         /// </summary>
-        public Dictionary<int, int[]> ColumnTagMap = new Dictionary<int, int[]>();
+        public Dictionary<int, int[]> ColumnTagMap { get; set; } = new Dictionary<int, int[]>();
         public class clsLayoutInfo
         {
             public int Width { get; set; } = 400;

@@ -17,6 +17,10 @@ namespace EquipmentManagment.Device.Options
         public int Row { get; set; } = 0;
         public int Column { get; set; } = 0;
         /// <summary>
+        /// 儲格編號(就是現場RACK架上面貼的號碼)
+        /// </summary>
+        public string PortNo { get; set; } = "1";
+        /// <summary>
         /// 該PORT可存放OK/NG產品設定
         /// </summary>
         public PRUDUCTION_QUALITY ProductionQualityStore { get; set; } = PRUDUCTION_QUALITY.OK;
