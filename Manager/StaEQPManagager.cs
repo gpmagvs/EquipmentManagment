@@ -247,6 +247,15 @@ namespace EquipmentManagment.Manager
             File.WriteAllText(Configs.EQGroupConfigPath, JsonConvert.SerializeObject(groupsConfigs, Formatting.Indented));
         }
 
-
+        /// <summary>
+        /// Dictionary<string,IEnumable<object>>
+        /// </summary>
+        /// <returns></returns>
+        public static object GetRackDataForMCS()
+        {
+            //Dictionary<string,oject>
+            var _rackData= RacksList.ToDictionary(rack => rack.EndPointOptions.DeviceID, rack => rack.PortsStatus.Select(port => new {PortID="", CarrierID = port.CarrierID, ExistStatus = port.CargoExist }));
+            return _rackData;
+        }
     }
 }
