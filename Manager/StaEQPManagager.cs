@@ -257,5 +257,17 @@ namespace EquipmentManagment.Manager
             var _rackData= RacksList.ToDictionary(rack => rack.EndPointOptions.DeviceID, rack => rack.PortsStatus.Select(port => new {PortID="", CarrierID = port.CarrierID, ExistStatus = port.CargoExist }));
             return _rackData;
         }
+        public static bool GetRackExistForMCS()
+        {
+            //Dictionary<string,oject>
+            int _rackExist = 0;
+            bool ExistsChange =false;
+            var _rackData = RacksList.ToDictionary(rack => rack.EndPointOptions.DeviceID, rack => rack.PortsStatus.Select(port => new { ExistStatus = port.CargoExist }));
+            if (_rackExist != _rackData.Count)
+            {
+                ExistsChange = true;
+            }
+            return ExistsChange;
+        }
     }
 }
