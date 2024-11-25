@@ -42,7 +42,7 @@ namespace EquipmentManagment.ChargeStation
             public int AIR_ERROR { get; set; } = 2;
             public int CYLINDER_FORWARD { get; set; } = 3;
             public int CYLINDER_BACKWARD { get; set; } = 4;
-
+            public int TEMPERABURE_ABN { get; internal set; } = 5;
         }
 
         public class OUTPUT

@@ -300,6 +300,14 @@ namespace EquipmentManagment.ChargeStation
             });
         }
 
+        public virtual async Task ResetAlarm()
+        {
+            if (chargerIOSynchronizer!=null)
+            {
+                chargerIOSynchronizer.IOStates.Reset();
+            }
+        }
+
         private void TemperatureModule_OnTemperatureChanged(object sender, double temperature)
         {
             bool isTemperatureOverThreadNow = temperature > this.TemperatureModule.SetupOptions.TemperatureAlarmThreshold;

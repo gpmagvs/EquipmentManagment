@@ -247,6 +247,15 @@ namespace EquipmentManagment.Manager
             File.WriteAllText(Configs.EQGroupConfigPath, JsonConvert.SerializeObject(groupsConfigs, Formatting.Indented));
         }
 
-
+        public static async Task ResetChargeStationAlarmsAsync()
+        {
+            await Task.Delay(10).ContinueWith(async tk =>
+            {
+                foreach (var chargeStation in ChargeStations)
+                {
+                    await chargeStation.ResetAlarm();
+                }
+            });
+        }
     }
 }

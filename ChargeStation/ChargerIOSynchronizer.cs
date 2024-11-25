@@ -20,6 +20,7 @@ namespace EquipmentManagment.ChargeStation
         public static event EventHandler<string> OnEMO;
         public static event EventHandler<string> OnSmokeDetected;
         public static event EventHandler<string> OnAirError;
+        public static event EventHandler<string> OnTemperatureModuleError;
         public ChargerIOSynchronizer()
         {
         }
@@ -36,6 +37,7 @@ namespace EquipmentManagment.ChargeStation
             IOStates.OnEMO += IOStates_OnEMO;
             IOStates.OnSmokeDetected += IOStates_OnSmokeDetected;
             IOStates.OnAirError += IOStates_OnAirError;
+            IOStates.OnTemperatureError += IOStates_OnTemperatureError;
 
             await Task.Delay(1).ContinueWith(async tk =>
             {
@@ -56,12 +58,12 @@ namespace EquipmentManagment.ChargeStation
                     {
                         bool[] inputs = modbusMaster.ReadCoils(0, 16);
 
-                        IOStates.EMO = inputs[ChargerOption.IOLocation.Inputs.EMO];
+                        IOStates.EMO = !inputs[ChargerOption.IOLocation.Inputs.EMO];
                         IOStates.SMOKE_DECTECTED = inputs[ChargerOption.IOLocation.Inputs.SMOKE_DETECT_ERROR];
-                        IOStates.AIR_ERROR = inputs[ChargerOption.IOLocation.Inputs.AIR_ERROR];
+                        IOStates.AIR_ERROR = !inputs[ChargerOption.IOLocation.Inputs.AIR_ERROR];
                         IOStates.CYLINDER_FORWARD = inputs[ChargerOption.IOLocation.Inputs.CYLINDER_FORWARD];
                         IOStates.CYLINDER_BACKWARD = inputs[ChargerOption.IOLocation.Inputs.CYLINDER_BACKWARD];
-
+                        IOStates.TEMPERATURE_MODULE_ABN=inputs[ChargerOption.IOLocation.Inputs.TEMPERABURE_ABN];
                     }
                     catch (Exception ex)
                     {
@@ -75,6 +77,10 @@ namespace EquipmentManagment.ChargeStation
         private void IOStates_OnAirError(object sender, EventArgs e)
         {
             OnAirError?.Invoke(this, ChargerOption.Name);
+        }
+        private void IOStates_OnTemperatureError(object sender, EventArgs e)
+        {
+            OnTemperatureModuleError?.Invoke(this, ChargerOption.Name);
         }
 
         private void IOStates_OnSmokeDetected(object sender, EventArgs e)
