@@ -268,6 +268,15 @@ namespace EquipmentManagment.Manager
                 ExistsChange = true;
             }
             return ExistsChange;
+        public static async Task ResetChargeStationAlarmsAsync()
+        {
+            await Task.Delay(10).ContinueWith(async tk =>
+            {
+                foreach (var chargeStation in ChargeStations)
+                {
+                    await chargeStation.ResetAlarm();
+                }
+            });
         }
     }
 }
