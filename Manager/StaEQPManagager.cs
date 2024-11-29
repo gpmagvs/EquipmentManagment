@@ -254,20 +254,21 @@ namespace EquipmentManagment.Manager
         public static object GetRackDataForMCS()
         {
             //Dictionary<string,oject>
-            var _rackData= RacksList.ToDictionary(rack => rack.EndPointOptions.DeviceID, rack => rack.PortsStatus.Select(port => new {PortID="", CarrierID = port.CarrierID, ExistStatus = port.CargoExist }));
+            var _rackData = RacksList.ToDictionary(rack => rack.EndPointOptions.DeviceID, rack => rack.PortsStatus.Select(port => new { PortID = "", CarrierID = port.CarrierID, ExistStatus = port.CargoExist }));
             return _rackData;
         }
         public static bool GetRackExistForMCS()
         {
             //Dictionary<string,oject>
             int _rackExist = 0;
-            bool ExistsChange =false;
+            bool ExistsChange = false;
             var _rackData = RacksList.ToDictionary(rack => rack.EndPointOptions.DeviceID, rack => rack.PortsStatus.Select(port => new { ExistStatus = port.CargoExist }));
             if (_rackExist != _rackData.Count)
             {
                 ExistsChange = true;
             }
             return ExistsChange;
+        }
         public static async Task ResetChargeStationAlarmsAsync()
         {
             await Task.Delay(10).ContinueWith(async tk =>
