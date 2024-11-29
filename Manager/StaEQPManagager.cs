@@ -254,7 +254,7 @@ namespace EquipmentManagment.Manager
         public static object GetRackDataForMCS()
         {
             //Dictionary<string,oject>
-            var _rackData = RacksList.ToDictionary(rack => rack.EndPointOptions.DeviceID, rack => rack.PortsStatus.Select(port => new { PortID = "", CarrierID = port.CarrierID, ExistStatus = port.CargoExist }));
+            var _rackData = RacksList.ToDictionary(rack => rack.EndPointOptions.DeviceID, rack => rack.PortsStatus.Select(port => new { PortID = $"{rack.EndPointOptions.DeviceID}_{port.PortNo}", CarrierID = port.CarrierID, ExistStatus = port.CargoExist }));
             return _rackData;
         }
         public static bool GetRackExistForMCS()
