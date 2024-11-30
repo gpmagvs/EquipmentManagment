@@ -1,4 +1,5 @@
 ﻿using EquipmentManagment.MainEquipment;
+using EquipmentManagment.WIP;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -20,7 +21,11 @@ namespace EquipmentManagment.Device
                 if (_CarrierID != value)
                 {
                     _CarrierID = value;
-                    CarrierIDChanged?.Invoke(this, value);
+
+                    if (GetType().Name == typeof(clsPortOfRack).Name)
+                    {
+                        CarrierIDChanged?.Invoke(this, value);
+                    }
                 }
             }
         }

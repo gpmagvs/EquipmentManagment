@@ -113,8 +113,10 @@ namespace EquipmentManagment.Device.Options
         public int AnotherPortTagNumber { get; set; } = 0;
 
         public bool HasLDULDMechanism { get; set; } = false;
-
-
+        /// <summary>
+        /// 是否當作Zone, 通常只有轉換站
+        /// </summary>
+        public bool IsRoleAsZone { get; set; }
     }
 
     public class clsEQIOLocation
