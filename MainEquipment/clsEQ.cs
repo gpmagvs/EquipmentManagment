@@ -87,7 +87,8 @@ namespace EquipmentManagment.MainEquipment
         public clsStatusIOModbusGateway AGVModbusGateway { get; set; } = new clsStatusIOModbusGateway();
         public static event EventHandler<clsEQ> OnEqUnloadRequesting;
         public static event EventHandler<IOChangedEventArgs> OnIOStateChanged;
-        public static event EventHandler OnPortExistChangeed;
+        public static event EventHandler<clsEQ> OnPortCargoInstalled;
+        public static event EventHandler<clsEQ> OnPortCargoRemoved;
         public static event EventHandler<(clsEQ, bool)> OnUnloadRequestChanged;
         public delegate bool MyEventHandler(clsEQ eq, EventArgs e);
         public static event MyEventHandler OnCheckEQPortBelongTwoLayersEQOrNot;
@@ -140,7 +141,10 @@ namespace EquipmentManagment.MainEquipment
                 {
                     _Port_Exist = value;
                     OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "Port_Exist", value));
-                    OnPortExistChangeed?.Invoke(this, null);
+                    if (_Port_Exist)
+                        OnPortCargoInstalled(this, this);
+                    else
+                        OnPortCargoRemoved(this, this);
                 }
             }
         }
