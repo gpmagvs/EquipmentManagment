@@ -99,8 +99,8 @@ namespace EquipmentManagment.WIP
 
         public static event EventHandler<(clsRack rack, clsPortOfRack port)> OnRackPortSensorFlash;
         public static event EventHandler<(clsRack rack, clsPortOfRack port)> OnRackPortSensorStatusChanged;
-        public static event EventHandler<clsPortOfRack> OnPortCargoRemoved;
-        public static event EventHandler<clsPortOfRack> OnPortCargoInstalled;
+        public static event EventHandler<clsPortOfRack> OnPortCargoChangeToDisappear;
+        public static event EventHandler<clsPortOfRack> OnPortCargoChangedToExist;
 
         /// <summary>
         /// 這是所有sensor的狀態
@@ -268,9 +268,9 @@ namespace EquipmentManagment.WIP
             timestamp = DateTime.Now;
 
             if (CargoExist)
-                OnPortCargoInstalled?.Invoke(this, this);
+                OnPortCargoChangedToExist?.Invoke(this, this);
             else
-                OnPortCargoRemoved?.Invoke(this, this);
+                OnPortCargoChangeToDisappear?.Invoke(this, this);
         }
     }
 }
