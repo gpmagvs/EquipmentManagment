@@ -221,5 +221,11 @@ namespace EquipmentManagment.Emu
         {
             ModifyInput(options.IOLocation.Eqp_PartsReplacing, isReplacing);
         }
+
+        public void SetPortExist(int portExist)
+        {
+            ModifyInput(options.IOLocation.Port_Exist, portExist !=0);
+
+        }
     }
 }
