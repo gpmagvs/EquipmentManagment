@@ -8,7 +8,7 @@ namespace EquipmentManagment.Device
 {
     public abstract class PortStatusAbstract
     {
-        public static event EventHandler<string> CarrierIDChanged;
+        public static event EventHandler<(string newValue, string oldValue)> CarrierIDChanged;
 
         public string NickName { get; set; } = "TEST";
 
@@ -20,11 +20,12 @@ namespace EquipmentManagment.Device
             {
                 if (_CarrierID != value)
                 {
+                    string oldValue = _CarrierID;
                     _CarrierID = value;
 
                     if (GetType().Name == typeof(clsPortOfRack).Name)
                     {
-                        CarrierIDChanged?.Invoke(this, value);
+                        CarrierIDChanged?.Invoke(this, (value, oldValue));
                     }
                 }
             }
