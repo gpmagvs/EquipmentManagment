@@ -98,6 +98,14 @@ namespace EquipmentManagment.WIP
 
         public override void UpdateCarrierInfo(int tagNumber, string carrierID, int height)
         {
+            clsPortOfRack Port = PortsStatus.FirstOrDefault(port => port.TagNumbers.Contains(tagNumber) && port.Layer==height);
+            if (Port!=null)
+            {
+                Port.CarrierID = carrierID;
+                if (this.EndPointOptions.IsEmulation)
+                {
+                }
+            }
         }
     }
 }

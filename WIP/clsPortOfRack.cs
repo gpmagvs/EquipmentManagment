@@ -126,7 +126,7 @@ namespace EquipmentManagment.WIP
                                    .ToDictionary(k => k.Key, k => k.Value);
             }
         }
-
+        private bool PreviousCargoExist = false;
         /// <summary>
         /// 儲格是否有貨物存在
         /// </summary>
@@ -267,10 +267,12 @@ namespace EquipmentManagment.WIP
             Console.WriteLine($"{this.ParentRack.EQName}-Port [{this.Properties.ID}]-{location} chagne to {SensorStates[location]}");
             timestamp = DateTime.Now;
 
-            if (CargoExist)
+            if (!PreviousCargoExist && CargoExist)
                 OnPortCargoChangedToExist?.Invoke(this, this);
-            else
+            else if (PreviousCargoExist && !CargoExist)
                 OnPortCargoChangeToDisappear?.Invoke(this, this);
+
+            PreviousCargoExist = CargoExist;
         }
     }
 }
