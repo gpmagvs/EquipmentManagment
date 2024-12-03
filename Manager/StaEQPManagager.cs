@@ -35,6 +35,7 @@ namespace EquipmentManagment.Manager
         }
         public static List<clsChargeStation> ChargeStations = new List<clsChargeStation>();
         public static List<clsRack> RacksList = new List<clsRack>();
+        public static List<clsPortOfRack> RackPortsList => RacksList.SelectMany(rack => rack.PortsStatus).ToList();
 
         public static List<EqGroup> EQGroupsStore = new List<EqGroup>();
 
