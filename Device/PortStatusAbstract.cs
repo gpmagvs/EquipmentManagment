@@ -8,7 +8,7 @@ namespace EquipmentManagment.Device
 {
     public abstract class PortStatusAbstract
     {
-        public static event EventHandler<(string newValue, string oldValue)> CarrierIDChanged;
+        public static event EventHandler<(string newValue, string oldValue, bool isUpdateByVehicleLoadTo)> CarrierIDChanged;
 
         public string NickName { get; set; } = "TEST";
 
@@ -25,7 +25,7 @@ namespace EquipmentManagment.Device
 
                     if (GetType().Name == typeof(clsPortOfRack).Name)
                     {
-                        CarrierIDChanged?.Invoke(this, (value, oldValue));
+                        CarrierIDChanged?.Invoke(this, (value, oldValue, VehicleLoadToPortFlag));
                     }
                 }
             }
@@ -34,6 +34,8 @@ namespace EquipmentManagment.Device
         public DateTime InstallTime { get; set; } = DateTime.MinValue;
 
         public RACK_CONTENT_STATE RackContentState { get; set; } = RACK_CONTENT_STATE.UNKNOWN;
+
+        public bool VehicleLoadToPortFlag { get; set; } = false;
     }
 
 
