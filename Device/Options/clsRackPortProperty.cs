@@ -11,7 +11,8 @@ namespace EquipmentManagment.Device.Options
         public Dictionary<string, string> Notes { get; set; } = new Dictionary<string, string>()
         {
             {"ProductionQualityStore" ,"該PORT可存放OK/NG產品設定(0:僅可放OK產品 | 1: NG:僅可放NG產品)" },
-            {"CargoTypeStore" ,"該PORT可存放的貨物種類(0:Tray | 1: Rack | 2:Mixed)" }
+            {"CargoTypeStore" ,"該PORT可存放的貨物種類(0:Tray | 1: Rack | 2:Mixed)" },
+            {"PortEnable" ,"該PORT是否啟用 (0:Enable | 1: Disable)" }
         };
         public string ID => $"{Row}-{Column}";
         public int Row { get; set; } = 0;
