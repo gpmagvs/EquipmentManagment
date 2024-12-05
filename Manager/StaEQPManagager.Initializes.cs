@@ -34,7 +34,6 @@ namespace EquipmentManagment.Manager
                 _LoadWipConfigs(_Configs.WIPConfigPath);
                 EmulatorsInitialize(_Configs);
 
-                List<Task> ConnectTasks = new List<Task>();
                 foreach (KeyValuePair<string, clsChargeStationOptions> item in ChargeStationsOptions)
                 {
                     var eqName = item.Key;
@@ -47,7 +46,6 @@ namespace EquipmentManagment.Manager
                     if (charge_station != null)
                     {
                         ChargeStations.Add(charge_station);
-                        ConnectTasks.Add(ConnectTo(charge_station));
                     }
                 }
 
@@ -61,7 +59,6 @@ namespace EquipmentManagment.Manager
 
                     clsRack Rack = new clsRack(options);
                     RacksList.Add(Rack);
-                    ConnectTasks.Add(ConnectTo(Rack));
                 }
 
 
@@ -84,13 +81,6 @@ namespace EquipmentManagment.Manager
                     if (EQ == null)
                         continue;
                     EQPDevices.Add(EQ);
-                    ConnectTasks.Add(ConnectTo(EQ.EndPointOptions.EqType == EQ_TYPE.BATTERY_EXCHANGER ? (EQ as clsBatteryExchanger) : EQ));
-                }
-                Task.WhenAll(ConnectTasks);
-
-                async Task ConnectTo(EndPointDeviceAbstract device)
-                {
-                    await device.StartSyncData();
                 }
 
                 InitEQGroup(_Configs.EQGroupConfigPath);
@@ -104,6 +94,18 @@ namespace EquipmentManagment.Manager
                 throw ex;
             }
 
+        }
+
+        public static async Task DevicesConnectToAsync()
+        {
+            Console.WriteLine("Start Device Connect To..");
+            List<EndPointDeviceAbstract> deviceList = new List<EndPointDeviceAbstract>();
+            deviceList.AddRange(EQPDevices);
+            deviceList.AddRange(RacksList);
+            deviceList.AddRange(ChargeStations);
+
+            foreach (var item in deviceList)
+                Task.Run(() => item.StartSyncData());
         }
 
         private static bool ClsEQ_OnCheckEQPortBelongTwoLayersEQOrNot(clsEQ eq, EventArgs e)
