@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
@@ -651,6 +652,13 @@ namespace EquipmentManagment.MainEquipment
                 try
                 {
                     PortTypeNumber = DataBuffer[EndPointOptions.IOLocation.HoldingRegists.PortTypeStatus];
+
+                    if (EndPointOptions.IsCSTIDReportable)
+                    {
+                        ushort registStart = EndPointOptions.IOLocation.HoldingRegists.CarrierIDReportStart;
+                        PortStatus.CarrierID = string.Join("-", DataBuffer.Skip(registStart).Take(10));
+                    }
+
                 }
                 catch (Exception ex)
                 {

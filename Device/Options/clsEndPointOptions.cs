@@ -117,6 +117,9 @@ namespace EquipmentManagment.Device.Options
         /// 是否當作Zone, 通常只有轉換站
         /// </summary>
         public bool IsRoleAsZone { get; set; }
+
+        public bool IsCSTIDReportable { get; set; } = false;
+
     }
 
     public class clsEQIOLocation
@@ -185,6 +188,7 @@ namespace EquipmentManagment.Device.Options
         public class ClsHoldingRegist
         {
             public ushort PortTypeStatus { get; set; } = 6;
+            public ushort CarrierIDReportStart { get; set; } = 9;
         }
 
     }
