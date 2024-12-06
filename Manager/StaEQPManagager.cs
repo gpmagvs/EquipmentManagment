@@ -247,29 +247,6 @@ namespace EquipmentManagment.Manager
             EQGroupsStore = groupsConfigs.Select(config => new EqGroup(config)).ToList();
             File.WriteAllText(Configs.EQGroupConfigPath, JsonConvert.SerializeObject(groupsConfigs, Formatting.Indented));
         }
-
-        /// <summary>
-        /// Dictionary<string,IEnumable<object>>
-        /// </summary>
-        /// <returns></returns>
-        public static object GetRackDataForMCS()
-        {
-            //Dictionary<string,oject>
-            var _rackData = RacksList.ToDictionary(rack => rack.EndPointOptions.DeviceID, rack => rack.PortsStatus.Select(port => new { PortID = $"{rack.EndPointOptions.DeviceID}_{port.PortNo}", CarrierID = port.CarrierID, ExistStatus = port.CargoExist }));
-            return _rackData;
-        }
-        public static bool GetRackExistForMCS()
-        {
-            //Dictionary<string,oject>
-            int _rackExist = 0;
-            bool ExistsChange = false;
-            var _rackData = RacksList.ToDictionary(rack => rack.EndPointOptions.DeviceID, rack => rack.PortsStatus.Select(port => new { ExistStatus = port.CargoExist }));
-            if (_rackExist != _rackData.Count)
-            {
-                ExistsChange = true;
-            }
-            return ExistsChange;
-        }
         public static async Task ResetChargeStationAlarmsAsync()
         {
             await Task.Delay(10).ContinueWith(async tk =>
