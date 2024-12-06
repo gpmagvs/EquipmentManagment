@@ -656,7 +656,7 @@ namespace EquipmentManagment.MainEquipment
                     if (EndPointOptions.IsCSTIDReportable)
                     {
                         ushort registStart = EndPointOptions.IOLocation.HoldingRegists.CarrierIDReportStart;
-                        PortStatus.CarrierID = string.Join("-", DataBuffer.Skip(registStart).Take(10));
+                        PortStatus.CarrierID = ToASCII(DataBuffer.Skip(registStart - 1).Take(30).Reverse());
                     }
 
                 }
@@ -666,6 +666,12 @@ namespace EquipmentManagment.MainEquipment
                 }
             }
 
+        }
+
+        public string ToASCII(IEnumerable<byte> words)
+        {
+            var bb = words.SelectMany(_int => new ArraySegment<byte>(BitConverter.GetBytes(_int), 0, 2).Select(b => b));
+            return Encoding.ASCII.GetString(bb.ToArray());
         }
         public void ToEQ()
         {

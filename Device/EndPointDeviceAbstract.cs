@@ -520,7 +520,7 @@ namespace EquipmentManagment.Device
 
                 try
                 {
-                    ushort[] holdingRegists = master.ReadHoldingRegisters(0, 0, 32);
+                    ushort[] holdingRegists = master.ReadHoldingRegisters(0, 0, 125);
                     if (holdingRegists.Any(vl => vl == 1))
                     {
 
