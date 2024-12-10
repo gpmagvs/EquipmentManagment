@@ -13,7 +13,7 @@ namespace EquipmentManagment.Device
         public string NickName { get; set; } = "TEST";
 
         private string _CarrierID = "";
-        public string CarrierID
+        public virtual string CarrierID
         {
             get => _CarrierID;
             set
@@ -26,6 +26,10 @@ namespace EquipmentManagment.Device
                     if (GetType().Name == typeof(clsPortOfRack).Name)
                     {
                         CarrierIDChanged?.Invoke(this, (value, oldValue, VehicleLoadToPortFlag || VehicleUnLoadFromPortFlag));
+                    }
+                    else
+                    {
+
                     }
                 }
             }

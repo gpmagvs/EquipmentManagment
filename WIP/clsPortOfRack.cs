@@ -12,6 +12,13 @@ using Newtonsoft.Json;
 
 namespace EquipmentManagment.WIP
 {
+
+
+    public class PortOfRackViewModel : clsPortOfRack
+    {
+        private string carrierID = "";
+        public override string CarrierID { get => carrierID; set => carrierID = value; }
+    }
     /// <summary>
     /// 表示一個儲存格
     /// </summary>
@@ -85,6 +92,8 @@ namespace EquipmentManagment.WIP
         {
             get
             {
+                if (ParentRack == null)
+                    return new int[0];
                 var tagMap = ParentRack.RackOption.ColumnTagMap;
 
                 if (tagMap.TryGetValue(Properties.Column, out int[] _tags))

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using EquipmentManagment.Device;
 using EquipmentManagment.Device.Options;
 using EquipmentManagment.Manager;
+using Newtonsoft.Json;
 using static EquipmentManagment.WIP.clsPortOfRack;
 
 namespace EquipmentManagment.WIP
@@ -80,10 +81,13 @@ namespace EquipmentManagment.WIP
                 {
                     int tagOfColumn = this.RackOption.ColumnTagMap[port.Properties.Column].First();
                     MainEquipment.clsEQ eq = StaEQPManagager.GetEQByTag(tagOfColumn);
-                    port.NickName = eq.EndPointOptions.Name;
-                    port.RackContentState = eq.RackContentState;
-                    port.CarrierExist = eq.Port_Exist;
-                    return port;
+                    PortOfRackViewModel portClone = JsonConvert.DeserializeObject<PortOfRackViewModel>(JsonConvert.SerializeObject(port));
+                    portClone.NickName = eq.EndPointOptions.Name;
+                    portClone.RackContentState = eq.RackContentState;
+                    portClone.CarrierExist = eq.Port_Exist;
+                    portClone.CarrierID = eq.PortStatus.CarrierID;
+
+                    return portClone;
                 }).ToArray();
             }
             else
@@ -98,8 +102,8 @@ namespace EquipmentManagment.WIP
 
         public override void UpdateCarrierInfo(int tagNumber, string carrierID, int height)
         {
-            clsPortOfRack Port = PortsStatus.FirstOrDefault(port => port.TagNumbers.Contains(tagNumber) && port.Layer==height);
-            if (Port!=null)
+            clsPortOfRack Port = PortsStatus.FirstOrDefault(port => port.TagNumbers.Contains(tagNumber) && port.Layer == height);
+            if (Port != null)
             {
                 Port.CarrierID = carrierID;
                 if (this.EndPointOptions.IsEmulation)
