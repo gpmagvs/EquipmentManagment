@@ -80,6 +80,7 @@ namespace EquipmentManagment.MainEquipment
         private bool _HS_EQ_BUSY = false;
         private bool _Empty_CST;
         private bool _Full_CST;
+        private string _CSTIDReadValue;
 
         public bool EmptyRackUnloadVirtualInput = false;
         public bool FullRackUnloadVirtualInput = false;
@@ -92,6 +93,7 @@ namespace EquipmentManagment.MainEquipment
         public static event EventHandler<clsEQ> OnEQPortCargoChangedToExist;
         public static event EventHandler<clsEQ> OnEQPortCargoChangedToDisappear;
         public static event EventHandler<(clsEQ, bool)> OnUnloadRequestChanged;
+        public static event EventHandler<(clsEQ, string newValue, string oldValue)> OnCSTReaderIDChanged;
         public delegate bool MyEventHandler(clsEQ eq, EventArgs e);
         public static event MyEventHandler OnCheckEQPortBelongTwoLayersEQOrNot;
 
@@ -150,6 +152,20 @@ namespace EquipmentManagment.MainEquipment
                 }
             }
         }
+
+        public string CSTIDReadValue
+        {
+            get => _CSTIDReadValue;
+            set
+            {
+                if (_CSTIDReadValue != value)
+                {
+                    OnCSTReaderIDChanged?.Invoke(this, (this, value, _CSTIDReadValue));
+                    PortStatus.CarrierID = _CSTIDReadValue = value;
+                }
+            }
+        }
+
         public bool Up_Pose
         {
             get => _Up_Pose;
@@ -662,7 +678,7 @@ namespace EquipmentManagment.MainEquipment
             {
                 if (EndPointOptions.IsCSTIDReportable)
                 {
-                    PortStatus.CarrierID = ToASCII(BCRIDHoldingRegistStore);
+                    CSTIDReadValue = ToASCII(BCRIDHoldingRegistStore);
                 }
 
             }
@@ -759,7 +775,7 @@ namespace EquipmentManagment.MainEquipment
             CMD_Reserve_Up = false;
             CMD_Reserve_Low = true;
         }
-        public void CancelReserve()
+        public async Task CancelReserve()
         {
             CMD_Reserve_Low = CMD_Reserve_Up = false;
         }
