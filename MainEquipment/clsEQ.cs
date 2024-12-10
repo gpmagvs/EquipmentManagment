@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using EquipmentManagment.Device;
 using EquipmentManagment.Device.Options;
 using EquipmentManagment.Manager;
+using Newtonsoft.Json.Linq;
 
 namespace EquipmentManagment.MainEquipment
 {
@@ -647,31 +648,48 @@ namespace EquipmentManagment.MainEquipment
             AGVModbusGateway.StoreEQOutpus(new bool[] { HS_EQ_L_REQ, HS_EQ_U_REQ, HS_EQ_READY, HS_EQ_BUSY });
 
 
-            if (DataBuffer.Count > 0)
+            if (DataBuffer.Any())
             {
                 try
                 {
                     PortTypeNumber = DataBuffer[EndPointOptions.IOLocation.HoldingRegists.PortTypeStatus];
-
-                    if (EndPointOptions.IsCSTIDReportable)
-                    {
-                        ushort registStart = EndPointOptions.IOLocation.HoldingRegists.CarrierIDReportStart;
-                        PortStatus.CarrierID = ToASCII(DataBuffer.Skip(registStart - 1).Take(30).Reverse());
-                    }
-
                 }
                 catch (Exception ex)
                 {
-                    throw new IndexOutOfRangeException(ex.Message, ex);
                 }
+            }
+            try
+            {
+                if (EndPointOptions.IsCSTIDReportable)
+                {
+                    PortStatus.CarrierID = ToASCII(BCRIDHoldingRegistStore);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw new IndexOutOfRangeException(ex.Message, ex);
             }
 
         }
 
-        public string ToASCII(IEnumerable<byte> words)
+        public string ToASCII(IEnumerable<ushort> words)
         {
-            var bb = words.SelectMany(_int => new ArraySegment<byte>(BitConverter.GetBytes(_int), 0, 2).Select(b => b));
-            return Encoding.ASCII.GetString(bb.ToArray());
+            if (words == null)
+                return string.Empty;
+            StringBuilder sb = new StringBuilder();
+            foreach (ushort value in words)
+            {
+                //0x4154 取得 high byte 與 low byte 0x41, 0x54 
+                if (value == 0)
+                    break;
+                // 取得高位元組 (0x41)
+                byte highByte = (byte)(value >> 8);    // 右移 8 位
+                // 取得低位元組 (0x54)
+                byte lowByte = (byte)(value & 0xFF);   // 使用 AND 運算取得最後 8 位
+                sb.Append(Encoding.ASCII.GetString(new byte[2] { lowByte, highByte }));
+            }
+            return sb.ToString().TrimEnd();
         }
         public void ToEQ()
         {

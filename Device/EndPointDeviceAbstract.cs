@@ -87,6 +87,8 @@ namespace EquipmentManagment.Device
         public bool[] InputBuffer = new bool[64];
         public List<byte> DataBuffer { get; protected set; } = new List<byte>();
 
+        public List<ushort> BCRIDHoldingRegistStore = new List<ushort>();
+
         /// <summary>
         /// 設備是否在維修PM中
         /// </summary>
@@ -520,12 +522,11 @@ namespace EquipmentManagment.Device
 
                 try
                 {
-                    ushort[] holdingRegists = master.ReadHoldingRegisters(0, 0, 125);
-                    if (holdingRegists.Any(vl => vl == 1))
+                    if (EndPointOptions.IsCSTIDReportable)
                     {
-
+                        ushort[] holdingRegists = master.ReadHoldingRegisters(0, 0, 125);
+                        BCRIDHoldingRegistStore = holdingRegists.Skip(EndPointOptions.IOLocation.HoldingRegists.CarrierIDReportStart - 1).Take(10).ToList();
                     }
-                    DataBuffer = holdingRegists.Select(usval => (byte)usval).ToList();
                 }
                 catch (Exception)
                 {
