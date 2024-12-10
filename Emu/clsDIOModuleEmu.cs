@@ -224,8 +224,34 @@ namespace EquipmentManagment.Emu
 
         public void SetPortExist(int portExist)
         {
-            ModifyInput(options.IOLocation.Port_Exist, portExist !=0);
+            ModifyInput(options.IOLocation.Port_Exist, portExist != 0);
 
+        }
+
+        public void SetCarrierIDRead(string carrierID)
+        {
+            carrierID = carrierID ?? "";
+            int spaceCharToAddNum = 20 - carrierID.Length;
+            carrierID += genSpaceChar(spaceCharToAddNum);
+            byte[] asciiBytes = Encoding.ASCII.GetBytes(carrierID);
+            ushort startLoc = options.IOLocation.HoldingRegists.CarrierIDReportStart;
+            ushort loc = startLoc;
+            for (int i = 0; i < asciiBytes.Length; i += 2)
+            {
+                ushort word = (ushort)(asciiBytes[i] + asciiBytes[i + 1] * 256);
+                slave.DataStore.HoldingRegisters[loc] = word;
+                loc++;
+            }
+
+            string genSpaceChar(int num)
+            {
+                string s = "";
+                for (int i = 0; i < num; i++)
+                {
+                    s += " ";
+                }
+                return s;
+            }
         }
     }
 }
