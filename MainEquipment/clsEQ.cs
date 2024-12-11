@@ -166,6 +166,8 @@ namespace EquipmentManagment.MainEquipment
             }
         }
 
+        public bool IsCSTIDReadFail => !string.IsNullOrEmpty(CSTIDReadValue) && CSTIDReadValue.Contains("NG");
+        public bool IsCSTIDReadMismatch => !string.IsNullOrEmpty(CSTIDReadValue) && !string.IsNullOrEmpty(AGVAssignCarrierID) && CSTIDReadValue != AGVAssignCarrierID;
         public bool Up_Pose
         {
             get => _Up_Pose;
@@ -625,8 +627,7 @@ namespace EquipmentManagment.MainEquipment
         }
 
         public override PortStatusAbstract PortStatus { get; set; } = new clsEQPort();
-
-
+        public string AGVAssignCarrierID { get; private set; } = string.Empty;
 
         protected override async void InputsHandler()
         {
@@ -751,6 +752,11 @@ namespace EquipmentManagment.MainEquipment
             To_EQ_Low = false;
         }
 
+        public void Reserve(string carrierID)
+        {
+            AGVAssignCarrierID = carrierID;
+            Reserve();
+        }
         public void Reserve()
         {
             bool isTwoLayerEQ = OnCheckEQPortBelongTwoLayersEQOrNot(this, EventArgs.Empty);
@@ -958,6 +964,11 @@ namespace EquipmentManagment.MainEquipment
             bool IsLDULDMechanismPoseCorrect = !EndPointOptions.HasLDULDMechanism ? true : Down_Pose;
             bool IsCstSteeringMechanismPoseCorrect = !EndPointOptions.HasCstSteeringMechanism ? true : TB_Down_Pose;
             return Load_Request && IS_EQ_STATUS_NORMAL_IDLE && !Port_Exist && !CMD_Reserve_Up && IsLDULDMechanismPoseCorrect && IsCstSteeringMechanismPoseCorrect;
+        }
+
+        public void SetAGVAssignedCarrierID(string carrierID)
+        {
+            AGVAssignCarrierID = carrierID;
         }
     }
 }

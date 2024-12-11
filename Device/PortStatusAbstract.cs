@@ -20,17 +20,13 @@ namespace EquipmentManagment.Device
             {
                 if (_CarrierID != value)
                 {
-                    string oldValue = _CarrierID;
-                    _CarrierID = value;
+                    string oldValue = _CarrierID + "";
 
                     if (GetType().Name == typeof(clsPortOfRack).Name)
                     {
                         CarrierIDChanged?.Invoke(this, (value, oldValue, VehicleLoadToPortFlag || VehicleUnLoadFromPortFlag));
                     }
-                    else
-                    {
-
-                    }
+                    _CarrierID = value;
                 }
             }
         }
