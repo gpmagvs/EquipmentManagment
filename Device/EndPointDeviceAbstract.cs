@@ -590,7 +590,8 @@ namespace EquipmentManagment.Device
                 if (PLCMemOption == null)
                     PLCMemOption = new PLC.clsPLCMemOption();
                 EQPLCMemoryTb_Write.WriteBit(PLCMemOption.AGVS_Bit_Start_Address, ref _value);
-                McInterface.WriteBit(ref EQPLCMemoryTb_Write, "B", "0", 16);
+                if (!EndPointOptions.IsEmulation)
+                    McInterface.WriteBit(ref EQPLCMemoryTb_Write, "B", "0", 16);
             }
             catch (Exception)
             {

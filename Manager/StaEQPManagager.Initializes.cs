@@ -32,7 +32,6 @@ namespace EquipmentManagment.Manager
                 _LoadChargeStationConfigs(_Configs.ChargeStationConfigPath);
                 _LoadEqConfigs(_Configs.EQConfigPath);
                 _LoadWipConfigs(_Configs.WIPConfigPath);
-                EmulatorsInitialize(_Configs);
 
                 foreach (KeyValuePair<string, clsChargeStationOptions> item in ChargeStationsOptions)
                 {
@@ -88,6 +87,7 @@ namespace EquipmentManagment.Manager
                 clsEQ.OnPortCarrierIDChanged += ClsEQ_OnPortCarrierIDChanged;
                 clsEQ.OnCheckEQPortBelongTwoLayersEQOrNot += ClsEQ_OnCheckEQPortBelongTwoLayersEQOrNot;
                 clsRack.OnRackPortCarrierIDChanged += ClsRack_OnRackPortCarrierIDChanged;
+                EmulatorsInitialize(_Configs);
             }
             catch (Exception ex)
             {

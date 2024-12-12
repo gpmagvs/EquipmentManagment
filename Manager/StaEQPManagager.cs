@@ -80,7 +80,13 @@ namespace EquipmentManagment.Manager
                 {
                     if (item.Value.IsEmulation && !StaEQPEmulatorsManagager.EqEmulators.ContainsKey(item.Key))
                     {
-                        clsDIOModuleEmu emu = new clsDIOModuleEmu();
+                        EQEmulatorBase emu;
+                        if( item.Value.ConnOptions.ConnMethod == Connection.CONN_METHODS.MC)
+                            emu = new clsPLCMCProtocolEmu();
+                        else
+                            emu = new clsDIOModuleEmu();
+
+
                         int modbusPort = StaEQPEmulatorsManagager.EqEmulators.Values.Select(_emu => _emu.options.ConnOptions.Port).OrderBy(port => port).LastOrDefault() + 2;
                         item.Value.ConnOptions.Port = modbusPort;
                         emu.StartEmu(item.Value);

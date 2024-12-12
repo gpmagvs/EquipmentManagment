@@ -25,7 +25,7 @@ namespace EquipmentManagment.Emu
         private byte[] CV_Bytes => (Convert.ToInt32(Math.Round(CV * 10))).GetHighLowBytes();
         private byte[] FV_Bytes => (Convert.ToInt32(Math.Round(FV * 10))).GetHighLowBytes();
         private byte[] TC_Bytes => (Convert.ToInt32(Math.Round(TC * 10))).GetHighLowBytes();
-        public override void StartEmu(clsEndPointOptions value)
+        public override async Task StartEmu(clsEndPointOptions value)
         {
 
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);

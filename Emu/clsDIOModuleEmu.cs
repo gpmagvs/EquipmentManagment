@@ -14,14 +14,10 @@ using Modbus.Message;
 
 namespace EquipmentManagment.Emu
 {
-    public class clsDIOModuleEmu : IDisposable
+    public class clsDIOModuleEmu : EQEmulatorBase
     {
-        public clsEndPointOptions options;
-        protected ModbusTcpSlave slave;
-        private bool disposedValue;
-
-
-        public virtual async void StartEmu(clsEndPointOptions value)
+       
+        public override async Task StartEmu(clsEndPointOptions value)
         {
             try
             {
@@ -39,7 +35,7 @@ namespace EquipmentManagment.Emu
             }
         }
 
-        protected virtual void DefaultInputsSetting()
+        protected override void DefaultInputsSetting()
         {
             slave.DataStore.InputDiscretes[5] = true;
             slave.DataStore.InputDiscretes[6] = true;
@@ -57,7 +53,7 @@ namespace EquipmentManagment.Emu
             slave.DataStore.InputRegisters[1] = ushortVal;
         }
 
-        public bool SetStatusBUSY()
+        public override bool SetStatusBUSY()
         {
             bool[] input = new bool[32];
             input[options.IOLocation.Up_Pose] = true;
@@ -66,7 +62,7 @@ namespace EquipmentManagment.Emu
             ModifyInputs(0, input);
             return true;
         }
-        public bool SetStatusLoadable()
+        public override bool SetStatusLoadable()
         {
             bool[] input = new bool[32];
             input[options.IOLocation.Load_Request] = true;
@@ -77,7 +73,7 @@ namespace EquipmentManagment.Emu
 
         }
 
-        public bool SetStatusUnloadable()
+        public override bool SetStatusUnloadable()
         {
             bool[] input = new bool[32];
             input[options.IOLocation.Unload_Request] = true;
@@ -89,12 +85,12 @@ namespace EquipmentManagment.Emu
             return true;
         }
 
-        public bool GetInput(int index)
+        public override bool GetInput(int index)
         {
             return slave.DataStore.InputDiscretes[index + 1];
         }
 
-        public void ModifyInput(int index, bool value)
+        public override void ModifyInput(int index, bool value)
         {
             slave.DataStore.InputDiscretes[index + 1] = value;
             var ushortVal = slave.DataStore.InputDiscretes.Skip(1).Take(16).ToArray().GetUshort();
@@ -102,7 +98,7 @@ namespace EquipmentManagment.Emu
 
         }
 
-        public void ModifyInputs(int startIndex, bool[] value)
+        public override void ModifyInputs(int startIndex, bool[] value)
         {
             for (int i = 0; i < value.Length; i++)
             {
@@ -112,7 +108,7 @@ namespace EquipmentManagment.Emu
             slave.DataStore.InputRegisters[1] = ushortVal;
         }
 
-        public void ModifyHoldingRegist(int address, ushort value)
+        public override void ModifyHoldingRegist(int address, ushort value)
         {
             slave.DataStore.HoldingRegisters[address + 1] = value;
         }
@@ -162,73 +158,73 @@ namespace EquipmentManagment.Emu
             }
         }
 
-        public bool SetHS_L_REQ(bool state)
+        public override bool SetHS_L_REQ(bool state)
         {
             ModifyInput(options.IOLocation.HS_EQ_L_REQ, state);
             return true;
         }
-        public bool SetHS_U_REQ(bool state)
+        public override bool SetHS_U_REQ(bool state)
         {
             ModifyInput(options.IOLocation.HS_EQ_U_REQ, state);
             return true;
         }
-        public bool SetHS_READY(bool state)
+        public override bool SetHS_READY(bool state)
         {
             ModifyInput(options.IOLocation.HS_EQ_READY, state);
             return true;
         }
-        public bool SetHS_UP_READY(bool state)
+        public override bool SetHS_UP_READY(bool state)
         {
             ModifyInput(options.IOLocation.HS_EQ_UP_READY, state);
             return true;
         }
-        public bool SetHS_LOW_READY(bool state)
+        public override bool SetHS_LOW_READY(bool state)
         {
             ModifyInput(options.IOLocation.HS_EQ_LOW_READY, state);
             return true;
         }
-        public bool SetHS_BUSY(bool state)
+        public override bool SetHS_BUSY(bool state)
         {
             ModifyInput(options.IOLocation.HS_EQ_BUSY, state);
             return true;
         }
 
-        public void SetUpPose()
+        public override void SetUpPose()
         {
             ModifyInput(options.IOLocation.Up_Pose, true);
             ModifyInput(options.IOLocation.Down_Pose, false);
 
         }
 
-        public void SetDownPose()
+        public override void SetDownPose()
         {
             ModifyInput(options.IOLocation.Up_Pose, false);
             ModifyInput(options.IOLocation.Down_Pose, true);
         }
 
-        public void SetUnknownPose()
+        public override void SetUnknownPose()
         {
             ModifyInput(options.IOLocation.Up_Pose, false);
             ModifyInput(options.IOLocation.Down_Pose, false);
         }
 
-        public void SetPortType(int portType)
+        public override void SetPortType(int portType)
         {
             ModifyHoldingRegist(options.IOLocation.HoldingRegists.PortTypeStatus, (ushort)portType);
         }
 
-        internal void SetPartsReplacing(bool isReplacing)
+        public override void SetPartsReplacing(bool isReplacing)
         {
             ModifyInput(options.IOLocation.Eqp_PartsReplacing, isReplacing);
         }
 
-        public void SetPortExist(int portExist)
+        public override void SetPortExist(int portExist)
         {
             ModifyInput(options.IOLocation.Port_Exist, portExist != 0);
 
         }
 
-        public void SetCarrierIDRead(string carrierID)
+        public override void SetCarrierIDRead(string carrierID)
         {
             carrierID = carrierID ?? "";
             int spaceCharToAddNum = 20 - carrierID.Length;

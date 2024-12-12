@@ -12,7 +12,7 @@ namespace EquipmentManagment.Manager
 {
     public static class StaEQPEmulatorsManagager
     {
-        public static Dictionary<string, clsDIOModuleEmu> EqEmulators = new Dictionary<string, clsDIOModuleEmu>();
+        public static Dictionary<string, EQEmulatorBase> EqEmulators = new Dictionary<string, EQEmulatorBase>();
         public static Dictionary<string, clsWIPEmu> WIPEmulators = new Dictionary<string, clsWIPEmu>();
         public static Dictionary<string, clsChargeStationEmu> ChargeStationEmulators = new Dictionary<string, clsChargeStationEmu>();
 
@@ -22,7 +22,7 @@ namespace EquipmentManagment.Manager
         /// <param name="eqName"></param>
         /// <param name="emulator"></param>
         /// <returns></returns>
-        public static bool TryGetEQEmuByName(string eqName, out clsDIOModuleEmu emulator)
+        public static bool TryGetEQEmuByName(string eqName, out EQEmulatorBase emulator)
         {
             return EqEmulators.TryGetValue(eqName, out emulator);
         }
@@ -32,14 +32,14 @@ namespace EquipmentManagment.Manager
         /// </summary>
         /// <param name="eqName"></param>
         /// <returns></returns>
-        public static clsDIOModuleEmu GetEQEmuByName(string eqName)
+        public static EQEmulatorBase GetEQEmuByName(string eqName)
         {
-            TryGetEQEmuByName(eqName, out clsDIOModuleEmu emulator);
+            TryGetEQEmuByName(eqName, out EQEmulatorBase emulator);
             return emulator;
         }
         public static bool InputChange(string eqName, int index, bool value)
         {
-            if (!EqEmulators.TryGetValue(eqName, out clsDIOModuleEmu emulator))
+            if (!EqEmulators.TryGetValue(eqName, out EQEmulatorBase emulator))
                 return false;
 
             emulator.ModifyInput(index, value);
@@ -48,7 +48,7 @@ namespace EquipmentManagment.Manager
 
         public static void SetAsLoadable(string eqName)
         {
-            if (!EqEmulators.TryGetValue(eqName, out clsDIOModuleEmu emulator))
+            if (!EqEmulators.TryGetValue(eqName, out EQEmulatorBase emulator))
                 return;
 
             emulator.SetStatusLoadable();
@@ -56,7 +56,7 @@ namespace EquipmentManagment.Manager
 
         public static bool InputsChange(string eqName, int index, bool[] values)
         {
-            if (!EqEmulators.TryGetValue(eqName, out clsDIOModuleEmu emulator))
+            if (!EqEmulators.TryGetValue(eqName, out EQEmulatorBase emulator))
                 return false;
 
             emulator.SetStatusUnloadable();
@@ -151,7 +151,11 @@ namespace EquipmentManagment.Manager
                 try
                 {
                     var member = item.Value;
-                    clsDIOModuleEmu emu = new clsDIOModuleEmu();
+                    EQEmulatorBase emu;
+                    if (member.ConnOptions.ConnMethod== Connection.CONN_METHODS.MC)
+                        emu = new clsPLCMCProtocolEmu();
+                    else
+                        emu = new clsDIOModuleEmu();
                     emu.StartEmu(item.Value);
                     EqEmulators.Add(item.Key, emu);
 
