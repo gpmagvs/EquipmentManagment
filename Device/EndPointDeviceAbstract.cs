@@ -145,15 +145,20 @@ namespace EquipmentManagment.Device
             {
                 IsConnected = await TCPIPConnect(EndPointOptions.ConnOptions.IP, EndPointOptions.ConnOptions.Port);
             }
-            else if (_ConnectionMethod == CONN_METHODS.MODBUS_RTU | _ConnectionMethod == CONN_METHODS.SERIAL_PORT)
+            else if (_ConnectionMethod == CONN_METHODS.MODBUS_RTU || _ConnectionMethod == CONN_METHODS.SERIAL_PORT)
                 IsConnected = await SerialPortConnect(EndPointOptions.ConnOptions.ComPort);
 
             else if (_ConnectionMethod == CONN_METHODS.MC)
             {
-                IsConnected = await MCProtocolConnect(EndPointOptions.ConnOptions.IP, EndPointOptions.ConnOptions.Port);
-                if (IsConnected && EndPointOptions.ConnOptions.AliveCheckInterfaceClockUpdate)
+                if (EndPointOptions.IsEmulation)
+                    IsConnected = true;
+                else
                 {
-                    PLCInterfaceClock();
+                    IsConnected = await MCProtocolConnect(EndPointOptions.ConnOptions.IP, EndPointOptions.ConnOptions.Port);
+                    if (IsConnected && EndPointOptions.ConnOptions.AliveCheckInterfaceClockUpdate)
+                    {
+                        PLCInterfaceClock();
+                    }
                 }
             }
             return IsConnected;
@@ -464,15 +469,15 @@ namespace EquipmentManagment.Device
                 PLCMemOption.EQP_Word_Start_Address = "W400";
                 PLCMemOption.EQP_Word_Size = 64;
                 PLCMemOption.IsEQP_Word_Hex = true;
-
-                int resultCode = McInterface.ReadBit(ref EQPLCMemoryTb, PLCMemOption.EQPBitAreaName, PLCMemOption.EQPBitStartAddressName, PLCMemOption.EQP_Bit_Size);
-
-                if (resultCode != 0)
-                    throw new Exception("");
-                resultCode = McInterface.ReadWord(ref EQPLCMemoryTb, PLCMemOption.EQPWordAreaName, PLCMemOption.EQPWordStartAddressName, PLCMemOption.EQP_Word_Size);
-                if (resultCode != 0)
-                    throw new Exception("");
-
+                if (!EndPointOptions.IsEmulation)
+                {
+                    int resultCode = McInterface.ReadBit(ref EQPLCMemoryTb, PLCMemOption.EQPBitAreaName, PLCMemOption.EQPBitStartAddressName, PLCMemOption.EQP_Bit_Size);
+                    if (resultCode != 0)
+                        throw new Exception("");
+                    resultCode = McInterface.ReadWord(ref EQPLCMemoryTb, PLCMemOption.EQPWordAreaName, PLCMemOption.EQPWordStartAddressName, PLCMemOption.EQP_Word_Size);
+                    if (resultCode != 0)
+                        throw new Exception("");
+                }
                 bool[] inputs = new bool[PLCMemOption.EQP_Bit_Size];
                 EQPLCMemoryTb.ReadBit(PLCMemOption.EQP_Bit_Start_Address, PLCMemOption.EQP_Bit_Size, ref inputs);
                 Array.Copy(inputs, 0, InputBuffer, 0, inputs.Length);
