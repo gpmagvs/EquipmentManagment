@@ -57,9 +57,13 @@ namespace EquipmentManagment.MainEquipment
 
         public clsEQ(clsEndPointOptions options) : base(options)
         {
-            AGVModbusGateway = new clsStatusIOModbusGateway();
-            AGVModbusGateway.StartGateway(options.ConnOptions.AGVModbusGatewayPort);
-            AGVModbusGateway.OnAGVOutputsChanged += AGVModbusGateway_OnAGVOutputsChanged;
+            Task.Run(() =>
+            {
+                AGVModbusGateway = new clsStatusIOModbusGateway();
+                AGVModbusGateway.StartGateway(options.ConnOptions.AGVModbusGatewayPort);
+                AGVModbusGateway.OnAGVOutputsChanged += AGVModbusGateway_OnAGVOutputsChanged;
+                Console.WriteLine($"{EQName} IO Modbus Gateway start(Port:{options.ConnOptions.AGVModbusGatewayPort})");
+            });
         }
 
         #region EQ->AGVS
