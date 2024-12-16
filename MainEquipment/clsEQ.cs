@@ -986,24 +986,48 @@ namespace EquipmentManagment.MainEquipment
             if (!EndPointOptions.IsEmulation)
                 return;
 
+            var emulator = StaEQPEmulatorsManagager.GetEQEmuByName(this.EQName);
 
+            if (emulator==null)
+                return;
             if (signalName == "AGV_VALID")
             {
                 if (Load_Request && value)
                 {
-                    HS_EQ_L_REQ = true;
+                    emulator.SetHS_L_REQ(true);
                 }
                 else if (Unload_Request && value)
                 {
-                    HS_EQ_U_REQ = true;
+                    emulator.SetHS_U_REQ(true);
                 }
             }
 
             if (signalName == "AGV_TR_REQ" && value)
             {
-                HS_EQ_READY = true;
+                emulator.SetHS_READY(true);
             }
 
+            if (signalName=="AGV_READY")
+            {
+                if (value)
+                {
+                    emulator.SetHS_BUSY(true);
+                    _=Task.Factory.StartNew(async () =>
+                    {
+                        await Task.Delay(2000);
+                        emulator.SetHS_BUSY(false);
+                    });
+                }
+            }
+
+            if (signalName=="AGV_COMPT" && value)
+            {
+
+                emulator.SetHS_U_REQ(false);
+                emulator.SetHS_L_REQ(false);
+                emulator.SetHS_READY(false);
+                emulator.SetHS_BUSY(false);
+            }
         }
     }
 }
