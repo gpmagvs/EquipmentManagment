@@ -415,9 +415,12 @@ namespace EquipmentManagment.MainEquipment
                     Console.WriteLine($"AGV_VALID Changed to :{value}");
                     _WriteOutputSiganls().GetAwaiter().GetResult();
 
+                    EQHandshakeEmulation("AGV_VALID", value);
                 }
             }
         }
+
+
         public bool HS_AGV_TR_REQ
         {
             get => _HS_AGV_TR_REQ;
@@ -430,6 +433,7 @@ namespace EquipmentManagment.MainEquipment
                     Console.WriteLine($"AGV_TR_REQ Changed to :{value}");
                     _WriteOutputSiganls().GetAwaiter().GetResult();
 
+                    EQHandshakeEmulation("AGV_TR_REQ", value);
                 }
             }
         }
@@ -444,6 +448,7 @@ namespace EquipmentManagment.MainEquipment
                     OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "AGV_BUSY", value));
                     Console.WriteLine($"AGV_BUSY Changed to :{value}");
                     _WriteOutputSiganls().GetAwaiter().GetResult();
+                    EQHandshakeEmulation("AGV_BUSY", value);
                 }
             }
         }
@@ -458,6 +463,7 @@ namespace EquipmentManagment.MainEquipment
                     OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "AGV_READY", value));
                     Console.WriteLine($"AGV_READY Changed to :{value}");
                     _WriteOutputSiganls().GetAwaiter().GetResult();
+                    EQHandshakeEmulation("AGV_READY", value);
                 }
             }
         }
@@ -472,6 +478,7 @@ namespace EquipmentManagment.MainEquipment
                     OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "AGV_COMPT", value));
                     Console.WriteLine($"AGV_COMPT Changed to :{value}");
                     _WriteOutputSiganls().GetAwaiter().GetResult();
+                    EQHandshakeEmulation("AGV_COMPT", value);
                 }
             }
         }
@@ -973,6 +980,30 @@ namespace EquipmentManagment.MainEquipment
         public void SetAGVAssignedCarrierID(string carrierID)
         {
             AGVAssignCarrierID = carrierID;
+        }
+        private async Task EQHandshakeEmulation(string signalName, bool value)
+        {
+            if (!EndPointOptions.IsEmulation)
+                return;
+
+
+            if (signalName == "AGV_VALID")
+            {
+                if (Load_Request && value)
+                {
+                    HS_EQ_L_REQ = true;
+                }
+                else if (Unload_Request && value)
+                {
+                    HS_EQ_U_REQ = true;
+                }
+            }
+
+            if (signalName == "AGV_TR_REQ" && value)
+            {
+                HS_EQ_READY = true;
+            }
+
         }
     }
 }
