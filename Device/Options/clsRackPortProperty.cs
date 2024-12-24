@@ -30,7 +30,8 @@ namespace EquipmentManagment.Device.Options
         /// </summary>
         public CARGO_TYPE CargoTypeStore { get; set; } = CARGO_TYPE.MIXED;
 
-        public Port_Enable PortEnable = Port_Enable.Enable;
+        public Port_Enable PortEnable { get; set; } = Port_Enable.Enable;
+        public PORT_USABLE PortUsable { get; set; } = PORT_USABLE.USABLE;
         public clsPortIOLocation IOLocation { get; set; } = new clsPortIOLocation();
         public clsPortUseToEQProperty EQInstall { get; set; } = new clsPortUseToEQProperty();
 

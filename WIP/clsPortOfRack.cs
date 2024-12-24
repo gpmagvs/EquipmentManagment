@@ -43,6 +43,12 @@ namespace EquipmentManagment.WIP
             Disable,
         }
 
+        public enum PORT_USABLE
+        {
+            NOT_USABLE = 0,
+            USABLE = 1,
+        }
+
         public enum CARGO_PLACEMENT_STATUS
         {
             /// <summary>
