@@ -81,7 +81,7 @@ namespace EquipmentManagment.Manager
                     if (item.Value.IsEmulation && !StaEQPEmulatorsManagager.EqEmulators.ContainsKey(item.Key))
                     {
                         EQEmulatorBase emu;
-                        if( item.Value.ConnOptions.ConnMethod == Connection.CONN_METHODS.MC)
+                        if (item.Value.ConnOptions.ConnMethod == Connection.CONN_METHODS.MC)
                             emu = new clsPLCMCProtocolEmu();
                         else
                             emu = new clsDIOModuleEmu();
@@ -133,6 +133,11 @@ namespace EquipmentManagment.Manager
             File.WriteAllText(Configs.ChargeStationConfigPath, JsonConvert.SerializeObject(ChargeStationsOptions, Formatting.Indented));
         }
 
+        public static void SaveRackConfigs()
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(Configs.WIPConfigPath));
+            File.WriteAllText(Configs.WIPConfigPath, JsonConvert.SerializeObject(RacksOptions, Formatting.Indented));
+        }
 
         public static Dictionary<string, clsChargerData> GetChargeStationStates()
         {
