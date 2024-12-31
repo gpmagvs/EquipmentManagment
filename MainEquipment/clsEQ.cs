@@ -101,6 +101,15 @@ namespace EquipmentManagment.MainEquipment
         public delegate bool MyEventHandler(clsEQ eq, EventArgs e);
         public static event MyEventHandler OnCheckEQPortBelongTwoLayersEQOrNot;
 
+
+        public bool IS_EQ_STATUS_DOWN
+        {
+            get
+            {
+                return EndPointOptions.IOLocation.STATUS_IO_SPEC_VERSION == clsEQIOLocation.STATUS_IO_DEFINED_VERSION.V2 ? !Eqp_Status_Down : Eqp_Status_Down;
+            }
+        }
+
         public bool IS_EQ_STATUS_NORMAL_IDLE
         {
             get
@@ -967,14 +976,14 @@ namespace EquipmentManagment.MainEquipment
             bool IsRackContextTypePointOut = !EndPointOptions.CheckRackContentStateIOSignal ? true : this.RackContentState != RACK_CONTENT_STATE.UNKNOWN;
             bool IsLDULDMechanismPoseCorrect = !EndPointOptions.HasLDULDMechanism ? true : Up_Pose;
             bool IsCstSteeringMechanismPoseCorrect = !EndPointOptions.HasCstSteeringMechanism ? true : TB_Down_Pose;
-            return Unload_Request && IS_EQ_STATUS_NORMAL_IDLE && Port_Exist && !CMD_Reserve_Up && IsLDULDMechanismPoseCorrect && IsCstSteeringMechanismPoseCorrect && IsRackContextTypePointOut;
+            return Unload_Request && !IS_EQ_STATUS_DOWN && Port_Exist && !CMD_Reserve_Up && IsLDULDMechanismPoseCorrect && IsCstSteeringMechanismPoseCorrect && IsRackContextTypePointOut;
         }
 
         public bool IsCreateLoadTaskAble()
         {
             bool IsLDULDMechanismPoseCorrect = !EndPointOptions.HasLDULDMechanism ? true : Down_Pose;
             bool IsCstSteeringMechanismPoseCorrect = !EndPointOptions.HasCstSteeringMechanism ? true : TB_Down_Pose;
-            return Load_Request && IS_EQ_STATUS_NORMAL_IDLE && !Port_Exist && !CMD_Reserve_Up && IsLDULDMechanismPoseCorrect && IsCstSteeringMechanismPoseCorrect;
+            return Load_Request && !IS_EQ_STATUS_DOWN && !Port_Exist && !CMD_Reserve_Up && IsLDULDMechanismPoseCorrect && IsCstSteeringMechanismPoseCorrect;
         }
 
         public void SetAGVAssignedCarrierID(string carrierID)
@@ -988,7 +997,7 @@ namespace EquipmentManagment.MainEquipment
 
             var emulator = StaEQPEmulatorsManagager.GetEQEmuByName(this.EQName);
 
-            if (emulator==null)
+            if (emulator == null)
                 return;
             if (signalName == "AGV_VALID")
             {
@@ -1007,12 +1016,12 @@ namespace EquipmentManagment.MainEquipment
                 emulator.SetHS_READY(true);
             }
 
-            if (signalName=="AGV_READY")
+            if (signalName == "AGV_READY")
             {
                 if (value)
                 {
                     emulator.SetHS_BUSY(true);
-                    _=Task.Factory.StartNew(async () =>
+                    _ = Task.Factory.StartNew(async () =>
                     {
                         await Task.Delay(2000);
                         emulator.SetHS_BUSY(false);
@@ -1020,7 +1029,7 @@ namespace EquipmentManagment.MainEquipment
                 }
             }
 
-            if (signalName=="AGV_COMPT" && value)
+            if (signalName == "AGV_COMPT" && value)
             {
 
                 emulator.SetHS_U_REQ(false);
