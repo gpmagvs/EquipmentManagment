@@ -106,7 +106,7 @@ namespace EquipmentManagment.MainEquipment
             get
             {
                 return EndPointOptions.IOLocation.STATUS_IO_SPEC_VERSION == clsEQIOLocation.STATUS_IO_DEFINED_VERSION.V2 ?
-                                                                            Eqp_Status_Down : Eqp_Status_Idle && !Eqp_Status_Run && !Eqp_Status_Down;
+                                                                            Eqp_Status_Down : Eqp_Status_Idle || Eqp_Status_Run && !Eqp_Status_Down;
             }
         }
 
