@@ -18,6 +18,9 @@ namespace EquipmentManagment.Manager
 {
     public partial class StaEQPManagager
     {
+
+        public static event EventHandler<Dictionary<string, clsRackOptions>> OnWIPConfigLoaded;
+        public static event EventHandler<Dictionary<string, clsEndPointOptions>> OnEqConfigLoaded;
         public static async void InitializeAsync()
         {
             InitializeAsync(Configs == null ? new clsEQManagementConfigs() : Configs);
@@ -285,6 +288,7 @@ namespace EquipmentManagment.Manager
                     item.ValidDownStreamEndPointNames = item.ValidDownStreamEndPointNames.FindAll(nam => alleqnames.Contains(nam)).ToList();
                 }
             }
+            OnEqConfigLoaded?.Invoke(string.Empty, EQOptions);
             SaveEqConfigs();
 
         }
@@ -331,6 +335,9 @@ namespace EquipmentManagment.Manager
                 }
                 File.WriteAllText(wIPConfigPath, JsonConvert.SerializeObject(RacksOptions, Formatting.Indented));//write back
             }
+
+            OnWIPConfigLoaded?.Invoke(string.Empty, RacksOptions);
+            File.WriteAllText(wIPConfigPath, JsonConvert.SerializeObject(RacksOptions, Formatting.Indented));//write back
         }
     }
 }
