@@ -73,7 +73,7 @@ namespace EquipmentManagment.WIP
             }
         }
 
-        public clsPortOfRack[] GetPortStatusWithEqInfo()
+        public PortOfRackViewModel[] GetPortStatusWithEqInfo()
         {
             if (RackOption.MaterialInfoFromEquipment)
             {
@@ -86,12 +86,17 @@ namespace EquipmentManagment.WIP
                     portClone.RackContentState = eq.RackContentState;
                     portClone.CarrierExist = eq.Port_Exist;
                     portClone.CarrierID = eq.PortStatus.CarrierID;
-
+                    portClone.TagNumbers = port.TagNumbers;
                     return portClone;
                 }).ToArray();
             }
             else
-                return PortsStatus;
+                return PortsStatus.Select(port =>
+              {
+                  PortOfRackViewModel portClone = JsonConvert.DeserializeObject<PortOfRackViewModel>(JsonConvert.SerializeObject(port));
+                  portClone.TagNumbers = port.TagNumbers;
+                  return portClone;
+              }).ToArray(); ;
         }
 
         public clsPortOfRack GetPortByKeyWithRackName(string key)

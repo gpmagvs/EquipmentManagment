@@ -18,6 +18,9 @@ namespace EquipmentManagment.WIP
     {
         private string carrierID = "";
         public override string CarrierID { get => carrierID; set => carrierID = value; }
+
+        public new int[] TagNumbers { get; set; } = new int[0];
+
     }
     /// <summary>
     /// 表示一個儲存格

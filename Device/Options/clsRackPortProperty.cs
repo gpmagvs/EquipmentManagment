@@ -20,7 +20,7 @@ namespace EquipmentManagment.Device.Options
         /// <summary>
         /// 儲格編號(就是現場RACK架上面貼的號碼)
         /// </summary>
-        public string PortNo { get; set; } = "1";
+        public string PortNo { get; set; } = "";
         /// <summary>
         /// 該PORT可存放OK/NG產品設定
         /// </summary>
