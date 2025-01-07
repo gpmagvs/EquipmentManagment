@@ -44,7 +44,7 @@ namespace EquipmentManagment.Manager
                     if (options.Name != item.Key)
                         options.Name = eqName;
 
-                    var charge_station = options.chip_brand == 2 ? new clsChargeStationGY7601Base(options) : new clsChargeStation(options);
+                    var charge_station = options.chip_brand == clsChargeStationOptions.CHARGER_INTERFACE.PMBUS_REV_1_1 ? new clsChargeStationGY7601Base(options) : new clsChargeStation(options);
                     if (charge_station != null)
                     {
                         ChargeStations.Add(charge_station);

@@ -11,12 +11,27 @@ namespace EquipmentManagment.ChargeStation
 {
     public class clsChargeStationOptions : clsEndPointOptions
     {
+        /// <summary>
+        /// 充電器通訊界面
+        /// </summary>
+        public enum CHARGER_INTERFACE
+        {
+            /// <summary>
+            /// 充電器通訊交換器
+            /// </summary>
+            GANG_HAO_C36500Z1E_V3 = 1,
+            /// <summary>
+            /// PMBUS通用協議 ,使用 RS232/485轉I2C模組傳送指令
+            /// </summary>
+            PMBUS_REV_1_1 = 2
+        }
 
         public override Dictionary<string, string> Notes { get; set; } = new Dictionary<string, string>()
         {
+            {"chip_brand","充電器通訊界面: 1_罡豪充電器通訊交換器, 2_PMBUS通用協議 ,使用 RS232/485轉I2C模組傳送指令" }
         };
 
-        public int chip_brand { get; set; } = 2;
+        public CHARGER_INTERFACE chip_brand { get; set; } = CHARGER_INTERFACE.PMBUS_REV_1_1;
         public int pmbus_slave_id { get; set; } = 7;
 
         public string[] usableAGVList { get; set; } = new string[0];

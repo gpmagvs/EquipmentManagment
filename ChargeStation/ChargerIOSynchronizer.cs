@@ -58,12 +58,19 @@ namespace EquipmentManagment.ChargeStation
                     {
                         bool[] inputs = modbusMaster.ReadCoils(0, 16);
 
-                        IOStates.EMO = !inputs[ChargerOption.IOLocation.Inputs.EMO];
-                        IOStates.SMOKE_DECTECTED = inputs[ChargerOption.IOLocation.Inputs.SMOKE_DETECT_ERROR];
-                        IOStates.AIR_ERROR = !inputs[ChargerOption.IOLocation.Inputs.AIR_ERROR];
-                        IOStates.CYLINDER_FORWARD = inputs[ChargerOption.IOLocation.Inputs.CYLINDER_FORWARD];
-                        IOStates.CYLINDER_BACKWARD = inputs[ChargerOption.IOLocation.Inputs.CYLINDER_BACKWARD];
-                        IOStates.TEMPERATURE_MODULE_ABN=inputs[ChargerOption.IOLocation.Inputs.TEMPERABURE_ABN];
+                        bool _emo = inputs[ChargerOption.IOLocation.Inputs.EMO];
+                        bool _smoke = inputs[ChargerOption.IOLocation.Inputs.SMOKE_DETECT_ERROR];
+                        bool _air = inputs[ChargerOption.IOLocation.Inputs.AIR_ERROR];
+                        bool _temperature = inputs[ChargerOption.IOLocation.Inputs.TEMPERABURE_ABN];
+                        bool _cylinder_fw = inputs[ChargerOption.IOLocation.Inputs.CYLINDER_FORWARD];
+                        bool _cylinder_bw = inputs[ChargerOption.IOLocation.Inputs.CYLINDER_BACKWARD];
+                        IOStates.UpdateIOAcutalState(_emo, _smoke, _air, _temperature, _cylinder_fw, _cylinder_bw);
+                        IOStates.EMO = !_emo;
+                        IOStates.SMOKE_DECTECTED = _smoke;
+                        IOStates.AIR_ERROR = !_air;
+                        IOStates.TEMPERATURE_MODULE_ABN = _temperature;
+                        IOStates.CYLINDER_FORWARD = _cylinder_fw;
+                        IOStates.CYLINDER_BACKWARD = _cylinder_bw;
                     }
                     catch (Exception ex)
                     {

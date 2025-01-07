@@ -141,7 +141,7 @@ namespace EquipmentManagment.Manager
 
         public static Dictionary<string, clsChargerData> GetChargeStationStates()
         {
-            return ChargeStations.ToDictionary(eq => eq.EQName, eq => eq.Datas);
+            return ChargeStations.ToDictionary(eq => eq.EQName, eq => eq.GetChargerDatas());
         }
         public static List<EQStatusDIDto> GetEQStates()
         {

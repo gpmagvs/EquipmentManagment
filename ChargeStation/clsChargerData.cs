@@ -99,7 +99,7 @@ namespace EquipmentManagment.ChargeStation
         public double StationTemperature { get; set; } = 0;
 
         public bool IsStationTemperatureOverThresHold { get; set; } = false;
-
+        public ChargerIOStates IOStates { get; set; } = new ChargerIOStates();
         internal void SetAsNotUsing()
         {
             IsBatteryFull = Connected = IsUsing = false;

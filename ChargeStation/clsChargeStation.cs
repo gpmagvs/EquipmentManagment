@@ -218,6 +218,13 @@ namespace EquipmentManagment.ChargeStation
         public static event EventHandler<clsChargeStation> OnChargeStationTemperatureRestoreUnderThreshoad;
 
         public clsChargerData Datas = new clsChargerData();
+
+        public clsChargerData GetChargerDatas()
+        {
+            Datas.IOStates = chargerIOSynchronizer.IOStates;
+            return Datas;
+        }
+
         public ChargerIOSynchronizer chargerIOSynchronizer = new ChargerIOSynchronizer();
         public clsChargeStationOptions chargerOptions => EndPointOptions as clsChargeStationOptions;
 
@@ -302,7 +309,7 @@ namespace EquipmentManagment.ChargeStation
 
         public virtual async Task ResetAlarm()
         {
-            if (chargerIOSynchronizer!=null)
+            if (chargerIOSynchronizer != null)
             {
                 chargerIOSynchronizer.IOStates.Reset();
             }

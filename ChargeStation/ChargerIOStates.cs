@@ -18,6 +18,25 @@ namespace EquipmentManagment.ChargeStation
         private bool _AIR_ERROR = false;
         private bool _TEMPERATURE_MODULE_ABN = false;
 
+        public bool IO_St_EMO { get; private set; } = false;
+        public bool IO_St_SMOKE_DECTECTED { get; private set; } = false;
+        public bool IO_St_AIR_ERROR { get; private set; } = false;
+        public bool IO_St_TEMPERATURE_MODULE_ABN { get; private set; } = false;
+        public bool IO_St_CYLINDER_FORWARD { get; private set; } = false;
+        public bool IO_St_CYLINDER_BACKWARD { get; private set; } = false;
+
+
+        public void UpdateIOAcutalState(bool _emo, bool _smoke, bool _air, bool _temperature, bool _cylinder_fw, bool _cylinder_bw)
+        {
+            IO_St_EMO = _emo;
+            IO_St_SMOKE_DECTECTED = _smoke;
+            IO_St_AIR_ERROR = _air;
+            IO_St_TEMPERATURE_MODULE_ABN = _temperature;
+            IO_St_CYLINDER_FORWARD = _cylinder_fw;
+            IO_St_CYLINDER_BACKWARD = _cylinder_bw;
+        }
+
+
         /// <summary>
         /// (IO B接點)
         /// </summary>
@@ -84,8 +103,8 @@ namespace EquipmentManagment.ChargeStation
 
         public void Reset()
         {
-            _EMO=_AIR_ERROR=true;
-            _SMOKE_DECTECTED =CYLINDER_BACKWARD=CYLINDER_BACKWARD=TEMPERATURE_MODULE_ABN=false;
+            _EMO = _AIR_ERROR = true;
+            _SMOKE_DECTECTED = CYLINDER_BACKWARD = CYLINDER_BACKWARD = TEMPERATURE_MODULE_ABN = false;
         }
     }
 }
