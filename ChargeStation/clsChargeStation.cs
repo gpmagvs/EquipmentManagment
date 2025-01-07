@@ -222,6 +222,7 @@ namespace EquipmentManagment.ChargeStation
         public clsChargerData GetChargerDatas()
         {
             Datas.IOStates = chargerIOSynchronizer.IOStates;
+            Datas.IOModuleConnected = chargerIOSynchronizer.Connected;
             return Datas;
         }
 
@@ -248,7 +249,9 @@ namespace EquipmentManagment.ChargeStation
         public override async Task StartSyncData()
         {
             if ((EndPointOptions as clsChargeStationOptions).hasIOModule)
+            {
                 SyncIOState();
+            }
             TemperatureModule = new E5DC800(chargerOptions.TemperatureModuleSettings);
             TemperatureModule.OnTemperatureChanged += TemperatureModule_OnTemperatureChanged;
             TemperatureModule.BeginAsync();
@@ -340,6 +343,10 @@ namespace EquipmentManagment.ChargeStation
             {
                 clsChargeStationOptions chargerOption = this.EndPointOptions as clsChargeStationOptions;
                 chargerIOSynchronizer = new ChargerIOSynchronizer(chargerOption);
+
+                //模擬server
+                if (chargerOptions.IsEmulation)
+                    chargerIOSynchronizer.StartEmulator();
                 chargerIOSynchronizer.StartAsync();
 
             });

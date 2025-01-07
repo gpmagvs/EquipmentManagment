@@ -13,7 +13,22 @@ namespace EquipmentManagment.ChargeStation
 {
     public partial class ChargerIOSynchronizer
     {
-        public bool Connected { get; private set; } = false;
+        private bool _Connected = false;
+        public bool Connected
+        {
+            get => _Connected;
+            private set
+            {
+                if (_Connected != value)
+                {
+                    _Connected = value;
+                    if (value)
+                        OnConnected?.Invoke(this, ChargerOption.Name);
+                    else
+                        OnDisconnected?.Invoke(this, ChargerOption.Name);
+                }
+            }
+        }
         private ModbusIpMaster modbusMaster;
         private TcpClient tcpClient;
         public ChargerIOStates IOStates = new ChargerIOStates();
@@ -21,6 +36,8 @@ namespace EquipmentManagment.ChargeStation
         public static event EventHandler<string> OnSmokeDetected;
         public static event EventHandler<string> OnAirError;
         public static event EventHandler<string> OnTemperatureModuleError;
+        public static event EventHandler<string> OnDisconnected;
+        public static event EventHandler<string> OnConnected;
         public ChargerIOSynchronizer()
         {
         }
@@ -111,14 +128,11 @@ namespace EquipmentManagment.ChargeStation
             {
             }
 
-            //模擬server
-            if (ChargerOption.IsEmulation)
-                StartEmulator();
 
             await Task.Delay(1000);
             try
             {
-                tcpClient = new TcpClient(ChargerOption.IOModubleConnOptions.IP, ChargerOption.IOModubleConnOptions.Port);
+                tcpClient = new TcpClient(ChargerOption.IsEmulation ? "127.0.0.1" : ChargerOption.IOModubleConnOptions.IP, ChargerOption.IOModubleConnOptions.Port);
                 modbusMaster = ModbusIpMaster.CreateIp(tcpClient);
                 modbusMaster.Transport.WaitToRetryMilliseconds = 200;
                 modbusMaster.Transport.RetryOnOldResponseThreshold = 10;

@@ -23,8 +23,9 @@ namespace EquipmentManagment.ChargeStation
         {
             emuSlave.DataStore.CoilDiscretes[ChargerOption.IOLocation.Inputs.AIR_ERROR + 1] = isAirError;
         }
-        private void StartEmulator()
+        public void StartEmulator()
         {
+            CloseEmulator();
             _ = Task.Run(async () =>
             {
                 emuSlave = ModbusTcpSlave.CreateTcp(0, new TcpListener(ChargerOption.IOModubleConnOptions.Port));
@@ -33,7 +34,10 @@ namespace EquipmentManagment.ChargeStation
                 await emuSlave.ListenAsync();
             });
         }
-
+        public void CloseEmulator()
+        {
+            emuSlave?.Dispose();
+        }
         private void Master_ModbusSlaveRequestReceived(object sender, ModbusSlaveRequestEventArgs e)
         {
         }

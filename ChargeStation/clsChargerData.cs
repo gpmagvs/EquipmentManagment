@@ -8,6 +8,8 @@ namespace EquipmentManagment.ChargeStation
     public class clsChargerData
     {
         public bool Connected { get; set; } = false;
+
+        public bool IOModuleConnected { get; set; } = false;
         public bool IsUsing { get; private set; } = false;
         public DateTime UpdateTime { get; set; }
 
