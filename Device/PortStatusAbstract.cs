@@ -8,6 +8,12 @@ namespace EquipmentManagment.Device
 {
     public abstract class PortStatusAbstract
     {
+
+        public enum CARRIER_SOURCE
+        {
+            MANUAL, AGV
+        }
+
         public static event EventHandler<(string newValue, string oldValue, bool isUpdateByVehicleLoadUnLoad)> CarrierIDChanged;
 
         public string NickName { get; set; } = "TEST";
@@ -34,6 +40,10 @@ namespace EquipmentManagment.Device
         public DateTime InstallTime { get; set; } = DateTime.MinValue;
 
         public RACK_CONTENT_STATE RackContentState { get; set; } = RACK_CONTENT_STATE.UNKNOWN;
+
+        public CARRIER_SOURCE InstallBy { get; set; } = CARRIER_SOURCE.AGV;
+
+        public CARRIER_SOURCE RemovedBy { get; set; } = CARRIER_SOURCE.AGV;
 
         public bool VehicleLoadToPortFlag { get; set; } = false;
         public bool VehicleUnLoadFromPortFlag { get; set; } = false;
