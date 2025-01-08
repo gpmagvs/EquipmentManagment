@@ -223,6 +223,7 @@ namespace EquipmentManagment.ChargeStation
         {
             Datas.IOStates = chargerIOSynchronizer.IOStates;
             Datas.IOModuleConnected = chargerIOSynchronizer.Connected;
+            Datas.IsSimulation = chargerOptions.IsEmulation;
             return Datas;
         }
 
