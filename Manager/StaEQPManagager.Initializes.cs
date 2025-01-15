@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Threading;
 using EquipmentManagment.MainEquipment.EQGroup;
+using static EquipmentManagment.MainEquipment.clsEQ;
 
 namespace EquipmentManagment.Manager
 {

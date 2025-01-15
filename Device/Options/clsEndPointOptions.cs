@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text;
+using static EquipmentManagment.MainEquipment.clsEQ;
 
 namespace EquipmentManagment.Device.Options
 {
@@ -29,7 +30,8 @@ namespace EquipmentManagment.Device.Options
         /// <summary>
         /// 換電站
         /// </summary>
-        BATTERY_EXCHANGER
+        BATTERY_EXCHANGER,
+        EQ_TransferStation//轉換站
     }
 
     public enum VEHICLE_TYPE
@@ -46,6 +48,7 @@ namespace EquipmentManagment.Device.Options
             { "Accept_AGV_Type","允許進行任務之車輛種類(0:所有車種,1:叉車AGV, 2:潛盾AGV)" },
             { "EQAcceeptCargoType","設備可移載的貨物種類(0:不限, 200:子母框, 201:Tray)" },
             { "CheckRackContentStateIOSignal","空框/實框IO訊號檢查(目前僅 UMTC S1/5F專案須將此設為true, false:不檢查,true:檢查)" },
+            { "EqType","0:EQ, 1:EQ_OVEN, 2:STK, 3:CHARGE, 4:BATTERY_EXCHANGER, 5:EQ_TransferStation" },
         };
         public bool Enable { get; set; } = true;
         public ConnectOptions ConnOptions { get; set; } = new ConnectOptions();
@@ -92,7 +95,7 @@ namespace EquipmentManagment.Device.Options
         public bool IsEmulation { get; set; } = true; // 是否使用GLAC內部模擬器, 要改用EmulationMode控制
         public int EmulationMode { get; set; } = 0; //[0]:不模擬連外部設備(外部模擬器), [1]:內建模擬器, [2]:GlacEQSimulator用
 
-        internal bool IsProdution_EQ => EqType == EQ_TYPE.EQ || EqType == EQ_TYPE.EQ_OVEN;
+        internal bool IsProdution_EQ => EqType == EQ_TYPE.EQ || EqType == EQ_TYPE.EQ_OVEN || EqType == EQ_TYPE.EQ_TransferStation;
 
         public List<int> AcceptTransferTag { get; set; } = new List<int>();
 

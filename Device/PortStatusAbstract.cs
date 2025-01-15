@@ -3,6 +3,7 @@ using EquipmentManagment.WIP;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using static EquipmentManagment.MainEquipment.clsEQ;
 
 namespace EquipmentManagment.Device
 {
