@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using EquipmentManagment.Device;
 using EquipmentManagment.Device.Options;
 using EquipmentManagment.Manager;
+using EquipmentManagment.Tool;
 using Newtonsoft.Json.Linq;
 
 namespace EquipmentManagment.MainEquipment
@@ -51,6 +52,7 @@ namespace EquipmentManagment.MainEquipment
         private bool _Empty_CST;
         private bool _Full_CST;
         private string _CSTIDReadValue;
+        private Debouncer _CargoExistStateDebouncer = new Debouncer();
 
         public bool EmptyRackUnloadVirtualInput = false;
         public bool FullRackUnloadVirtualInput = false;
@@ -124,10 +126,17 @@ namespace EquipmentManagment.MainEquipment
                 {
                     _Port_Exist = value;
                     OnIOStateChanged?.Invoke(this, new IOChangedEventArgs(this, "Port_Exist", value));
-                    if (_Port_Exist)
-                        OnEQPortCargoChangedToExist(this, this);
-                    else
-                        OnEQPortCargoChangedToDisappear(this, this);
+                    InvokeEventWithDebounce(_Port_Exist);
+                    async Task InvokeEventWithDebounce(bool newState)
+                    {
+                        _CargoExistStateDebouncer.Debounce(() =>
+                        {
+                            if (_Port_Exist)
+                                OnEQPortCargoChangedToExist(this, this);
+                            else
+                                OnEQPortCargoChangedToDisappear(this, this);
+                        }, 1000);
+                    }
                 }
             }
         }
